@@ -11,6 +11,7 @@ import java.io.IOException;
 import it.unive.dais.legodroid.R;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.comm.BluetoothConnection;
+import it.unive.dais.legodroid.lib.motors.TachoMotor;
 
 public class ChoiceModeActivity extends AppCompatActivity {
 
@@ -18,11 +19,6 @@ public class ChoiceModeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choice_mode);
-
-        if(!tryConnection()){
-            //TO DO: add a popup for connection failed
-            startActivity(new Intent(ChoiceModeActivity.this, PopupConnectionActivity.class));
-        }
 
         Button automatic = findViewById(R.id.automatic);
         Button manual = findViewById(R.id.manual);
@@ -36,13 +32,4 @@ public class ChoiceModeActivity extends AppCompatActivity {
 
     }
 
-    private boolean tryConnection() {
-        try {
-            final EV3 ev3 = new EV3(new BluetoothConnection("EV3").connect());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
 }

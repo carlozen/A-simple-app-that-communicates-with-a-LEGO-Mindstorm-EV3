@@ -17,6 +17,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".code.ChoiceModeActivity"></activity>
+        <activity android:name=".code.RulesActivity"></activity>
+        <activity android:name=".code.ManualActivity"></activity>
+        <activity android:name=".code.PopupConnectionActivity"
+            android:theme="@style/AppTheme.Popup"
+        ></activity>
+
     </application>
 
 </manifest>

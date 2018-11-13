@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import it.unive.dais.legodroid.R;
 
-class ManualActivity extends AppCompatActivity{
+public class ManualActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
