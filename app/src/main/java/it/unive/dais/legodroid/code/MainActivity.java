@@ -3,28 +3,13 @@ package it.unive.dais.legodroid.code;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import it.unive.dais.legodroid.R;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.comm.BluetoothConnection;
-import it.unive.dais.legodroid.lib.motors.TachoMotor;
-import it.unive.dais.legodroid.lib.sensors.LightSensor;
-import it.unive.dais.legodroid.lib.sensors.TouchSensor;
-import it.unive.dais.legodroid.lib.sensors.GyroSensor;
-import it.unive.dais.legodroid.lib.util.Prelude;
 
 
 public class MainActivity extends AppCompatActivity {
