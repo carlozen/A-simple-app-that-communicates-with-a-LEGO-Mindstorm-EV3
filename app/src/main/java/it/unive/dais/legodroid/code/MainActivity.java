@@ -14,6 +14,8 @@ import it.unive.dais.legodroid.lib.comm.BluetoothConnection;
 
 public class MainActivity extends AppCompatActivity {
 
+    protected static EV3 ev3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,8 +36,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 try {
 
-                    EV3 ev3 = new EV3(new BluetoothConnection("EV3").connect());
+                    ev3 = new EV3(new BluetoothConnection("EV3").connect());
                     Intent intent = new Intent(MainActivity.this, ChoiceModeActivity.class);
+                    //intent.putExtra()
+
 
                     startActivity(intent);
 

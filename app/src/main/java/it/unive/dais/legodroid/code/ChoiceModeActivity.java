@@ -11,9 +11,10 @@ import java.io.IOException;
 import it.unive.dais.legodroid.R;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.comm.BluetoothConnection;
-import it.unive.dais.legodroid.lib.motors.TachoMotor;
 
 public class ChoiceModeActivity extends AppCompatActivity {
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +30,6 @@ public class ChoiceModeActivity extends AppCompatActivity {
                 startActivity(new Intent(ChoiceModeActivity.this, ManualActivity.class));
             }
         });
-
 
     }
 
