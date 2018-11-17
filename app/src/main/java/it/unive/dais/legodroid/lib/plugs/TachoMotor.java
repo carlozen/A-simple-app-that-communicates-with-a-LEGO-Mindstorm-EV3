@@ -1,4 +1,4 @@
-package it.unive.dais.legodroid.lib.motors;
+package it.unive.dais.legodroid.lib.plugs;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -6,23 +6,16 @@ import android.util.Log;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.comm.Bytecode;
 import it.unive.dais.legodroid.lib.comm.Const;
-import it.unive.dais.legodroid.lib.comm.Reply;
 import it.unive.dais.legodroid.lib.util.Prelude;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.concurrent.Future;
 
-public class TachoMotor {
+public class TachoMotor extends Plug<EV3.OutputPort> implements AutoCloseable {
     private static final String TAG = Prelude.ReTAG("TachoMotor");
-    private final EV3.Api api;
-    private final EV3.OutputPort port;
 
     public TachoMotor(@NonNull EV3.Api api, EV3.OutputPort port) {
-        this.api = api;
-        this.port = port;
+        super(api, port);
     }
 
     public Future<Float> getPosition() throws IOException {
@@ -43,19 +36,33 @@ public class TachoMotor {
     }
 
     public void goToPositionRel(int amount) {
+        // TODO
     }
 
     public void goToPositionAbs(int pos) {
+        // TODO
     }
 
     public void setSpeed(int speed) throws IOException {
         Bytecode bc = new Bytecode();
-        bc.addOpCode(Const.OUTPUT_POWER);
+        bc.addOpCode(Const.OUTPUT_SPEED);
         bc.addParameter(Const.LAYER_MASTER);
         bc.addParameter(port.toBitmask());
         bc.addParameter((byte) speed);
         api.sendNoReply(bc);
+        Log.d(TAG, String.format("motor speed set: %d", speed));
     }
+
+    public void setPower(int power) throws IOException {
+        Bytecode bc = new Bytecode();
+        bc.addOpCode(Const.OUTPUT_POWER);
+        bc.addParameter(Const.LAYER_MASTER);
+        bc.addParameter(port.toBitmask());
+        bc.addParameter((byte) power);
+        api.sendNoReply(bc);
+        Log.d(TAG, String.format("motor power set: %d", power));
+    }
+
 
     public void start() throws IOException {
         Bytecode bc = new Bytecode();
@@ -63,6 +70,7 @@ public class TachoMotor {
         bc.addParameter(Const.LAYER_MASTER);
         bc.addParameter(port.toBitmask());
         api.sendNoReply(bc);
+        Log.d(TAG, "motor started");
     }
 
     public void brake() throws IOException {
@@ -72,6 +80,7 @@ public class TachoMotor {
         bc.addParameter(port.toBitmask());
         bc.addParameter(Const.BRAKE);
         api.sendNoReply(bc);
+        Log.d(TAG, "motor brake");
     }
 
     public void stop() throws IOException {
@@ -81,9 +90,15 @@ public class TachoMotor {
         bc.addParameter(port.toBitmask());
         bc.addParameter(Const.COAST);
         api.sendNoReply(bc);
+        Log.d(TAG, "motor stop");
     }
 
     public boolean isMoving() { // TODO: questo non è un doppione con isStill()?
         return false;
+    }
+
+    @Override
+    public void close() throws Exception {
+        stop();
     }
 }
