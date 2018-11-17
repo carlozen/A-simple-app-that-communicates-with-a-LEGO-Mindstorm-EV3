@@ -14,22 +14,10 @@ import it.unive.dais.legodroid.lib.comm.BluetoothConnection;
 
 public class MainActivity extends AppCompatActivity {
 
-    protected Boolean connection;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        EV3 ev3;
-
-        try {
-            ev3 = new EV3(new BluetoothConnection("EV3").connect());
-            connection = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            connection = false;
-        }
 
         Button rules = findViewById(R.id.rules);
         Button play = findViewById(R.id.play);
@@ -44,10 +32,18 @@ public class MainActivity extends AppCompatActivity {
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(connection) {
-                    startActivity(new Intent(MainActivity.this, ChoiceModeActivity.class));
-                } else {
+                try {
+
+                    EV3 ev3 = new EV3(new BluetoothConnection("EV3").connect());
+                    Intent intent = new Intent(MainActivity.this, ChoiceModeActivity.class);
+
+                    startActivity(intent);
+
+                } catch (IOException e) {
+
+                    e.printStackTrace();
                     startActivity(new Intent(MainActivity.this, PopupConnectionActivity.class));
+
                 }
             }
         });
