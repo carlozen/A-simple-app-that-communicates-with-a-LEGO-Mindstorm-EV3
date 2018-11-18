@@ -12,6 +12,7 @@ import it.unive.dais.legodroid.R;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.TachoMotor;
 import it.unive.dais.legodroid.lib.util.Prelude;
+import it.unive.dais.legodroid.ourUtil.Grabber;
 import it.unive.dais.legodroid.ourUtil.Motor;
 
 public class ManualActivity extends AppCompatActivity{
@@ -25,9 +26,11 @@ public class ManualActivity extends AppCompatActivity{
 
     protected TachoMotor leftMotor = null;
     protected TachoMotor rightMotor = null;
+    protected TachoMotor tachoGrabber = null;
 
     protected Motor right = null;
     protected Motor left = null;
+    protected Grabber grabber = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,38 +42,22 @@ public class ManualActivity extends AppCompatActivity{
         Button left = findViewById(R.id.left);
         Button right = findViewById(R.id.right);
 
+        Button raiseGrabber = findViewById(R.id.raiseGrabber);
+        Button lowerGrabber = findViewById(R.id.lowerGrabber);
 
-        /*up.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                /*try {
-                    MainActivity.ev3.run(api -> {
-                        leftMotor = api.getTachoMotor(EV3.OutputPort.B);
-                        Log.i("porta","porta settata --> ");
-                        try {
-                            leftMotor.setSpeed(30);
-                            leftMotor.start();
-                            Log.i("acceso","motore acceso ");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                } catch (EV3.AlreadyRunningException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });*/
 
         ManualActivity thisActivity = this;
 
-        //up.setOnClickListener(v -> Prelude.trap(() -> MainActivity.ev3.run(this::useTwoMotors)));
         up.setOnTouchListener(startAndStop(thisActivity, 2, Direction.FORWARD));
         down.setOnTouchListener(startAndStop(thisActivity, 2, Direction.BACKWARD));
         right.setOnTouchListener(startAndStop(thisActivity, 1, Direction.RIGHT));
         left.setOnTouchListener(startAndStop(thisActivity, 1, Direction.LEFT));
 
+        raiseGrabber.setOnClickListener(v -> Prelude.trap(() -> MainActivity.ev3.run(this::raiseGrabber)));
+
     }
+
+
 
     private View.OnTouchListener startAndStop(ManualActivity manualActivity, int numberOfMotors, Direction direction) {
         return new View.OnTouchListener() {
@@ -86,6 +73,13 @@ public class ManualActivity extends AppCompatActivity{
                 return true;
             }
         };
+    }
+
+    private void raiseGrabber(EV3.Api api){
+        tachoGrabber = api.getTachoMotor(EV3.OutputPort.A);
+
+        grabber = new Grabber(tachoGrabber, 0);
+        grabber.start();
     }
 
     private void stopMotors(EV3.Api api) {
