@@ -26,7 +26,7 @@ public class Grabber extends Thread{
             tachoMotor.resetPosition();
             position2 = tachoMotor.getPosition();
             float due = position2.get();
-            tachoMotor.goToPositionAbs(100);
+            //tachoMotor.goToPositionAbs(100);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
