@@ -12,17 +12,23 @@ public class Motor extends Thread{
 
     TachoMotor tachoMotor;
 
-    public Motor(TachoMotor tachoMotor) {
-        this.tachoMotor = tachoMotor;
+    public Motor(TachoMotor tachoMotor, int speed, int power){
 
-        speed = 70;
-        power = 100;
+        this.tachoMotor = tachoMotor;
+        this.power = power;
+        this.speed = speed;
+
+    }
+
+    public Motor(TachoMotor tachoMotor) {
+
+        this(tachoMotor, 70, 100);
 
     }
 
     public Motor(TachoMotor tachoMotor, ManualActivity.Direction direction){
 
-        this(tachoMotor);
+        this(tachoMotor, 70, 100);
 
         if(direction == ManualActivity.Direction.BACKWARD){
             speed = 40;
