@@ -31,6 +31,13 @@ public class ChoiceModeActivity extends AppCompatActivity {
             }
         });
 
+        automatic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(ChoiceModeActivity.this, AutomaticActivity.class));
+            }
+        });
+
     }
 
 }
