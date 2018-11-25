@@ -3,6 +3,7 @@
     package="it.unive.dais.legodroid">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
@@ -14,16 +15,24 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".code.ChoiceModeActivity"></activity>
-        <activity android:name=".code.RulesActivity"></activity>
-        <activity android:name=".code.ManualActivity"></activity>
-        <activity android:name=".code.PopupConnectionActivity"
-            android:theme="@style/AppTheme.Popup"
-        ></activity>
-
+        <activity android:name=".code.ChoiceModeActivity" />
+        <activity android:name=".code.RulesActivity" />
+        <activity android:name=".code.ManualActivity" />
+        <activity
+            android:name=".code.PopupConnectionActivity"
+            android:theme="@style/AppTheme.Popup" />
+        <activity
+            android:name=".code.AutomaticActivity"
+            android:label="@string/title_activity_automatic"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".code.VirtualMapActivity"
+            android:label="@string/title_activity_virtual_map"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

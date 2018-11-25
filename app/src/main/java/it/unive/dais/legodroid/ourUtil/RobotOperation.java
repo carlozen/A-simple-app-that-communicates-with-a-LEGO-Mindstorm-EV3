@@ -1,6 +1,10 @@
 package it.unive.dais.legodroid.ourUtil;
 
+import android.util.Log;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -13,50 +17,74 @@ import it.unive.dais.legodroid.lib.plugs.TachoMotor;
 //TODO
 public final class RobotOperation {
 
+    /*
     //TODO ENUM Specifico per impedire direzioni diverse da FORWARD e BACKWARD
-    public static void followLine (EV3.Api api, ManualActivity.Direction direction, LightSensor.Color lineColor, short lineReflectedColor, short backgroundReflectedColor) {
+    public static void followLine (EV3.Api api, ManualActivity.Direction direction,
+                                   LightSensor.Color lineColor, short lineReflectedColor,
+                                   short backgroundReflectedColor, ArrayList<LightSensor.Color> colorsList) {
         try {
             TachoMotor leftTachoMotor = api.getTachoMotor(EV3.OutputPort.B);
             TachoMotor rightTachoMotor = api.getTachoMotor(EV3.OutputPort.C);
             Motor rightMotor = null;
             Motor leftMotor = null;
 
-            //TODO CHECK CORRECT INPUTPORT
-
             final LightSensor lightSensor = api.getLightSensor(EV3.InputPort._1);
 
-            int constantP = 1000;
-            int constantI = 0;
-            int constantD = 0;
-            int offset = (lineReflectedColor + backgroundReflectedColor) / 2;
+            final int I = 1;
+            final int OFFSET = 50;
             int maxSpeed;
-            int integral = 0;
-            int derivative = 0;
-            int lastError = 0;
-            Future<LightSensor.Color> reflectedColor = lightSensor.getColor();
-
+            double integral = 0;
+            double lastError = 0;
             if (direction == ManualActivity.Direction.FORWARD)
-                maxSpeed = 30;
+                maxSpeed = 5;
             else if (direction == ManualActivity.Direction.BACKWARD)
-                maxSpeed = -30;
+                maxSpeed = -9;
             //TODO To be changed to not throw exceptions
             else throw new IllegalArgumentException();
 
-            while (reflectedColor.get() == LightSensor.Color.WHITE || reflectedColor.get() == lineColor) {
-                Future<Short> reflectedIntensity = lightSensor.getReflected();
-                int error = reflectedIntensity.get() - offset;
-                integral = integral + error;
-                derivative = error - lastError;
-                int turningValue = (constantP * error + constantI * integral + constantD * derivative)/100;
+            //Future<LightSensor.Color> reflectedColor = lightSensor.getColor();
 
-                rightMotor = new Motor(rightTachoMotor, maxSpeed + turningValue, 50);
 
-                leftMotor = new Motor(leftTachoMotor, maxSpeed - turningValue, 50);
+            Future<Short> reflectedIntensity = lightSensor.getReflected();
 
-                rightMotor.start();
-                leftMotor.start();
-                reflectedColor = lightSensor.getColor();
+            short actualIntensity = reflectedIntensity.get();
+
+
+            while (actualIntensity < 100) {
+
+                int error = (actualIntensity);
+
+                reflectedIntensity = lightSensor.getReflected();
+
+                if (error <= 3) {
+                    error = -1;
+                }
+                else {
+                    error = 1;
+                }
+
+                if (error<0) {
+                    rightMotor = new Motor(rightTachoMotor, 2, 100);
+
+                    leftMotor = new Motor(leftTachoMotor, 3, 100);
+
+                    rightMotor.start();
+                    leftMotor.start();
+                }
+
+                else {
+                    rightMotor = new Motor(rightTachoMotor, 3, 100);
+
+                    leftMotor = new Motor(leftTachoMotor, 2, 100);
+
+                    rightMotor.start();
+                    leftMotor.start();
+                }
+
+                //reflectedColor = lightSensor.getColor();
+                actualIntensity = reflectedIntensity.get();
             }
+
             leftTachoMotor.stop();
             rightTachoMotor.stop();
         }
@@ -65,9 +93,114 @@ public final class RobotOperation {
         }
     }
 
-    public static void checkColor(EV3.Api api, LightSensor.Color color, boolean isColor) throws RobotException {
+*/
 
-        //TODO CHECK CORRECT INPUTPORT
+    //TODO CHECK
+    public static void followLine (EV3.Api api, ManualActivity.Direction direction,
+                                   LightSensor.Color lineColor, short lineReflectedColor,
+                                   short backgroundReflectedColor, ArrayList<LightSensor.Color> colorsList)
+    throws RobotException{
+        try {
+
+             class SynchronizedBoolean {
+                private boolean bool;
+
+                private SynchronizedBoolean (boolean bool) {
+                    this.setBoolean(bool);
+                }
+
+                public synchronized boolean getBoolean () {
+                    return bool;
+                }
+
+                public synchronized void setBoolean (boolean bool) {
+                    this.bool = bool;
+                }
+
+            }
+
+
+            final SynchronizedBoolean isObstacleFound = new SynchronizedBoolean(false);
+            final SynchronizedBoolean hasExceptionOccurred = new SynchronizedBoolean(false);
+
+            final LightSensor lightSensor = new LightSensor(api, EV3.InputPort._1);
+            final TachoMotor leftTachoMotor = api.getTachoMotor(EV3.OutputPort.B);
+            final TachoMotor rightTachoMotor = api.getTachoMotor(EV3.OutputPort.C);
+            Motor rightMotor;
+            Motor leftMotor;
+
+            final int P = 1;
+            final int I = 0;
+            final int D = 0;
+            final int OFFSET = 50;
+
+            int maxSpeed;
+            int integral = 0;
+            int derivative = 0;
+            int lastError = 0;
+
+            if (direction == ManualActivity.Direction.FORWARD)
+                maxSpeed = 3;
+            else if (direction == ManualActivity.Direction.BACKWARD)
+                maxSpeed = -3;
+                //TODO To be changed to not throw exceptions
+            else throw new IllegalArgumentException();
+
+            new Thread (() -> {
+                try {
+                    Future<LightSensor.Color> reflectedColor = lightSensor.getColor();
+                    while (!colorsList.contains(reflectedColor.get())) {
+                        Thread.sleep(200);
+                        reflectedColor = lightSensor.getColor();
+
+                    }
+                    isObstacleFound.setBoolean(true);
+                } catch (IOException | ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                    hasExceptionOccurred.setBoolean(true);
+                }
+            }).start();
+
+            Future<Short> reflectedIntensity = lightSensor.getReflected();
+
+            while (!isObstacleFound.getBoolean() || !hasExceptionOccurred.getBoolean()) {
+                int error = (normalizeOnPercent(reflectedIntensity.get(), lineReflectedColor,
+                        backgroundReflectedColor) - OFFSET) /10;
+                integral = integral + error;
+                derivative = error - lastError;
+                int turningValue = P*error + I*integral + D*derivative;
+
+                rightMotor = new Motor(rightTachoMotor, (maxSpeed + turningValue), 50);
+
+                leftMotor = new Motor(leftTachoMotor, (maxSpeed - turningValue), 50);
+
+                rightMotor.start();
+                leftMotor.start();
+
+                reflectedIntensity = lightSensor.getReflected();
+            }
+
+            leftTachoMotor.stop();
+            rightTachoMotor.stop();
+
+            if (hasExceptionOccurred.getBoolean()) {
+                throw new RobotException("Something went wrong. Please try this operation again.");
+            }
+
+        }
+        catch (IOException | InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            throw new RobotException("Something went wrong. Please try this operation again.");
+        }
+    }
+
+
+    private static int normalizeOnPercent (short value, short min, short max) {
+        return (100 * (value - min))/(max - min);
+    }
+
+
+    public static void checkColor(EV3.Api api, LightSensor.Color color, boolean isColor) throws RobotException {
 
         final LightSensor lightSensor = api.getLightSensor(EV3.InputPort._1);
         try {
@@ -95,9 +228,6 @@ public final class RobotOperation {
 
     public static LightSensor.Color getReflectedColor(EV3.Api api) throws RobotException {
         try {
-
-            //TODO CHECK CORRECT INPUTPORT
-
             final LightSensor lightSensor = api.getLightSensor(EV3.InputPort._1);
             Future<LightSensor.Color> reflectedColor = lightSensor.getColor();
             return reflectedColor.get();
@@ -109,9 +239,6 @@ public final class RobotOperation {
 
     public static short getReflectedIntensity(EV3.Api api) throws RobotException {
         try {
-
-            //TODO CHECK CORRECT INPUTPORT
-
             final LightSensor lightSensor = api.getLightSensor(EV3.InputPort._1);
             Future<Short> reflectedIntensity = lightSensor.getReflected();
             return reflectedIntensity.get();
@@ -126,12 +253,12 @@ public final class RobotOperation {
 
         robotRotation (api, 90);
 
-        smallMovement(api, ManualActivity.Direction.FORWARD, 20);
+        smallMovement(api, ManualActivity.Direction.FORWARD, 100);
 
         checkColor(api, LightSensor.Color.WHITE, true);
         short backgroundColor = getReflectedIntensity(api);
 
-        smallMovement(api, ManualActivity.Direction.BACKWARD, -20);
+        smallMovement(api, ManualActivity.Direction.BACKWARD, -100);
 
         robotRotation (api, -90);
 
@@ -145,27 +272,28 @@ public final class RobotOperation {
             Motor rightMotor = null;
             Motor leftMotor = null;
 
-            //TODO CHECK INPUT PORT
-            GyroSensor gyroSensor = api.getGyroSensor(EV3.InputPort._2);
-            Future<Float> startingAngle = gyroSensor.getAngle();
+            GyroSensor gyroSensor = api.getGyroSensor(EV3.InputPort._3);
+            Future<Float> futureAngle = gyroSensor.getAngle();
 
             if (angle < 0) {
-                while (startingAngle.get() > angle) {
-                    rightMotor = new Motor(rightTachoMotor, 30, 50);
-                    leftMotor = new Motor(leftTachoMotor, -30, 50);
+                float currentAngle = futureAngle.get();
+                while (futureAngle.get() > currentAngle + angle) {
+                    rightMotor = new Motor(rightTachoMotor, 5, 50);
+                    leftMotor = new Motor(leftTachoMotor, -5, 50);
                     rightMotor.start();
                     leftMotor.start();
-                    startingAngle = gyroSensor.getAngle();
+                    futureAngle = gyroSensor.getAngle();
                 }
             }
 
             else {
-                while (startingAngle.get() < angle) {
-                    rightMotor = new Motor(rightTachoMotor, -30, 50);
-                    leftMotor = new Motor(leftTachoMotor, 30, 50);
+                float currentAngle = futureAngle.get();
+                while (futureAngle.get() < currentAngle + angle) {
+                    rightMotor = new Motor(rightTachoMotor, -5, 50);
+                    leftMotor = new Motor(leftTachoMotor, 5, 50);
                     rightMotor.start();
                     leftMotor.start();
-                    startingAngle = gyroSensor.getAngle();
+                    futureAngle = gyroSensor.getAngle();
                 }
             }
 
@@ -179,33 +307,18 @@ public final class RobotOperation {
     }
 
     public static void moveToTrack(EV3.Api api) throws RobotException {
-        try {
-            TachoMotor leftTachoMotor = api.getTachoMotor(EV3.OutputPort.B);
-            TachoMotor rightTachoMotor = api.getTachoMotor(EV3.OutputPort.C);
 
-            Motor rightMotor = null;
-            Motor leftMotor = null;
+        robotRotation (api, 90);
 
-            GyroSensor gyroSensor = api.getGyroSensor(EV3.InputPort._2);
-            Future<Float> angle = gyroSensor.getAngle();
+        smallMovement(api, ManualActivity.Direction.FORWARD, 50);
 
+        checkColor(api, LightSensor.Color.WHITE, true);
+        short backgroundColor = getReflectedIntensity(api);
 
-            while (angle.get() < 90) {
-                rightMotor = new Motor(rightTachoMotor, 10, 50);
-                leftMotor = new Motor(leftTachoMotor, 40, 50);
-                rightMotor.start();
-                leftMotor.start();
-                angle = gyroSensor.getAngle();
-            }
-            rightTachoMotor.stop();
-            leftTachoMotor.stop();
-            checkColor(api, LightSensor.Color.WHITE, false);
+        smallMovement(api, ManualActivity.Direction.BACKWARD, -50);
 
-        } catch (IOException | InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            throw new RobotException("Something went wrong. Please try this operation again.");
-        }
-
+        robotRotation (api, -90);
+        checkColor(api, LightSensor.Color.WHITE, false);
     }
 
     public static void smallMovement(EV3.Api api, ManualActivity.Direction direction, int newPositionOffset) throws RobotException {
@@ -221,9 +334,12 @@ public final class RobotOperation {
 
             switch (direction) {
                 case FORWARD: {
-                    while (leftMotorPosition.get() < newPositionOffset || rightMotorPosition.get() < newPositionOffset) {
-                        rightMotor = new Motor(rightTachoMotor, 30, 50);
-                        leftMotor = new Motor(leftTachoMotor, 30, 50);
+                    float leftStartingPosition = leftMotorPosition.get();
+                    float rightStartingPosition = rightMotorPosition.get();
+                    while (leftMotorPosition.get() < leftStartingPosition + newPositionOffset ||
+                            rightMotorPosition.get() < rightStartingPosition + newPositionOffset) {
+                        rightMotor = new Motor(rightTachoMotor, 5, 50);
+                        leftMotor = new Motor(leftTachoMotor, 5, 50);
                         rightMotor.start();
                         leftMotor.start();
                         leftMotorPosition = leftTachoMotor.getPosition();
@@ -231,11 +347,15 @@ public final class RobotOperation {
                     }
                     leftTachoMotor.stop();
                     rightTachoMotor.stop();
+                    break;
                 }
                 case BACKWARD: {
-                    while (leftMotorPosition.get() > - newPositionOffset || rightMotorPosition.get() > - newPositionOffset) {
-                        rightMotor = new Motor(rightTachoMotor, -30, 50);
-                        leftMotor = new Motor(leftTachoMotor, -30, 50);
+                    float leftStartingPosition = leftMotorPosition.get();
+                    float rightStartingPosition = rightMotorPosition.get();
+                    while (leftMotorPosition.get() > leftStartingPosition + newPositionOffset ||
+                            rightMotorPosition.get() > rightStartingPosition + newPositionOffset) {
+                        rightMotor = new Motor(rightTachoMotor, -5, 50);
+                        leftMotor = new Motor(leftTachoMotor, -5, 50);
                         rightMotor.start();
                         leftMotor.start();
                         leftMotorPosition = leftTachoMotor.getPosition();
@@ -243,6 +363,7 @@ public final class RobotOperation {
                     }
                     leftTachoMotor.stop();
                     rightTachoMotor.stop();
+                    break;
                 }
                 default:
                     throw new RobotException("Something went wrong. Please try this operation again.");

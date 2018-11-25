@@ -1,29 +1,37 @@
 package it.unive.dais.legodroid.ourUtil;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
+import java.util.Locale;
 
 import it.unive.dais.legodroid.code.ManualActivity;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
 
 //TODO
-public class VirtualMap {
+public class VirtualMap implements Parcelable {
 
     private ArrayList<MapTrack> trackList;
     private Short blackColorIntensity;
     private Short backgroundColorIntensity;
 
-    private VirtualMap (ArrayList<MapTrack> trackList, short blackColorIntensity, short backgroundColorIntensity) {
+    public VirtualMap (ArrayList<MapTrack> trackList, short blackColorIntensity, short backgroundColorIntensity) {
         this.trackList = trackList;
         this.blackColorIntensity = blackColorIntensity;
         this.backgroundColorIntensity = backgroundColorIntensity;
     }
 
     //When you open a saved map and it needs to recatch the blackColorIntensity and the backgroundColorIntensity
-    private VirtualMap (ArrayList<MapTrack> trackList) {
+    public VirtualMap (ArrayList<MapTrack> trackList) {
         this.trackList = trackList;
         this.blackColorIntensity = null;
         this.backgroundColorIntensity = null;
+    }
+
+    public ArrayList<MapTrack> getMapTrackList () {
+        return  this.trackList;
     }
 
     public static VirtualMap scan (EV3.Api api) throws RobotException {
@@ -40,11 +48,16 @@ public class VirtualMap {
 
         while (RobotOperation.getReflectedColor(api) != LightSensor.Color.RED) {
             //Follows the black line
+            ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
+            colorsToCheck.add(LightSensor.Color.RED);
+            colorsToCheck.add(LightSensor.Color.YELLOW);
+
             RobotOperation.followLine(api,
                     ManualActivity.Direction.FORWARD,
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
-                    backgroundColorIntensity
+                    backgroundColorIntensity,
+                    colorsToCheck
             );
 
             //Se non è alla fine del percorso scansiona la linea
@@ -65,13 +78,19 @@ public class VirtualMap {
         RobotOperation.robotRotation(api, -145);
         RobotOperation.smallMovement(api, ManualActivity.Direction.FORWARD, 30);
 
+        ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
+        colorsToCheck.add(LightSensor.Color.RED);
+        colorsToCheck.add(LightSensor.Color.YELLOW);
+
+
         while (RobotOperation.getReflectedColor(api) != LightSensor.Color.RED) {
             //Follows the black line
             RobotOperation.followLine(api,
                     ManualActivity.Direction.FORWARD,
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
-                    backgroundColorIntensity
+                    backgroundColorIntensity,
+                    colorsToCheck
             );
 
             //Se non è alla fine del percorso scansiona la linea
@@ -92,15 +111,23 @@ public class VirtualMap {
 
         for (int i = 0; i < mapTrack.objectList.size() + 1; i++) {
 
+
+
             //Moves a little bit back to position to the line
             RobotOperation.smallMovement (api, ManualActivity.Direction.BACKWARD, 30);
 
+
             //Follow the line backwards until the next position.
+            ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
+            colorsToCheck.add(LightSensor.Color.BLACK);
+
+
             RobotOperation.followLine(api,
                     ManualActivity.Direction.BACKWARD,
                     mapTrack.trackColor,
                     mapTrack.trackColorIntensity,
-                    backgroundColorIntensity
+                    backgroundColorIntensity,
+                    colorsToCheck
             );
 
             //Check it is a black spot.
@@ -117,12 +144,18 @@ public class VirtualMap {
         short trackColorIntensity = RobotOperation.getReflectedIntensity(api);
         int positionsNumber = 0;
 
+        ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
+        colorsToCheck.add(LightSensor.Color.RED);
+        colorsToCheck.add(LightSensor.Color.BLACK);
+
         while (RobotOperation.getReflectedColor(api) != LightSensor.Color.RED) {
             RobotOperation.followLine(api,
                     ManualActivity.Direction.FORWARD,
                     trackColor,
                     trackColorIntensity,
-                    backgroundColorIntensity
+                    backgroundColorIntensity,
+                    colorsToCheck
+
             );
 
             if (RobotOperation.getReflectedColor(api) == LightSensor.Color.BLACK) {
@@ -138,14 +171,55 @@ public class VirtualMap {
             trackList.add(new MapTrack(trackColor, trackColorIntensity, positionsNumber));
     }
 
-    public static class MapTrack {
+    public static final Parcelable.Creator <VirtualMap> CREATOR = new Parcelable.Creator<VirtualMap>() {
+
+        @Override
+        public VirtualMap createFromParcel(Parcel in) {
+            return new VirtualMap(in);
+        }
+
+        @Override
+        public VirtualMap[] newArray(int size) {
+            return new VirtualMap[size];
+        }
+    };
+
+    //Constructor
+
+    public VirtualMap (Parcel in) {
+        this.trackList = in.readArrayList(MapTrack.class.getClassLoader());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeArray(this.trackList.toArray());
+    }
+
+    @Override
+    public String toString () {
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format(Locale.ENGLISH,"Virtual Map of %d tracks \n", this.trackList.size()));
+        for (int i = 0; i< this.trackList.size(); i++)
+            builder.append(String.format(Locale.ENGLISH, "TRACK %d: Positions %d; Color %s\n", i+1, this.trackList.get(i).objectList.size(),
+                    this.trackList.get(i).trackColor.toString()));
+        return builder.toString();
+    }
+
+    public static class MapTrack implements Parcelable{
 
         private LightSensor.Color trackColor;
+        private int trackColorEnum;
         private short trackColorIntensity;
         private ArrayList<Boolean> objectList;
 
         public MapTrack(LightSensor.Color trackColor, short trackColorIntensity, int objectPositionNumber) {
             this.trackColor = trackColor;
+            this.trackColorEnum = trackColor.ordinal();
             this.trackColorIntensity = trackColorIntensity;
             this.objectList = new ArrayList<>(objectPositionNumber);
             for (int i = 0; i< objectPositionNumber; i++) {
@@ -153,6 +227,23 @@ public class VirtualMap {
             }
         }
 
+        public MapTrack (LightSensor.Color trackColor, int objectPositionNumber) {
+            this.trackColor = trackColor;
+            this.trackColorEnum = trackColor.ordinal();
+            this.trackColorIntensity = 0;
+            this.objectList = new ArrayList<>(objectPositionNumber);
+            for (int i = 0; i< objectPositionNumber; i++) {
+                objectList.add(false);
+            }
+        }
+
+        public LightSensor.Color getTrackColor() {
+            return trackColor;
+        }
+
+        public ArrayList<Boolean> getObjectList() {
+            return this.objectList;
+        }
 
         public void addEmptyObjectPosition () {
             objectList.add(false);
@@ -162,6 +253,37 @@ public class VirtualMap {
             objectList.set(position, true);
         }
 
+        public static final Parcelable.Creator <MapTrack> CREATOR = new Parcelable.Creator<MapTrack>() {
+
+            @Override
+            public MapTrack createFromParcel(Parcel in) {
+                return new MapTrack(in);
+            }
+
+            @Override
+            public MapTrack[] newArray(int size) {
+                return new MapTrack[size];
+            }
+        };
+
+        //Constructor
+
+        public MapTrack (Parcel in) {
+            this.objectList = in.readArrayList(Boolean.class.getClassLoader());
+            this.trackColor = LightSensor.Color.values()[in.readInt()];
+        }
+
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel parcel, int i) {
+            parcel.writeArray(this.objectList.toArray());
+            parcel.writeInt(this.trackColor.ordinal());
+        }
     }
 }
 
