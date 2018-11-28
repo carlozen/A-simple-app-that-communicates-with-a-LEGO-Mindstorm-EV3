@@ -102,7 +102,7 @@ public class VirtualMap implements Parcelable {
                 objectList.add(false);
             }
         }
-        
+
         //Parcelable method
         public static final Parcelable.Creator <MapTrack> CREATOR = new Parcelable.Creator<MapTrack>() {
 

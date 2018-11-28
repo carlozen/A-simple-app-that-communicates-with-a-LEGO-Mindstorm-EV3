@@ -19,6 +19,9 @@ import static java.lang.Math.abs;
 //TODO
 public final class RobotOperation {
 
+    private static final String genericErrorMessage = "Something went wrong.\n" +
+            "Please try this operation again.";
+
     /*
     //TODO ENUM Specifico per impedire direzioni diverse da FORWARD e BACKWARD
     public static void followLine (EV3.Api api, ManualActivity.Direction direction,
@@ -97,12 +100,14 @@ public final class RobotOperation {
 
 */
 
-    public static VirtualMap scan (EV3.Api api) throws RobotException {
+    public static VirtualMap mapScan(EV3.Api api) throws RobotException {
 
         ArrayList<VirtualMap.MapTrack> trackList = new ArrayList<>();
 
         //Checks if the Robot is starting from a black line
-        RobotOperation.checkColor(api, LightSensor.Color.BLACK, true);
+        if (!RobotOperation.checkColor(api, LightSensor.Color.BLACK, true))
+            throw new RobotException("The Robot Light Sensor must be positioned on the part of the black line " +
+                    "pointed by the guide.");
 
         short blackLineIntensity = RobotOperation.getReflectedIntensity(api);
 
@@ -117,7 +122,6 @@ public final class RobotOperation {
 
             RobotOperation.followLine(api,
                     ManualActivity.Direction.FORWARD,
-                    LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
                     colorsToCheck
@@ -136,7 +140,9 @@ public final class RobotOperation {
 
         if (trackList.size() == 0)
             throw new RobotException("It seems your map has no tracks. \n" +
-                    "Every map needs at least one track with at least one object position.");
+                    "Every map needs at least one track with at least one object position.\n" +
+                    "If this isn't the case, please, make sure you positioned the robot facing the " +
+                    "direction pointed by the guide.");
 
         RobotOperation.robotRotation(api, -145);
         RobotOperation.smallMovement(api, ManualActivity.Direction.FORWARD, 30);
@@ -150,7 +156,6 @@ public final class RobotOperation {
             //Follows the black line
             RobotOperation.followLine(api,
                     ManualActivity.Direction.FORWARD,
-                    LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
                     colorsToCheck
@@ -172,8 +177,7 @@ public final class RobotOperation {
 
 
     //TODO CHECK
-    public static void followLine (EV3.Api api, ManualActivity.Direction direction,
-                                   LightSensor.Color lineColor, short lineReflectedColor,
+    public static void followLine (EV3.Api api, ManualActivity.Direction direction, short lineReflectedColor,
                                    short backgroundReflectedColor, ArrayList<LightSensor.Color> colorsList)
     throws RobotException{
         try {
@@ -283,13 +287,13 @@ public final class RobotOperation {
             leftMotor.brake();
 
             if (lightSensorColor.isHasExceptionOccurred()) {
-                throw new RobotException("Something went wrong. Please try this operation again.");
+                throw new RobotException(genericErrorMessage);
             }
 
         }
         catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            throw new RobotException("Something went wrong. Please try this operation again.");
+            throw new RobotException(genericErrorMessage);
         }
     }
 
@@ -315,14 +319,14 @@ public final class RobotOperation {
 
             RobotOperation.followLine(api,
                     ManualActivity.Direction.BACKWARD,
-                    mapTrack.getTrackColor(),
                     mapTrack.getTrackColorIntensity(),
                     backgroundColorIntensity,
                     colorsToCheck
             );
 
             //Check it is a black spot.
-            RobotOperation.checkColor(api, LightSensor.Color.BLACK, true);
+            if (!RobotOperation.checkColor(api, LightSensor.Color.BLACK, true))
+                throw new RobotException(genericErrorMessage);
         }
 
         RobotOperation.robotRotation(api, -90);
@@ -342,7 +346,6 @@ public final class RobotOperation {
         while (RobotOperation.getReflectedColor(api) != LightSensor.Color.RED) {
             RobotOperation.followLine(api,
                     ManualActivity.Direction.FORWARD,
-                    trackColor,
                     trackColorIntensity,
                     backgroundColorIntensity,
                     colorsToCheck
@@ -352,7 +355,8 @@ public final class RobotOperation {
             if (RobotOperation.getReflectedColor(api) == LightSensor.Color.BLACK) {
                 positionsNumber++;
             } else
-                RobotOperation.checkColor(api, LightSensor.Color.RED, true);
+                if (!RobotOperation.checkColor(api, LightSensor.Color.RED, true))
+                    throw new RobotException("It seems like this track contains a wrong color.");
         }
 
         if (positionsNumber < 0)
@@ -362,29 +366,17 @@ public final class RobotOperation {
             trackList.add(new VirtualMap.MapTrack(trackColor, trackColorIntensity, positionsNumber));
     }
 
-    public static void checkColor(EV3.Api api, LightSensor.Color color, boolean isColor) throws RobotException {
+    public static boolean checkColor(EV3.Api api, LightSensor.Color color, boolean isColor) throws RobotException {
 
         final LightSensor lightSensor = api.getLightSensor(EV3.InputPort._1);
         try {
             Future<LightSensor.Color> reflectedColor = lightSensor.getColor();
 
-            if (isColor) {
-                if (reflectedColor.get() != color)
-                    throw new RobotException("It seems like the Robot has failed this operation. \n" +
-                            "Please, make sure you are correctly following the rules of this specific operation or that the " +
-                            "map format is correct and then try to start this operation again.");
-            }
-
-            else {
-                if (reflectedColor.get() == color)
-                    throw new RobotException("It seems like the Robot has failed this operation. \n" +
-                            "Please, make sure you are correctly following the rules of this specific operation or that the " +
-                            "map format is correct and then try to start this operation again.");
-            }
+            return isColor == (reflectedColor.get() == color);
 
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            throw new RobotException("Something went wrong. Please try this operation again.");
+            throw new RobotException(genericErrorMessage);
         }
     }
 
@@ -395,7 +387,7 @@ public final class RobotOperation {
             return reflectedColor.get();
         } catch (IOException | ExecutionException | InterruptedException e) {
             e.printStackTrace();
-            throw new RobotException("Something went wrong. Please try this operation again.");
+            throw new RobotException(genericErrorMessage);
         }
     }
 
@@ -406,7 +398,7 @@ public final class RobotOperation {
             return reflectedIntensity.get();
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            throw new RobotException("Something went wrong. Please try this operation again.");
+            throw new RobotException(genericErrorMessage);
         }
     }
 
@@ -417,10 +409,12 @@ public final class RobotOperation {
 
         smallMovement(api, ManualActivity.Direction.FORWARD, 100);
 
-        checkColor(api, LightSensor.Color.WHITE, true);
+        if (!checkColor(api, LightSensor.Color.WHITE, true))
+            throw new RobotException("The Robot could not detect the correct Map background color.\n" +
+                    "Please, make sure the Map is positioned on a white surface and that the Robot is placed correctly.");
         short backgroundColor = getReflectedIntensity(api);
 
-        smallMovement(api, ManualActivity.Direction.BACKWARD, -100);
+        smallMovement(api, ManualActivity.Direction.BACKWARD, 100);
 
         robotRotation (api, -90);
 
@@ -465,26 +459,18 @@ public final class RobotOperation {
 
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            throw new RobotException("Something went wrong. Please try this operation again.");
+            throw new RobotException(genericErrorMessage);
         }
     }
 
+    //TODO
     public static void moveToTrack(EV3.Api api) throws RobotException {
 
-        robotRotation (api, 90);
-
-        smallMovement(api, ManualActivity.Direction.FORWARD, 50);
-
-        checkColor(api, LightSensor.Color.WHITE, true);
-        short backgroundColor = getReflectedIntensity(api);
-
-        smallMovement(api, ManualActivity.Direction.BACKWARD, -50);
-
-        robotRotation (api, -90);
-        checkColor(api, LightSensor.Color.WHITE, false);
     }
 
+
     public static void smallMovement(EV3.Api api, ManualActivity.Direction direction, int newPositionOffset) throws RobotException {
+
         try {
             Thread right = null, left = null;
 
@@ -523,8 +509,8 @@ public final class RobotOperation {
                 case BACKWARD: {
                     float leftStartingPosition = leftMotorPosition.get();
                     float rightStartingPosition = rightMotorPosition.get();
-                    while (leftMotorPosition.get() > leftStartingPosition + newPositionOffset ||
-                            rightMotorPosition.get() > rightStartingPosition + newPositionOffset) {
+                    while (leftMotorPosition.get() > leftStartingPosition - newPositionOffset ||
+                            rightMotorPosition.get() > rightStartingPosition - newPositionOffset) {
 
                         rightMotor.setSpeed(-5);
                         leftMotor.setSpeed(-5);
@@ -543,10 +529,11 @@ public final class RobotOperation {
                     break;
                 }
                 default:
-                    throw new RobotException("Something went wrong. Please try this operation again.");
+                    throw new RobotException(genericErrorMessage);
             }
         } catch (InterruptedException | ExecutionException | IOException e) {
             e.printStackTrace();
+            throw new RobotException(genericErrorMessage);
         }
     }
 }

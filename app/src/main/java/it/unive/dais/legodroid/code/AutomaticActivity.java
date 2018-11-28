@@ -86,7 +86,6 @@ public class AutomaticActivity extends AppCompatActivity {
             RobotOperation.followLine(
                     api,
                     ManualActivity.Direction.FORWARD,
-                    LightSensor.Color.BLACK,
                     Integer.valueOf(5).shortValue(),
                     Integer.valueOf(61).shortValue(),
                     colorsToCheck
