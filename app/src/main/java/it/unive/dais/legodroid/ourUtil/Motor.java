@@ -3,50 +3,49 @@ package it.unive.dais.legodroid.ourUtil;
 import java.io.IOException;
 
 import it.unive.dais.legodroid.code.ManualActivity;
+import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.TachoMotor;
 
-public class Motor extends Thread{
+public class Motor extends TachoMotor implements Runnable{
 
-    private int speed;
-    private int power;
-
-    TachoMotor tachoMotor;
-
-    public Motor(TachoMotor tachoMotor, int speed, int power){
-
-        this.tachoMotor = tachoMotor;
-        this.power = power;
-        this.speed = speed;
-
+    public Motor(EV3.Api api, EV3.OutputPort outputPort){
+        super(api, outputPort);
     }
 
-    public Motor(TachoMotor tachoMotor) {
-
-        this(tachoMotor, 100, 100);
-
+    public Motor(EV3.Api api, EV3.OutputPort outputPort, int speed, int power){
+        this(api, outputPort);
+        try {
+            setSpeed(speed);
+            setPower(power);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public Motor(TachoMotor tachoMotor, ManualActivity.Direction direction){
+    public Motor(EV3.Api api, EV3.OutputPort outputPort, ManualActivity.Direction direction) {
+        this(api, outputPort);
 
-        this(tachoMotor, 100, 100);
-
-        if(direction == ManualActivity.Direction.BACKWARD){
-            speed = -100;
-            power = 100;
+        try{
+            setPower(100);
+            if(direction == ManualActivity.Direction.BACKWARD){
+                setSpeed(-100);
+            }else{
+                setSpeed(100);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }
 
     @Override
     public void run(){
-        super.run();
         try {
-            tachoMotor.setPower(power);
-            tachoMotor.setSpeed(speed);
-            tachoMotor.start();
+            super.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
 }

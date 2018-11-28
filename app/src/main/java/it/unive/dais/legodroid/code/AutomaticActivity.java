@@ -87,8 +87,8 @@ public class AutomaticActivity extends AppCompatActivity {
                     api,
                     ManualActivity.Direction.FORWARD,
                     LightSensor.Color.BLACK,
-                    Integer.valueOf(3).shortValue(),
-                    Integer.valueOf(52).shortValue(),
+                    Integer.valueOf(5).shortValue(),
+                    Integer.valueOf(61).shortValue(),
                     colorsToCheck
             );
         }

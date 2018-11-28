@@ -24,13 +24,13 @@ public class ManualActivity extends AppCompatActivity{
         RIGHT
     }
 
-    protected TachoMotor leftMotor = null;
-    protected TachoMotor rightMotor = null;
-    protected TachoMotor tachoGrabber = null;
+    protected Motor tachoGrabber = null;
 
-    protected Motor right = null;
-    protected Motor left = null;
+    protected Motor rightMotor = null;
+    protected Motor leftMotor = null;
     protected Grabber grabber = null;
+
+    private Thread t1,t2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +76,7 @@ public class ManualActivity extends AppCompatActivity{
     }
 
     private void raiseGrabber(EV3.Api api){
-        tachoGrabber = api.getTachoMotor(EV3.OutputPort.A);
+        //tachoGrabber = api.getTachoMotor(EV3.OutputPort.A);
 
         grabber = new Grabber(tachoGrabber, 0);
         grabber.start();
@@ -101,27 +101,27 @@ public class ManualActivity extends AppCompatActivity{
 
         if(numberOfMotors == 2) {
 
-            leftMotor = api.getTachoMotor(EV3.OutputPort.B);
-            rightMotor = api.getTachoMotor(EV3.OutputPort.C);
+            leftMotor = new Motor(api, EV3.OutputPort.B, direction);
+            t1 = new Thread(leftMotor);
 
-            left = new Motor(leftMotor, direction);
-            right = new Motor(rightMotor, direction);
+            rightMotor = new Motor(api, EV3.OutputPort.C, direction);
+            t2 = new Thread(rightMotor);
 
-            left.start();
-            right.start();
+            t1.start();
+            t2.start();
 
         } else {
             if(direction == Direction.LEFT) {
 
-                rightMotor = api.getTachoMotor(EV3.OutputPort.C);
-                right = new Motor(rightMotor);
-                right.start();
+                rightMotor = new Motor(api, EV3.OutputPort.C,100,100);
+                t2 = new Thread(rightMotor);
+                t2.start();
 
             } else {
 
-                leftMotor = api.getTachoMotor(EV3.OutputPort.B);
-                left = new Motor(leftMotor);
-                left.start();
+                leftMotor = new Motor(api, EV3.OutputPort.B, 100, 100);
+                t1 = new Thread(leftMotor);
+                t1.start();
 
             }
         }

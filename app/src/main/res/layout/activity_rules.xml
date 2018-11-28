@@ -3,4 +3,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DISCLAIMER:
+            Accedendo all'applicazione 'ACGR Robotics' l'utente si impegna a seguire le seguenti regole per garantire un regolare svolgimento delle attività in sicurezza
+            L'utente si impegna a non modificare le componenti del robot in modo da non pregiudicarne il regolare funzionamento
+            L'utente si impegna a non cercare di far cadere intenzionalmente il robot dal piano di azione per prevenire il danneggiamento dello stesso
+            FUNZIONAMENTO:
+            'ACGR Robotics' (di seguito indicata come 'app') prevede due modalità d'uso: 1 Automatica , 2 manuale. Entrambe le modalità sono finalizzate al completamento di un task, i.e. spostare uno o più oggetti da una zona 'deposito' a una o più zone specifiche.
+            1 prevede che a seguito di un input dell'utente il robot proceda muovendosi autonomamente sul piano d'azione portando a termine il task prestabilito dagli sviluppatori.
+            2 prevede che sia l'utente a decidere come e quando compiere il task, nel rispetto delle regole fondamentali sopra elencate. In questa modalità l'utente si interfaccerà con il robot attraverso un'apposita schermata dell'app: un controller dotato di quattro tasti direzionali e due 'tasti azione' 'A' e 'B' il primo permettere di prendere oggetti, mentre il secondo permettere di rilasciare gli oggetti precedentemente presi"/>
+
 </android.support.constraint.ConstraintLayout>

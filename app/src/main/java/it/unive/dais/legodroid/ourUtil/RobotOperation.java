@@ -14,6 +14,8 @@ import it.unive.dais.legodroid.lib.plugs.GyroSensor;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
 import it.unive.dais.legodroid.lib.plugs.TachoMotor;
 
+import static java.lang.Math.abs;
+
 //TODO
 public final class RobotOperation {
 
@@ -102,7 +104,7 @@ public final class RobotOperation {
     throws RobotException{
         try {
 
-             class SynchronizedBoolean {
+             /*class SynchronizedBoolean {
                 private boolean bool;
 
                 private SynchronizedBoolean (boolean bool) {
@@ -121,17 +123,30 @@ public final class RobotOperation {
 
 
             final SynchronizedBoolean isObstacleFound = new SynchronizedBoolean(false);
-            final SynchronizedBoolean hasExceptionOccurred = new SynchronizedBoolean(false);
+            final SynchronizedBoolean hasExceptionOccurred = new SynchronizedBoolean(false);*/
 
-            final LightSensor lightSensor = new LightSensor(api, EV3.InputPort._1);
-            final TachoMotor leftTachoMotor = api.getTachoMotor(EV3.OutputPort.B);
-            final TachoMotor rightTachoMotor = api.getTachoMotor(EV3.OutputPort.C);
-            Motor rightMotor;
-            Motor leftMotor;
+            /* boolean isObstacleFound = false;
+             boolean hasExceptionOccurred = false;*/
 
-            final int P = 1;
-            final int I = 0;
-            final int D = 0;
+            //final LightSensor lightSensor = new LightSensor(api, EV3.InputPort._1);
+            Thread right = null, left = null;
+
+            Motor rightMotor = new Motor(api, EV3.OutputPort.C,0,0);
+            Motor leftMotor = new Motor(api, EV3.OutputPort.B,0,0);
+
+            right = new Thread(rightMotor);
+            left = new Thread(leftMotor);
+
+            right.start();
+            left.start();
+
+            Short reflectedIntensity;
+
+            LightSensorMonitor lightSensorMonitor = new LightSensorMonitor();
+
+            final double P = 0.5;
+            final double I = 0.5;
+            final double D = 0.5;
             final int OFFSET = 50;
 
             int maxSpeed;
@@ -146,44 +161,51 @@ public final class RobotOperation {
                 //TODO To be changed to not throw exceptions
             else throw new IllegalArgumentException();
 
-            new Thread (() -> {
-                try {
-                    Future<LightSensor.Color> reflectedColor = lightSensor.getColor();
-                    while (!colorsList.contains(reflectedColor.get())) {
-                        Thread.sleep(200);
-                        reflectedColor = lightSensor.getColor();
+            LightSensorIntensity lightSensorIntensity = new LightSensorIntensity(api, EV3.InputPort._1, lightSensorMonitor);
+            Thread lightIntensity = new Thread(lightSensorIntensity);
+            lightIntensity.start();
 
-                    }
-                    isObstacleFound.setBoolean(true);
-                } catch (IOException | ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
-                    hasExceptionOccurred.setBoolean(true);
-                }
-            }).start();
+            LightSensorColor lightSensorColor = new LightSensorColor(api, EV3.InputPort._1, colorsList, lightSensorMonitor);
+            Thread lightColor = new Thread(lightSensorColor);
+            lightColor.start();
 
-            Future<Short> reflectedIntensity = lightSensor.getReflected();
+            int turningValue = 0;
+            int leftPower, rightPower, difference;
 
-            while (!isObstacleFound.getBoolean() || !hasExceptionOccurred.getBoolean()) {
-                int error = (normalizeOnPercent(reflectedIntensity.get(), lineReflectedColor,
+            while (!lightSensorColor.getIsObstacleFound()) {
+
+                rightMotor.setPower(0);
+                leftMotor.setPower(0);
+
+                reflectedIntensity = lightSensorIntensity.getReflectedNow();
+
+                int error = (normalizeOnPercent(reflectedIntensity, lineReflectedColor,
                         backgroundReflectedColor) - OFFSET) /10;
                 integral = integral + error;
                 derivative = error - lastError;
-                int turningValue = P*error + I*integral + D*derivative;
+                lastError = error;
+                turningValue = (int) (P*error + I*integral + D*derivative);
 
-                rightMotor = new Motor(rightTachoMotor, (maxSpeed + turningValue), 50);
+                leftPower = maxSpeed - turningValue;
+                rightPower = maxSpeed + turningValue;
 
-                leftMotor = new Motor(leftTachoMotor, (maxSpeed - turningValue), 50);
+                //if the difference between two values is big then is more probably make mistakes -> go slowly
+                //if the difference is small you go on -> go quickly
+                difference = 10 - abs(leftPower - rightPower);
+                if(difference < 3)
+                    difference = 3;
 
-                rightMotor.start();
-                leftMotor.start();
+                rightMotor.setPower(rightPower * difference);
+                leftMotor.setPower(leftPower * difference);
 
-                reflectedIntensity = lightSensor.getReflected();
+                Thread.sleep(25);
+
             }
 
-            leftTachoMotor.stop();
-            rightTachoMotor.stop();
+            rightMotor.brake();
+            leftMotor.brake();
 
-            if (hasExceptionOccurred.getBoolean()) {
+            if (lightSensorColor.isHasExceptionOccurred()) {
                 throw new RobotException("Something went wrong. Please try this operation again.");
             }
 
@@ -267,10 +289,11 @@ public final class RobotOperation {
 
     public static void robotRotation(EV3.Api api, float angle) throws RobotException {
         try {
-            TachoMotor leftTachoMotor = api.getTachoMotor(EV3.OutputPort.B);
-            TachoMotor rightTachoMotor = api.getTachoMotor(EV3.OutputPort.C);
-            Motor rightMotor = null;
-            Motor leftMotor = null;
+            Motor rightMotor = new Motor(api, EV3.OutputPort.C, 5, 50);
+            Motor leftMotor = new Motor(api, EV3.OutputPort.B, -5, 50);
+
+            Thread right = new Thread(rightMotor);
+            Thread left = new Thread(leftMotor);
 
             GyroSensor gyroSensor = api.getGyroSensor(EV3.InputPort._3);
             Future<Float> futureAngle = gyroSensor.getAngle();
@@ -278,10 +301,10 @@ public final class RobotOperation {
             if (angle < 0) {
                 float currentAngle = futureAngle.get();
                 while (futureAngle.get() > currentAngle + angle) {
-                    rightMotor = new Motor(rightTachoMotor, 5, 50);
-                    leftMotor = new Motor(leftTachoMotor, -5, 50);
-                    rightMotor.start();
-                    leftMotor.start();
+
+                    right.start();
+                    left.start();
+
                     futureAngle = gyroSensor.getAngle();
                 }
             }
@@ -289,16 +312,16 @@ public final class RobotOperation {
             else {
                 float currentAngle = futureAngle.get();
                 while (futureAngle.get() < currentAngle + angle) {
-                    rightMotor = new Motor(rightTachoMotor, -5, 50);
-                    leftMotor = new Motor(leftTachoMotor, 5, 50);
-                    rightMotor.start();
-                    leftMotor.start();
+
+                    right.start();
+                    left.start();
+
                     futureAngle = gyroSensor.getAngle();
                 }
             }
 
-            rightTachoMotor.stop();
-            leftTachoMotor.stop();
+            right.interrupt();
+            left.interrupt();
 
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -323,14 +346,16 @@ public final class RobotOperation {
 
     public static void smallMovement(EV3.Api api, ManualActivity.Direction direction, int newPositionOffset) throws RobotException {
         try {
-            TachoMotor leftTachoMotor = api.getTachoMotor(EV3.OutputPort.B);
-            TachoMotor rightTachoMotor = api.getTachoMotor(EV3.OutputPort.C);
+            Thread right = null, left = null;
 
-            Motor rightMotor = null;
-            Motor leftMotor = null;
+            Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+            Motor leftMotor = new Motor(api, EV3.OutputPort.B);
 
-            Future<Float> leftMotorPosition = leftTachoMotor.getPosition();
-            Future<Float> rightMotorPosition = rightTachoMotor.getPosition();
+            rightMotor.setPower(50);
+            leftMotor.setPower(50);
+
+            Future<Float> leftMotorPosition = leftMotor.getPosition();
+            Future<Float> rightMotorPosition = rightMotor.getPosition();
 
             switch (direction) {
                 case FORWARD: {
@@ -338,15 +363,21 @@ public final class RobotOperation {
                     float rightStartingPosition = rightMotorPosition.get();
                     while (leftMotorPosition.get() < leftStartingPosition + newPositionOffset ||
                             rightMotorPosition.get() < rightStartingPosition + newPositionOffset) {
-                        rightMotor = new Motor(rightTachoMotor, 5, 50);
-                        leftMotor = new Motor(leftTachoMotor, 5, 50);
-                        rightMotor.start();
-                        leftMotor.start();
-                        leftMotorPosition = leftTachoMotor.getPosition();
-                        rightMotorPosition = rightTachoMotor.getPosition();
+
+                        rightMotor.setSpeed(5);
+                        leftMotor.setSpeed(5);
+
+                        right = new Thread(rightMotor);
+                        left = new Thread(leftMotor);
+
+                        right.start();
+                        left.start();
+
+                        leftMotorPosition = leftMotor.getPosition();
+                        rightMotorPosition = rightMotor.getPosition();
                     }
-                    leftTachoMotor.stop();
-                    rightTachoMotor.stop();
+                    right.interrupt();
+                    left.interrupt();
                     break;
                 }
                 case BACKWARD: {
@@ -354,15 +385,21 @@ public final class RobotOperation {
                     float rightStartingPosition = rightMotorPosition.get();
                     while (leftMotorPosition.get() > leftStartingPosition + newPositionOffset ||
                             rightMotorPosition.get() > rightStartingPosition + newPositionOffset) {
-                        rightMotor = new Motor(rightTachoMotor, -5, 50);
-                        leftMotor = new Motor(leftTachoMotor, -5, 50);
-                        rightMotor.start();
-                        leftMotor.start();
-                        leftMotorPosition = leftTachoMotor.getPosition();
-                        rightMotorPosition = rightTachoMotor.getPosition();
+
+                        rightMotor.setSpeed(-5);
+                        leftMotor.setSpeed(-5);
+
+                        right = new Thread(rightMotor);
+                        left = new Thread(leftMotor);
+
+                        right.start();
+                        left.start();
+
+                        leftMotorPosition = leftMotor.getPosition();
+                        rightMotorPosition = rightMotor.getPosition();
                     }
-                    leftTachoMotor.stop();
-                    rightTachoMotor.stop();
+                    left.interrupt();
+                    right.interrupt();
                     break;
                 }
                 default:
