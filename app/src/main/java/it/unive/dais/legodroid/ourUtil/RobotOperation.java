@@ -145,7 +145,7 @@ public final class RobotOperation {
             LightSensorMonitor lightSensorMonitor = new LightSensorMonitor();
 
             final double P = 0.5;
-            final double I = 0.5;
+            final double I = 0.05;
             final double D = 0.5;
             final int OFFSET = 50;
 
@@ -181,7 +181,10 @@ public final class RobotOperation {
 
                 int error = (normalizeOnPercent(reflectedIntensity, lineReflectedColor,
                         backgroundReflectedColor) - OFFSET) /10;
-                integral = integral + error;
+                if (error * lastError > 0)
+                    integral = integral + error;
+                else
+                    integral = 0;
                 derivative = error - lastError;
                 lastError = error;
                 turningValue = (int) (P*error + I*integral + D*derivative);

@@ -27,7 +27,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/okButton"
+                android:id="@+id/tryAgain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -36,7 +36,7 @@
                 tools:layout_editor_absoluteY="361dp" />
 
             <Button
-                android:id="@+id/ritorna"
+                android:id="@+id/returnToHomePage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

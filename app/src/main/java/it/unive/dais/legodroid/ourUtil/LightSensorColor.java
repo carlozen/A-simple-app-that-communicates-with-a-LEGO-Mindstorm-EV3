@@ -23,7 +23,7 @@ class LightSensorColor extends LightSensor implements Runnable{
 
     }
 
-    public boolean getIsObstacleFound() throws InterruptedException {
+    public boolean getIsObstacleFound() {
         boolean res = false;
         try{
 
