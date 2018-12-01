@@ -46,7 +46,7 @@ public class VirtualMap implements Parcelable {
     };
 
     //Parcelable Constructor
-    public VirtualMap (Parcel in) {
+    private VirtualMap (Parcel in) {
         this.trackList = in.readArrayList(MapTrack.class.getClassLoader());
     }
 
@@ -70,9 +70,13 @@ public class VirtualMap implements Parcelable {
     public String toString () {
         StringBuilder builder = new StringBuilder();
         builder.append(String.format(Locale.ENGLISH,"Virtual Map of %d tracks \n", this.trackList.size()));
-        for (int i = 0; i< this.trackList.size(); i++)
-            builder.append(String.format(Locale.ENGLISH, "TRACK %d: Positions %d; Color %s\n", i+1, this.trackList.get(i).objectList.size(),
+        for (int i = 0; i< this.trackList.size(); i++) {
+            builder.append(String.format(Locale.ENGLISH, "TRACK %d: Positions %d; Color %s\n", i, this.trackList.get(i).objectList.size(),
                     this.trackList.get(i).trackColor.toString()));
+            for (int j = 0; j<this.trackList.get(i).getObjectList().size();j++) {
+                builder.append(String.format(Locale.ENGLISH,"\t Position %d: %b\n", j, this.trackList.get(i).getObjectList().get(j)));
+            }
+        }
         return builder.toString();
     }
 
