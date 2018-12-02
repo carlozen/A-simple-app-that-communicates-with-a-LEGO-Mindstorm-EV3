@@ -47,31 +47,6 @@ public class VirtualMapActivity extends AppCompatActivity {
                 lastClickedButton = null;
             }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        initiateAll();
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        currentState = MapView.getActivityState();
-        lastClickedButton = MapView.getLastClickedButtonParcelable();
-        ((RelativeLayout)findViewById(R.id.map_layout)).removeAllViews();
-        super.onPause();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable("saved_map", map);
-        outState.putInt("activity_state", MapView.getActivityState().ordinal());
-        outState.putParcelable("last_button", MapView.getLastClickedButtonParcelable());
-        super.onSaveInstanceState(outState);
-    }
-
-    public void initiateAll () {
         positionButtonList= new ArrayList<>();
 
         for (int i = 0; i< map.getMapTrackList().size(); i++) {
@@ -88,6 +63,38 @@ public class VirtualMapActivity extends AppCompatActivity {
         mapLayout.addView(mapView);
 
         setDialogueLayout(this, findViewById(R.id.dialogue_layout));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        RelativeLayout relativeLayout = mapView.getLayoutDestination();
+        for (ArrayList<PositionButton> arrayList : positionButtonList) {
+            for (PositionButton button : arrayList) {
+                relativeLayout.removeView(button);
+                relativeLayout.addView(button);
+            }
+        }
+        MapView.setButtonListOnClickListeners(positionButtonList, MapView.getActivityState(), MapView.getLastClickedButton());
+    }
+
+    @Override
+    protected void onPause() {
+        for (ArrayList<PositionButton> arrayList : positionButtonList) {
+            for (PositionButton button : arrayList) {
+                button.setOnClickListener(null);
+                button.setAnimation(null);
+            }
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("saved_map", map);
+        outState.putInt("activity_state", MapView.getActivityState().ordinal());
+        outState.putParcelable("last_button", MapView.getLastClickedButtonParcelable());
+        super.onSaveInstanceState(outState);
     }
 
     public static void setDialogueLayout(Context context, RelativeLayout dialogueLayout) {

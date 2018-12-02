@@ -75,7 +75,6 @@ public class MapView extends View {
         canvas.drawLine(left, top, left, bottom, mainLinePaint);
         canvas.drawLine(left - (LINE_STROKE*3)/2, top, left + (LINE_STROKE*3)/2, top, redLinePaint);
         drawTracks(canvas);
-        MapView.setButtonListOnClickListeners(positionButtonList, MapView.activityState, MapView.lastClickedButton);
      }
 
      private void drawTracks (Canvas canvas) {
@@ -98,11 +97,13 @@ public class MapView extends View {
         int lineHorizontalPosition = left - LINE_STROKE + POSITION_OFFSET;
         for (int i = 0; i < NUMBER_OF_OBJECTS; i++) {
             PositionButton currentButton = MapView.positionButtonList.get(lineNumber).get(i);
-            currentButton.setPosition(lineHorizontalPosition, lineVerticalPosition-LINE_STROKE);
-            layoutDestination.removeView(currentButton);
-            layoutDestination.addView(currentButton);
+            currentButton.setPosition(lineHorizontalPosition + layoutDestination.getPaddingStart(), lineVerticalPosition - LINE_STROKE + layoutDestination.getPaddingStart());
             lineHorizontalPosition += POSITION_OFFSET;
         }
+    }
+
+    public RelativeLayout getLayoutDestination () {
+        return this.layoutDestination;
     }
 
     private int getTrackColor(LightSensor.Color trackColor) {
