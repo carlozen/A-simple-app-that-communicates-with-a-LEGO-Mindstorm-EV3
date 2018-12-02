@@ -55,7 +55,7 @@
             android:text="indietro" />
 
         <Button
-            android:id="@+id/raiseGrabber"
+            android:id="@+id/take"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="prendi"
@@ -63,7 +63,7 @@
             tools:layout_editor_absoluteY="464dp" />
 
         <Button
-            android:id="@+id/lowerGrabber"
+            android:id="@+id/release"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="rilascia"
