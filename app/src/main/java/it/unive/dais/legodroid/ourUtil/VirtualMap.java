@@ -212,10 +212,6 @@ public class VirtualMap implements Parcelable {
         parcel.writeArray(this.trackList.toArray());
     }
 
-    public ArrayList<MapTrack> getMapTrackList () {
-        return  this.trackList;
-    }
-
     @Override
     public String toString () {
         StringBuilder builder = new StringBuilder();
