@@ -51,53 +51,22 @@ public class AutomaticActivity extends AppCompatActivity {
         followLineButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Prelude.trap(() -> MainActivity.ev3.run(api -> AutomaticActivity.followLineTry (api, view)));
+                    ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
+                    colorsToCheck.add(LightSensor.Color.GREEN);
+                    colorsToCheck.add(LightSensor.Color.YELLOW);
+                    Prelude.trap(() -> MainActivity.ev3.run(api -> AutomaticActivity.scanMap(api, LightSensor.Color.RED, colorsToCheck)));
                 }
             }
         );
     }
 
-    private static void followLineTry(EV3.Api api, View view) {
-        /*
+    private static void scanMap(EV3.Api api, LightSensor.Color colorStop, ArrayList<LightSensor.Color> colorsToCheck) {
         try {
-            RobotOperation.checkColor(api, LightSensor.Color.BLACK, true);
-            short lineReflected = RobotOperation.getReflectedIntensity(api);
-            LightSensor.Color lineColor = RobotOperation.getReflectedColor(api);
-            short backgroundReflected = RobotOperation.getBackgroundColorIntensity(api);
-            RobotOperation.followLine(
-                    api,
-                    ManualActivity.Direction.FORWARD,
-                    lineColor,
-                    lineReflected,
-                    backgroundReflected
-            );
+            VirtualMap virtualMap = VirtualMap.scan(api, colorStop, colorsToCheck);
         } catch (RobotException e) {
             e.printStackTrace();
-            Snackbar snackbar = Snackbar.make(view, e.getMessage(), Snackbar.LENGTH_LONG);
-            snackbar.show();
         }
-
-        */
-
-        try {
-            ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
-            colorsToCheck.add(LightSensor.Color.RED);
-            colorsToCheck.add(LightSensor.Color.YELLOW);
-            RobotOperation.followLine(
-                    api,
-                    ManualActivity.Direction.FORWARD,
-                    Integer.valueOf(5).shortValue(),
-                    Integer.valueOf(61).shortValue(),
-                    colorsToCheck
-            );
-        }
-        catch (RobotException e) {
-            e.printStackTrace();
-            Snackbar snackbar = Snackbar.make(view, e.getMessage(), Snackbar.LENGTH_LONG);
-            snackbar.show();
-        }
-
-
     }
+
 }
 

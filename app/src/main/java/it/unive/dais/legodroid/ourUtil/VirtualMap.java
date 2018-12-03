@@ -32,6 +32,156 @@ public class VirtualMap implements Parcelable {
         this.backgroundColorIntensity = null;
     }
 
+    public ArrayList<MapTrack> getMapTrackList () {
+        return  this.trackList;
+    }
+
+    public static VirtualMap scan (EV3.Api api, LightSensor.Color colorStop, ArrayList<LightSensor.Color> colorsToCheck) throws RobotException {
+
+        LightSensorMonitor lightSensorMonitor = new LightSensorMonitor();
+
+        LightSensor.Color colorFound = null;
+
+        ArrayList<MapTrack> trackList = new ArrayList<>();
+
+        //Checks if the Robot is starting from a black line
+        RobotOperation.checkColor(api, lightSensorMonitor, LightSensor.Color.BLACK, true);
+
+        short blackLineIntensity = RobotOperation.getReflectedIntensity(api, lightSensorMonitor);
+
+        //Tries to get the background color intensity
+        short backgroundColorIntensity = RobotOperation.getBackgroundColorIntensity (api, lightSensorMonitor);
+
+        while (colorFound != colorStop) {
+            //Follows the black line
+
+            colorFound = RobotOperation.followLine(api,
+                    lightSensorMonitor,
+                    ManualActivity.Direction.FORWARD,
+                    LightSensor.Color.BLACK,
+                    blackLineIntensity,
+                    backgroundColorIntensity,
+                    colorsToCheck
+            );
+
+            //Se non è alla fine del percorso scansiona la linea
+            if (colorFound != colorStop) {
+
+                //RobotOperation.moveToTrack(api);
+
+                scanTrack(api, lightSensorMonitor, backgroundColorIntensity, trackList);
+
+                backTrack(api, lightSensorMonitor, backgroundColorIntensity, trackList.get(trackList.size() - 1));
+            }
+        }
+
+        if (trackList.size() == 0)
+            throw new RobotException("It seems your map has no tracks. \n" +
+                    "Every map needs at least one track with at least one object position.");
+
+        RobotOperation.robotRotation(api, -145);
+        RobotOperation.smallMovement(api, ManualActivity.Direction.FORWARD, 30);
+
+
+        while (RobotOperation.getReflectedColor(api, lightSensorMonitor) != colorStop) {
+            //Follows the black line
+            RobotOperation.followLine(api,
+                    lightSensorMonitor,
+                    ManualActivity.Direction.FORWARD,
+                    LightSensor.Color.BLACK,
+                    blackLineIntensity,
+                    backgroundColorIntensity,
+                    colorsToCheck
+            );
+
+            //Se non è alla fine del percorso scansiona la linea
+            if (RobotOperation.getReflectedColor(api, lightSensorMonitor) != colorStop) {
+                RobotOperation.smallMovement(api,ManualActivity.Direction.FORWARD,30);
+            }
+        }
+
+        //The robot sets to his starting position.
+        RobotOperation.robotRotation(api, 145);
+        RobotOperation.smallMovement(api, ManualActivity.Direction.FORWARD, 10);
+        RobotOperation.robotRotation(api, 45);
+
+        return new VirtualMap(trackList, blackLineIntensity, backgroundColorIntensity);
+    }
+
+    private static void backTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, short backgroundColorIntensity, MapTrack mapTrack) throws RobotException {
+
+        for (int i = 0; i < mapTrack.objectList.size() + 1; i++) {
+
+            //Moves a little bit back to position to the line
+            RobotOperation.smallMovement (api, ManualActivity.Direction.BACKWARD, 30);
+
+            //Follow the line backwards until the next position.
+            ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
+            colorsToCheck.add(LightSensor.Color.BLACK);
+
+            RobotOperation.followLine(api,
+                    lightSensorMonitor,
+                    ManualActivity.Direction.BACKWARD,
+                    mapTrack.trackColor,
+                    mapTrack.trackColorIntensity,
+                    backgroundColorIntensity,
+                    colorsToCheck
+            );
+
+            //Check it is a black spot.
+            RobotOperation.checkColor(api, lightSensorMonitor, LightSensor.Color.BLACK, true);
+        }
+
+        RobotOperation.robotRotation(api, -90); //TODO: to be tested
+        RobotOperation.smallMovement(api, ManualActivity.Direction.FORWARD, 30); //TODO: to be tested
+    }
+
+    private static void scanTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, short backgroundColorIntensity, ArrayList<MapTrack> trackList) throws RobotException {
+
+        LightSensor.Color trackColor = RobotOperation.getReflectedColor(api, lightSensorMonitor);
+        short trackColorIntensity = RobotOperation.getReflectedIntensity(api, lightSensorMonitor);
+        int positionsNumber = 0;
+
+        ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
+        colorsToCheck.add(LightSensor.Color.RED);
+        colorsToCheck.add(LightSensor.Color.BLACK);
+
+        while (RobotOperation.getReflectedColor(api, lightSensorMonitor) != LightSensor.Color.RED) {
+            RobotOperation.followLine(api,
+                    lightSensorMonitor,
+                    ManualActivity.Direction.FORWARD,
+                    trackColor,
+                    trackColorIntensity,
+                    backgroundColorIntensity,
+                    colorsToCheck
+            );
+
+            if (RobotOperation.getReflectedColor(api, lightSensorMonitor) == LightSensor.Color.BLACK) {
+
+                positionsNumber++;
+                ArrayList<LightSensor.Color> listTrackColor = new ArrayList<>();
+                listTrackColor.add(trackColor);
+
+                RobotOperation.followLine(api,
+                        lightSensorMonitor,
+                        ManualActivity.Direction.FORWARD,
+                        LightSensor.Color.BLACK,
+                        RobotOperation.getReflectedIntensity(api, lightSensorMonitor),
+                        RobotOperation.getBackgroundColorIntensity(api, lightSensorMonitor),
+                        listTrackColor
+                );
+
+            } else
+                RobotOperation.checkColor(api, lightSensorMonitor, LightSensor.Color.RED, true);
+        }
+
+        if (positionsNumber < 0)
+            throw new RobotException("It seems this track is empty. \n" +
+                    "Every track needs at least a black object position.");
+        else
+            trackList.add(new MapTrack(trackColor, trackColorIntensity, positionsNumber));
+    }
+
     //Parcelable method
     public static final Parcelable.Creator <VirtualMap> CREATOR = new Parcelable.Creator<VirtualMap>() {
 
@@ -61,10 +211,6 @@ public class VirtualMap implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeArray(this.trackList.toArray());
-    }
-
-    public ArrayList<MapTrack> getMapTrackList () {
-        return  this.trackList;
     }
 
     @Override
