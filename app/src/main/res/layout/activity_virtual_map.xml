@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <LinearLayout
+        android:id="@+id/virtual_map_activity_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="30dp"
@@ -16,12 +17,18 @@
         >
 
         <RelativeLayout
+            android:id="@+id/dialogue_layout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight=".25"
             android:orientation="vertical">
+            <TextView
+                android:id="@+id/operation_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
             <Button
                 android:id="@+id/addObject"
+                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical|center_horizontal"
@@ -30,11 +37,13 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/mapLayout"
+            android:id="@+id/map_layout"
             android:layout_weight=".75"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="30dp"
+            >
         </RelativeLayout>
     </LinearLayout>
 

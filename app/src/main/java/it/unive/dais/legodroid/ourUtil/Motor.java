@@ -38,6 +38,9 @@ public class Motor extends TachoMotor implements Runnable{
 
     }
 
+
+
+
     @Override
     public void run(){
         try {

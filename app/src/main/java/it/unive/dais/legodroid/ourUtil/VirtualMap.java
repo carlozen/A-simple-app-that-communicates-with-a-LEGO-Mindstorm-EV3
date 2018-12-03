@@ -17,13 +17,14 @@ public class VirtualMap implements Parcelable {
     private Short blackColorIntensity;
     private Short backgroundColorIntensity;
 
+
     public VirtualMap (ArrayList<MapTrack> trackList, short blackColorIntensity, short backgroundColorIntensity) {
         this.trackList = trackList;
         this.blackColorIntensity = blackColorIntensity;
         this.backgroundColorIntensity = backgroundColorIntensity;
     }
 
-    //When you open a saved map and it needs to recatch the blackColorIntensity and the backgroundColorIntensity
+    //Constructor used when you open a saved map and it needs to find the blackColorIntensity and the backgroundColorIntensity from scratch
     public VirtualMap (ArrayList<MapTrack> trackList) {
         this.trackList = trackList;
         this.blackColorIntensity = null;
@@ -180,6 +181,7 @@ public class VirtualMap implements Parcelable {
             trackList.add(new MapTrack(trackColor, trackColorIntensity, positionsNumber));
     }
 
+    //Parcelable method
     public static final Parcelable.Creator <VirtualMap> CREATOR = new Parcelable.Creator<VirtualMap>() {
 
         @Override
@@ -193,29 +195,38 @@ public class VirtualMap implements Parcelable {
         }
     };
 
-    //Constructor
-
-    public VirtualMap (Parcel in) {
+    //Parcelable Constructor
+    private VirtualMap (Parcel in) {
         this.trackList = in.readArrayList(MapTrack.class.getClassLoader());
     }
 
+    //Useless method for our needs, but needs implementation.
     @Override
     public int describeContents() {
         return 0;
     }
 
+    //Parcelable method
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeArray(this.trackList.toArray());
+    }
+
+    public ArrayList<MapTrack> getMapTrackList () {
+        return  this.trackList;
     }
 
     @Override
     public String toString () {
         StringBuilder builder = new StringBuilder();
         builder.append(String.format(Locale.ENGLISH,"Virtual Map of %d tracks \n", this.trackList.size()));
-        for (int i = 0; i< this.trackList.size(); i++)
-            builder.append(String.format(Locale.ENGLISH, "TRACK %d: Positions %d; Color %s\n", i+1, this.trackList.get(i).objectList.size(),
+        for (int i = 0; i< this.trackList.size(); i++) {
+            builder.append(String.format(Locale.ENGLISH, "TRACK %d: Positions %d; Color %s\n", i, this.trackList.get(i).objectList.size(),
                     this.trackList.get(i).trackColor.toString()));
+            for (int j = 0; j<this.trackList.get(i).getObjectList().size();j++) {
+                builder.append(String.format(Locale.ENGLISH,"\t Position %d: %b\n", j, this.trackList.get(i).getObjectList().get(j)));
+            }
+        }
         return builder.toString();
     }
 
@@ -246,6 +257,43 @@ public class VirtualMap implements Parcelable {
             }
         }
 
+        //Parcelable method
+        public static final Parcelable.Creator <MapTrack> CREATOR = new Parcelable.Creator<MapTrack>() {
+
+            @Override
+            public MapTrack createFromParcel(Parcel in) {
+                return new MapTrack(in);
+            }
+
+            @Override
+            public MapTrack[] newArray(int size) {
+                return new MapTrack[size];
+            }
+        };
+
+        //Parcelable Constructor
+        public MapTrack (Parcel in) {
+            this.objectList = in.readArrayList(Boolean.class.getClassLoader());
+            this.trackColor = LightSensor.Color.values()[in.readInt()];
+        }
+
+        //Useless method for our needs, but needs implementation.
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        //Parcelable method
+        @Override
+        public void writeToParcel(Parcel parcel, int i) {
+            parcel.writeArray(this.objectList.toArray());
+            parcel.writeInt(this.trackColor.ordinal());
+        }
+
+        public short getTrackColorIntensity() {
+            return this.trackColorIntensity;
+        }
+
         public LightSensor.Color getTrackColor() {
             return trackColor;
         }
@@ -262,37 +310,6 @@ public class VirtualMap implements Parcelable {
             objectList.set(position, true);
         }
 
-        public static final Parcelable.Creator <MapTrack> CREATOR = new Parcelable.Creator<MapTrack>() {
-
-            @Override
-            public MapTrack createFromParcel(Parcel in) {
-                return new MapTrack(in);
-            }
-
-            @Override
-            public MapTrack[] newArray(int size) {
-                return new MapTrack[size];
-            }
-        };
-
-        //Constructor
-
-        public MapTrack (Parcel in) {
-            this.objectList = in.readArrayList(Boolean.class.getClassLoader());
-            this.trackColor = LightSensor.Color.values()[in.readInt()];
-        }
-
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel parcel, int i) {
-            parcel.writeArray(this.objectList.toArray());
-            parcel.writeInt(this.trackColor.ordinal());
-        }
     }
 }
 
