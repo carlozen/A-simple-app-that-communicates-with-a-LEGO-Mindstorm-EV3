@@ -3,29 +3,29 @@ package it.unive.dais.legodroid.ourUtil;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class ParcelableButton implements Parcelable {
+public class ParcelablePositionButton implements Parcelable {
     private int trackNumber;
     private int positionNumber;
 
-    public ParcelableButton (int trackNumber, int positionNumber) {
+    public ParcelablePositionButton(int trackNumber, int positionNumber) {
         this.trackNumber = trackNumber;
         this.positionNumber = positionNumber;
     }
 
-    protected ParcelableButton(Parcel in) {
+    protected ParcelablePositionButton(Parcel in) {
         trackNumber = in.readInt();
         positionNumber = in.readInt();
     }
 
-    public static final Creator<ParcelableButton> CREATOR = new Creator<ParcelableButton>() {
+    public static final Creator<ParcelablePositionButton> CREATOR = new Creator<ParcelablePositionButton>() {
         @Override
-        public ParcelableButton createFromParcel(Parcel in) {
-            return new ParcelableButton(in);
+        public ParcelablePositionButton createFromParcel(Parcel in) {
+            return new ParcelablePositionButton(in);
         }
 
         @Override
-        public ParcelableButton[] newArray(int size) {
-            return new ParcelableButton[size];
+        public ParcelablePositionButton[] newArray(int size) {
+            return new ParcelablePositionButton[size];
         }
     };
 

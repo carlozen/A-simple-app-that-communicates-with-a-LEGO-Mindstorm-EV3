@@ -2,6 +2,7 @@ package it.unive.dais.legodroid.ourUtil;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.NonNull;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -9,34 +10,42 @@ import android.widget.RelativeLayout;
 
 public class PositionButton extends android.support.v7.widget.AppCompatButton {
 
+    private VirtualMapActivityUIManager UIManager;
     private VirtualMap map;
     private int trackNumber;
     private int positionNumber;
-    private RelativeLayout dialogueLayout;
+    final private GradientDrawable shape = new GradientDrawable();
 
-    public PositionButton(VirtualMap map, Context context, RelativeLayout dialogueLayout,
+
+    public PositionButton(Context context, VirtualMapActivityUIManager UIManager,
                           int trackNumber, int positionNumber) {
         super(context);
 
-        this.map = map;
-        this.dialogueLayout = dialogueLayout;
+        this.UIManager = UIManager;
+        this.map = UIManager.getVirtualMap();
 
         this.trackNumber = trackNumber;
         this.positionNumber = positionNumber;
+        this.setPadding(30,30,30,30);
+        shape.setShape(GradientDrawable.OVAL);
 
         if (isOccupied())
-            this.setBackgroundColor(Color.BLACK);
+            shape.setColor(Color.BLACK);
         else
-            this.setBackgroundColor(Color.WHITE);
+            shape.setColor(Color.WHITE);
+
+        shape.setStroke(3, Color.BLACK);
+
+        this.setBackground(shape);
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
-        params.width = 40;
-        params.height = 40;
+        params.width = 45;
+        params.height = 45;
         params.alignWithParent= false;
         this.setLayoutParams(params);
 
-        setSingleButtonListener(MapView.ActivityState.NOTHING_DONE, null);
+        setSingleButtonListener(VirtualMapActivityUIManager.ActivityState.NOTHING_DONE, null);
     }
 
     public boolean isOccupied(){
@@ -51,14 +60,17 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
     public void changeOccupiedState () {
         map.getMapTrackList().get(trackNumber).getObjectList().set(positionNumber,
                 !map.getMapTrackList().get(trackNumber).getObjectList().get(positionNumber));
-        if (isOccupied())
-            this.setBackgroundColor(Color.BLACK);
-        else
-            this.setBackgroundColor(Color.WHITE);
-
+        if (isOccupied()) {
+            shape.setColor(Color.BLACK);
+            this.setBackground(shape);
+        }
+        else {
+            shape.setColor(Color.WHITE);
+            this.setBackground(shape);
+        }
     }
 
-    protected void setSingleButtonListener (MapView.ActivityState activityState, PositionButton referencedButton) {
+    public void setSingleButtonListener (VirtualMapActivityUIManager.ActivityState activityState, PositionButton referencedButton) {
         switch (activityState) {
             case NOTHING_DONE: {
                 setListenerOnNothingDoneState();
@@ -73,12 +85,20 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
                 setListenerOnMoveState (referencedButton);
                 break;
             }
+            default: {
+                setListenerOnRobotOperationState ();
+                break;
+            }
         }
+    }
+
+    private void setListenerOnRobotOperationState() {
+        this.setClickable(false);
     }
 
     private void setListenerOnNothingDoneState () {
         if (this.isOccupied()) {
-            this.setOnClickListener(new ButtonsGeneralListener(this, dialogueLayout));
+            this.setOnClickListener(new ButtonsGeneralListener(this, UIManager));
         }
 
         else {
@@ -92,8 +112,8 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
         }
 
         else {
-            this.setFadingAnimation();
-            this.setOnClickListener(new ButtonsGeneralListener(this, dialogueLayout));
+            AnimationGenerator.setFadingAnimation(this);
+            this.setOnClickListener(new ButtonsGeneralListener(this, UIManager));
         }
     }
 
@@ -102,97 +122,14 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
             this.setClickable(false);
             if (this.trackNumber == referencedButton.trackNumber &&
                     this.positionNumber == referencedButton.positionNumber) {
-                this.setGlowingAnimation();
+                AnimationGenerator.setGlowingAnimation(this, shape);
             }
         }
 
         else {
-            this.setFadingAnimation();
-            this.setOnClickListener(new ButtonsGeneralListener(this, dialogueLayout));
+            AnimationGenerator.setFadingAnimation(this);
+            this.setOnClickListener(new ButtonsGeneralListener(this, UIManager));
         }
-    }
-
-    private void setFadingAnimation() {
-
-        Animation fadeIn =  new AlphaAnimation(0.0f,1.0f);
-        Animation fadeOut =  new AlphaAnimation(1.0f,0.0f);
-        fadeIn.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                animation.setStartOffset(0);
-                animation.setDuration(1200);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                startAnimation(fadeOut);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
-        fadeOut.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                animation.setStartOffset(1000);
-                animation.setDuration(1200);
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                startAnimation(fadeIn);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
-        startAnimation(fadeOut);
-
-    }
-
-    private void setGlowingAnimation() {
-
-        setBackgroundColor(Color.RED);
-        Animation redIn =  new AlphaAnimation(0.7f,1.0f);
-        Animation redOut =  new AlphaAnimation(1.0f,0.7f);
-        redIn.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                animation.setStartOffset(0);
-                animation.setDuration(1200);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                startAnimation(redOut);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
-        redOut.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                animation.setStartOffset(1000);
-                animation.setDuration(1200);
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                startAnimation(redIn);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
-        startAnimation(redOut);
-
     }
 
     public int getTrackNumber() {

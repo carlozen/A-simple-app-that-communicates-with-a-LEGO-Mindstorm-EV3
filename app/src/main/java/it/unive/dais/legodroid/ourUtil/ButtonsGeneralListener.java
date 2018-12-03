@@ -1,26 +1,20 @@
 package it.unive.dais.legodroid.ourUtil;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.view.View;
-import android.widget.RelativeLayout;
-
-import it.unive.dais.legodroid.R;
-import it.unive.dais.legodroid.code.VirtualMapActivity;
 
 public class ButtonsGeneralListener implements View.OnClickListener {
 
-    private MapView.ActivityState activityState;
+    private VirtualMapActivityUIManager.ActivityState activityState;
     private PositionButton referencedButton;
     private PositionButton button;
-    private RelativeLayout dialogueLayout;
+    private VirtualMapActivityUIManager UIManager;
 
-    public ButtonsGeneralListener(PositionButton button, RelativeLayout dialogueLayout) {
-        this.dialogueLayout = dialogueLayout;
-        this.activityState = MapView.getActivityState();
-        this.referencedButton = MapView.getLastClickedButton();
+    public ButtonsGeneralListener(PositionButton button, VirtualMapActivityUIManager UIManager) {
+        this.UIManager = UIManager;
+        this.activityState = this.UIManager.getActivityState();
+        this.referencedButton = this.UIManager.getLastClickedButton();
         this.button=button;
         button.setClickable(true);
     }
@@ -29,18 +23,12 @@ public class ButtonsGeneralListener implements View.OnClickListener {
     public void onClick(View view) {
         switch (activityState) {
             case MOVE_OBJECT: {
-                button.changeOccupiedState();
-                referencedButton.changeOccupiedState();
-                MapView.setButtonListOnClickListeners(MapView.getPositionButtonList(),
-                        MapView.ActivityState.NOTHING_DONE, null);
-                VirtualMapActivity.setDialogueLayout(button.getContext(), dialogueLayout);
+                UIManager.setRobotOperation(VirtualMapActivityUIManager.ActivityState.ROBOT_MOVING_OBJECT, button,
+                        new ParcelablePositionButton(referencedButton.getTrackNumber(),referencedButton.getPositionNumber()));
                 break;
             }
             case ADD_OBJECT: {
-                button.changeOccupiedState();
-                MapView.setButtonListOnClickListeners(MapView.getPositionButtonList(),
-                        MapView.ActivityState.NOTHING_DONE, null);
-                VirtualMapActivity.setDialogueLayout(button.getContext(), dialogueLayout);
+                UIManager.setRobotOperation(VirtualMapActivityUIManager.ActivityState.ROBOT_ADDING_OBJECT, button, null);
                 break;
             }
             case NOTHING_DONE: {
@@ -49,18 +37,13 @@ public class ButtonsGeneralListener implements View.OnClickListener {
                 dialogBuilder.setPositiveButton("DELETE", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        button.changeOccupiedState();
-                        MapView.setButtonListOnClickListeners(MapView.getPositionButtonList(),
-                                MapView.ActivityState.NOTHING_DONE, null);
-                        VirtualMapActivity.setDialogueLayout(button.getContext(), dialogueLayout);
+                        UIManager.setRobotOperation(VirtualMapActivityUIManager.ActivityState.ROBOT_REMOVING_OBJECT, button, null);
                     }
                 });
                 dialogBuilder.setNegativeButton("MOVE", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        MapView.setButtonListOnClickListeners(MapView.getPositionButtonList(),
-                                MapView.ActivityState.MOVE_OBJECT, button);
-                        VirtualMapActivity.setDialogueLayout(button.getContext(), dialogueLayout);
+                        UIManager.setUIState(VirtualMapActivityUIManager.ActivityState.MOVE_OBJECT, button);
                     }
                 });
                 AlertDialog dialog = dialogBuilder.create();

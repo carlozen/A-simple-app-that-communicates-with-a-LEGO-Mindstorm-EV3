@@ -22,6 +22,7 @@ public class VirtualMap implements Parcelable {
         this.trackList = trackList;
         this.blackColorIntensity = blackColorIntensity;
         this.backgroundColorIntensity = backgroundColorIntensity;
+
     }
 
     //Constructor used when you open a saved map and it needs to find the blackColorIntensity and the backgroundColorIntensity from scratch
@@ -83,24 +84,10 @@ public class VirtualMap implements Parcelable {
     public static class MapTrack implements Parcelable{
 
         private LightSensor.Color trackColor;
-        private int trackColorEnum;
-        private short trackColorIntensity;
         private ArrayList<Boolean> objectList;
 
-        public MapTrack(LightSensor.Color trackColor, short trackColorIntensity, int objectPositionNumber) {
+        public MapTrack(LightSensor.Color trackColor, int objectPositionNumber) {
             this.trackColor = trackColor;
-            this.trackColorEnum = trackColor.ordinal();
-            this.trackColorIntensity = trackColorIntensity;
-            this.objectList = new ArrayList<>(objectPositionNumber);
-            for (int i = 0; i< objectPositionNumber; i++) {
-                objectList.add(false);
-            }
-        }
-
-        public MapTrack (LightSensor.Color trackColor, int objectPositionNumber) {
-            this.trackColor = trackColor;
-            this.trackColorEnum = trackColor.ordinal();
-            this.trackColorIntensity = 0;
             this.objectList = new ArrayList<>(objectPositionNumber);
             for (int i = 0; i< objectPositionNumber; i++) {
                 objectList.add(false);
@@ -138,10 +125,6 @@ public class VirtualMap implements Parcelable {
         public void writeToParcel(Parcel parcel, int i) {
             parcel.writeArray(this.objectList.toArray());
             parcel.writeInt(this.trackColor.ordinal());
-        }
-
-        public short getTrackColorIntensity() {
-            return this.trackColorIntensity;
         }
 
         public LightSensor.Color getTrackColor() {
