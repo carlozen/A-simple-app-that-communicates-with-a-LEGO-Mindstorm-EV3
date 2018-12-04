@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +64,7 @@ public class AutomaticActivity extends AppCompatActivity {
     private static void scanMap(EV3.Api api, LightSensor.Color colorStop, ArrayList<LightSensor.Color> colorsToCheck) {
         try {
             VirtualMap virtualMap = VirtualMap.scan(api, colorStop, colorsToCheck);
-        } catch (RobotException e) {
+        } catch (RobotException | InterruptedException | IOException e) {
             e.printStackTrace();
         }
     }
