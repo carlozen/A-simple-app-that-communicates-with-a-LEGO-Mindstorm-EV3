@@ -180,9 +180,9 @@ public class VirtualMap implements Parcelable {
 
     private static int scanTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, short blackLineIntensity, LightSensor.Color colorStop, short backgroundColorIntensity, ArrayList<MapTrack> trackList) throws RobotException, IOException, InterruptedException {
 
-        short trackColorIntensity = RobotOperation.getReflectedIntensity(api, lightSensorMonitor);
+        //short trackColorIntensity = RobotOperation.getReflectedIntensity(api, lightSensorMonitor);
+        short trackColorIntensity = 5;
         LightSensor.Color trackColor = RobotOperation.getReflectedColor(api, lightSensorMonitor);
-
 
         Integer positionsNumber = 0;
 

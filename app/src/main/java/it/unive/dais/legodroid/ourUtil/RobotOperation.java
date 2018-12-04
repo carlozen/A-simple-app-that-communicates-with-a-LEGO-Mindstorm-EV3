@@ -515,6 +515,9 @@ public final class RobotOperation {
             rightMotor.setPower(0);
             leftMotor.setPower(0);
 
+            leftMotor.brake();
+            rightMotor.brake();
+
             right.interrupt();
             left.interrupt();
 
@@ -551,13 +554,14 @@ public final class RobotOperation {
                 rightMotor.setPower((power - 10) * sign);
                 leftMotor.setPower(power * sign);
             }
-            Thread.sleep(150);
+            Thread.sleep(180);
             leftMotor.setPower(0);
             rightMotor.setPower(0);
 
-            leftMotor.brake();
-            rightMotor.brake();
         }
+
+        leftMotor.brake();
+        rightMotor.brake();
 
         right.interrupt();
         left.interrupt();

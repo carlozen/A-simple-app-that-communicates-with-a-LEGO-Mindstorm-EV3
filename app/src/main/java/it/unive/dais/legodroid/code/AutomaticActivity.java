@@ -55,6 +55,7 @@ public class AutomaticActivity extends AppCompatActivity {
                     ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
                     colorsToCheck.add(LightSensor.Color.GREEN);
                     colorsToCheck.add(LightSensor.Color.YELLOW);
+                    colorsToCheck.add(LightSensor.Color.RED);
                     Prelude.trap(() -> MainActivity.ev3.run(api -> AutomaticActivity.scanMap(api, LightSensor.Color.RED, colorsToCheck)));
                 }
             }
