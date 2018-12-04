@@ -230,10 +230,20 @@ public class VirtualMap implements Parcelable {
     public static class MapTrack implements Parcelable{
 
         private LightSensor.Color trackColor;
+        private short trackColorIntensity;
         private ArrayList<Boolean> objectList;
 
         public MapTrack(LightSensor.Color trackColor, int objectPositionNumber) {
             this.trackColor = trackColor;
+            this.objectList = new ArrayList<>(objectPositionNumber);
+            for (int i = 0; i< objectPositionNumber; i++) {
+                objectList.add(false);
+            }
+        }
+
+        public MapTrack(LightSensor.Color trackColor, short trackColorIntensity, int objectPositionNumber) {
+            this.trackColor = trackColor;
+            this.trackColorIntensity = trackColorIntensity;
             this.objectList = new ArrayList<>(objectPositionNumber);
             for (int i = 0; i< objectPositionNumber; i++) {
                 objectList.add(false);
