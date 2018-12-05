@@ -443,6 +443,28 @@ public final class RobotOperation {
         left.interrupt();
     }
 
+    public static void reachOriginFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, LightSensor.Color trackColorStart, int numberPosStart, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws InterruptedException, IOException, RobotException {
+        returnToBeginOfTrack(api, lightSensorMonitor, trackColorStart, numberPosStart, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+
+        LightSensor.Color colorFound = null;
+
+        while(colorFound != LightSensor.Color.RED){
+            colorFound = RobotOperation.followLine(api,
+                    lightSensorMonitor,
+                    ManualActivity.Direction.BACKWARD,
+                    LightSensor.Color.BLACK,
+                    blackLineIntensity,
+                    backgroundColorIntensity,
+                    colorsToCheck
+            );
+
+            if(colorFound != LightSensor.Color.RED){
+                smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT);
+            }
+        }
+        smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
+    }
+
     public static void reachPosFromOrigin(EV3.Api api, LightSensorMonitor lightSensorMonitor, LightSensor.Color trackColor, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
 
         RobotOperation.checkColor(api, lightSensorMonitor, LightSensor.Color.BLACK, true);
