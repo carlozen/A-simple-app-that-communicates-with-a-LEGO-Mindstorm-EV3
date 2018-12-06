@@ -50,7 +50,8 @@ public class VirtualMapActivity extends AppCompatActivity {
         }
 
         UIManager = VirtualMapActivityUIManager.generate(this, activityState ,
-                lastClickedButton, hasRobotOperationStarted, map, findViewById(R.id.dialogue_layout));
+                lastClickedButton, hasRobotOperationStarted, map, findViewById(R.id.dialogue_layout),
+                findViewById(R.id.robot_view));
 
         RelativeLayout mapLayout = findViewById(R.id.map_layout);
 
@@ -63,7 +64,10 @@ public class VirtualMapActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        VirtualMapActivityUIManager.uninizialize();
+        VirtualMapActivityUIManager.AsyncRobotTask asyncRobotTask = UIManager.getAsyncRobotTask();
+        if (asyncRobotTask != null) {
+            asyncRobotTask.cancel(true);
+        }
     }
 
     @Override
