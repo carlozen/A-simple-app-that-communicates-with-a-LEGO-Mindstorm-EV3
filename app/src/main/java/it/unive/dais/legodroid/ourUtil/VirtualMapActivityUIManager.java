@@ -17,37 +17,38 @@ import it.unive.dais.legodroid.R;
 //TODO those fields shouldn't be static.
 public class VirtualMapActivityUIManager {
 
-    private static Context context;
+    private Context context;
 
-    private static ActivityState activityState;
+    private ActivityState activityState;
 
-    private static ParcelablePositionButton lastClickedButton;
+    private ParcelablePositionButton lastClickedButton;
 
-    private static boolean hasRobotOperationStarted;
+    private boolean hasRobotOperationStarted;
 
-    private static ArrayList<ArrayList<PositionButton>> positionButtonList;
+    private ArrayList<ArrayList<PositionButton>> positionButtonList;
 
-    private static VirtualMap virtualMap;
+    private VirtualMap virtualMap;
 
-    private static RelativeLayout relativeLayout;
+    private RelativeLayout relativeLayout;
 
-    private static AsyncRobotTask asyncRobotTask = null;
+    private AsyncRobotTask asyncRobotTask = null;
 
-    private static boolean isInitialized = false;
-
+    private View robotView;
 
 
     private VirtualMapActivityUIManager (Context context, ActivityState activityState,
                                          ParcelablePositionButton lastClickedButton,
                                          boolean hasRobotOperationStarted,
-                                         VirtualMap virtualMap, RelativeLayout relativeLayout) {
-        VirtualMapActivityUIManager.context = context;
-        VirtualMapActivityUIManager.activityState = activityState;
-        VirtualMapActivityUIManager.lastClickedButton = lastClickedButton;
-        VirtualMapActivityUIManager.hasRobotOperationStarted = hasRobotOperationStarted;
-        VirtualMapActivityUIManager.virtualMap = virtualMap;
-        VirtualMapActivityUIManager.relativeLayout = relativeLayout;
-        VirtualMapActivityUIManager.positionButtonList= new ArrayList<>();
+                                         VirtualMap virtualMap, RelativeLayout relativeLayout,
+                                         View robot_view) {
+        this.context = context;
+        this.activityState = activityState;
+        this.lastClickedButton = lastClickedButton;
+        this.hasRobotOperationStarted = hasRobotOperationStarted;
+        this.virtualMap = virtualMap;
+        this.relativeLayout = relativeLayout;
+        this.positionButtonList= new ArrayList<>();
+        this.robotView = robot_view;
 
         for (int i = 0; i< virtualMap.getMapTrackList().size(); i++) {
             positionButtonList.add(new ArrayList<>());
@@ -55,19 +56,15 @@ public class VirtualMapActivityUIManager {
                 positionButtonList.get(i).add(new PositionButton(context, this, i, j));
             }
         }
-        isInitialized = true;
-    }
-
-    public static void uninizialize() {
-        isInitialized = false;
     }
 
     public static VirtualMapActivityUIManager generate (Context context, ActivityState activityState,
                                                         ParcelablePositionButton lastClickedButton,
                                                         boolean hasRobotOperationStarted,
-                                                        VirtualMap virtualMap, RelativeLayout relativeLayout) {
+                                                        VirtualMap virtualMap, RelativeLayout relativeLayout,
+                                                        View robotView) {
         return new VirtualMapActivityUIManager(context, activityState,lastClickedButton, hasRobotOperationStarted,
-                virtualMap, relativeLayout);
+                virtualMap, relativeLayout, robotView);
     }
 
     public void setUIState (ActivityState activityState,
@@ -85,23 +82,23 @@ public class VirtualMapActivityUIManager {
                 activityState == ActivityState.ROBOT_ADDING_OBJECT ||
                 activityState == ActivityState.ROBOT_MOVING_OBJECT) {
             if (!this.hasRobotOperationStarted()) {
-                asyncRobotTask = new AsyncRobotTask(this, destinationButton);
+                asyncRobotTask = new AsyncRobotTask(this, destinationButton, robotView);
                 asyncRobotTask.execute();
             }
         }
     }
 
     private void setActivityState(ActivityState activityState) {
-        VirtualMapActivityUIManager.activityState = activityState;
+        this.activityState = activityState;
     }
 
     private void setLastClickedButton(PositionButton lastClickedButton) {
         try {
-            VirtualMapActivityUIManager.lastClickedButton = new ParcelablePositionButton(lastClickedButton.getTrackNumber(),
+            this.lastClickedButton = new ParcelablePositionButton(lastClickedButton.getTrackNumber(),
                     lastClickedButton.getPositionNumber());
         }
         catch (NullPointerException e) {
-            VirtualMapActivityUIManager.lastClickedButton = null;
+            this.lastClickedButton = null;
         }
     }
 
@@ -206,7 +203,7 @@ public class VirtualMapActivityUIManager {
     }
 
     public void setHasRobotOperationStarted(boolean hasRobotOperationStarted) {
-        VirtualMapActivityUIManager.hasRobotOperationStarted = hasRobotOperationStarted;
+        this.hasRobotOperationStarted = hasRobotOperationStarted;
     }
 
     public enum ActivityState {
@@ -219,29 +216,27 @@ public class VirtualMapActivityUIManager {
     }
 
     public AsyncRobotTask getAsyncRobotTask() {
-        return asyncRobotTask;
+        return this.asyncRobotTask;
     }
 
 
     //TODO check all this, that doesn't work correctly.
-    public static class AsyncRobotTask extends AsyncTask {
+    public class AsyncRobotTask extends AsyncTask <Object, Integer, Object>{
 
-        VirtualMapActivityUIManager UIManager = null;
-        ParcelablePositionButton buttonDestination = null;
-
-        public AsyncRobotTask (VirtualMapActivityUIManager UIManager) {
-            this.setUIManager(UIManager);
-        }
+        private VirtualMapActivityUIManager UIManager;
+        private ParcelablePositionButton buttonDestination = null;
 
         public AsyncRobotTask (VirtualMapActivityUIManager UIManager,
-                               ParcelablePositionButton positionButton) {
-            this.setUIManager(UIManager);
+                               ParcelablePositionButton positionButton,
+                               View robotView) {
+            this.UIManager = UIManager;
             this.buttonDestination = positionButton;
         }
 
         @Override
         protected void onPreExecute() {
             UIManager.setHasRobotOperationStarted(true);
+            robotView.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -252,7 +247,18 @@ public class VirtualMapActivityUIManager {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            publishProgress(90,10);
+
             Log.d("OP", "INIZIO OPERAZIONE 2");
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            publishProgress(90,90);
+
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -264,36 +270,39 @@ public class VirtualMapActivityUIManager {
 
         @Override
         protected void onPostExecute(Object object) {
-            do {
-                switch (UIManager.getActivityState()) {
+            switch (UIManager.getActivityState()) {
 
-                    case ROBOT_REMOVING_OBJECT: {
-                        UIManager.setHasRobotOperationStarted(false);
-                        UIManager.getLastClickedButton().changeOccupiedState();
-                        UIManager.setUIState(ActivityState.NOTHING_DONE, null);
-                        break;
-                    }
-                    case ROBOT_ADDING_OBJECT: {
-                        UIManager.setHasRobotOperationStarted(false);
-                        UIManager.getLastClickedButton().changeOccupiedState();
-                        UIManager.setUIState(ActivityState.NOTHING_DONE, null);
-                        break;
-                    }
-                    case ROBOT_MOVING_OBJECT: {
-                        UIManager.setHasRobotOperationStarted(false);
-                        UIManager.getLastClickedButton().changeOccupiedState();
-                        UIManager.getPositionButtonList().get(this.buttonDestination.getTrackNumber())
-                                .get(this.buttonDestination.getPositionNumber()).changeOccupiedState();
-
-                        UIManager.setUIState(ActivityState.NOTHING_DONE, null);
-                        break;
-                    }
+                case ROBOT_REMOVING_OBJECT: {
+                    UIManager.setHasRobotOperationStarted(false);
+                    UIManager.getLastClickedButton().changeOccupiedState();
+                    UIManager.setUIState(ActivityState.NOTHING_DONE, null);
+                    break;
                 }
-            } while (!isInitialized);
+                case ROBOT_ADDING_OBJECT: {
+                    UIManager.setHasRobotOperationStarted(false);
+                    UIManager.getLastClickedButton().changeOccupiedState();
+                    UIManager.setUIState(ActivityState.NOTHING_DONE, null);
+                    break;
+                }
+                case ROBOT_MOVING_OBJECT: {
+                    UIManager.setHasRobotOperationStarted(false);
+                    UIManager.getLastClickedButton().changeOccupiedState();
+                    UIManager.getPositionButtonList().get(this.buttonDestination.getTrackNumber())
+                            .get(this.buttonDestination.getPositionNumber()).changeOccupiedState();
+
+                    UIManager.setUIState(ActivityState.NOTHING_DONE, null);
+                    break;
+                }
+            }
+            robotView.setVisibility(View.GONE);
         }
 
-        private void setUIManager(VirtualMapActivityUIManager uiManager) {
-            this.UIManager = uiManager;
+        @Override
+        protected void onProgressUpdate(Integer[] values) {
+            int x = values[0];
+            int y = values[1];
+            super.onProgressUpdate(values);
+            AnimationGenerator.translationAnimation(robotView, x,y);
         }
     }
 
