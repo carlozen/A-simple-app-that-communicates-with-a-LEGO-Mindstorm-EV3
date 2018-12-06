@@ -4,8 +4,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 
+import it.unive.dais.legodroid.code.MainActivity;
 import it.unive.dais.legodroid.code.ManualActivity;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
@@ -209,6 +212,33 @@ public class VirtualMap implements Parcelable {
         return builder.toString();
     }
 
+    public boolean save(String mapName) {
+        try {
+            String writeValue = MainActivity.mGson.toJson(this);
+            MainActivity.mEditor.putString(mapName, writeValue);
+            MainActivity.mEditor.commit();
+            return true;
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
+    }
+
+    public static ArrayList<VirtualMap> getSavedMaps() {
+        ArrayList<VirtualMap> virtualMaps = new ArrayList<>();
+
+        Map loadValues = MainActivity.mSettings.getAll();
+
+        Iterator<String> it = loadValues.values().iterator();
+        while(it.hasNext()){
+            String value = it.next();
+            virtualMaps.add(MainActivity.mGson.fromJson(value, VirtualMap.class));
+        }
+
+        return virtualMaps;
+    }
+
     public static class MapTrack implements Parcelable{
 
         private LightSensor.Color trackColor;
@@ -280,6 +310,7 @@ public class VirtualMap implements Parcelable {
         public void addObject (int position) {
             objectList.set(position, true);
         }
+
 
     }
 }
