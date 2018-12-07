@@ -214,8 +214,8 @@ public class VirtualMap implements Parcelable {
 
     public boolean save(String mapName) {
         try {
-            String writeValue = MainActivity.mGson.toJson(this);
-            MainActivity.mEditor.putString(mapName, writeValue);
+       //     String writeValue = MainActivity.mGson.toJson(this);
+        //    MainActivity.mEditor.putString(mapName, writeValue);
             MainActivity.mEditor.commit();
             return true;
         }
@@ -233,7 +233,7 @@ public class VirtualMap implements Parcelable {
         Iterator<String> it = loadValues.values().iterator();
         while(it.hasNext()){
             String value = it.next();
-            virtualMaps.add(MainActivity.mGson.fromJson(value, VirtualMap.class));
+          //  virtualMaps.add(MainActivity.mGson.fromJson(value, VirtualMap.class));
         }
 
         return virtualMaps;

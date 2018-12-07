@@ -2,16 +2,17 @@ package it.unive.dais.legodroid.ourUtil;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.view.View;
 
 public class ButtonsGeneralListener implements View.OnClickListener {
 
-    private VirtualMapActivityUIManager.ActivityState activityState;
+    private VirtualMapUI.ActivityState activityState;
     private PositionButton referencedButton;
     private PositionButton button;
-    private VirtualMapActivityUIManager UIManager;
+    private VirtualMapUI UIManager;
 
-    public ButtonsGeneralListener(PositionButton button, VirtualMapActivityUIManager UIManager) {
+    public ButtonsGeneralListener(PositionButton button, VirtualMapUI UIManager) {
         this.UIManager = UIManager;
         this.activityState = this.UIManager.getActivityState();
         this.referencedButton = this.UIManager.getLastClickedButton();
@@ -23,12 +24,12 @@ public class ButtonsGeneralListener implements View.OnClickListener {
     public void onClick(View view) {
         switch (activityState) {
             case MOVE_OBJECT: {
-                UIManager.setRobotOperation(VirtualMapActivityUIManager.ActivityState.ROBOT_MOVING_OBJECT, button,
-                        new ParcelablePositionButton(referencedButton.getTrackNumber(),referencedButton.getPositionNumber()));
+                UIManager.setRobotOperation(VirtualMapUI.ActivityState.ROBOT_MOVING_OBJECT, button,
+                        referencedButton);
                 break;
             }
             case ADD_OBJECT: {
-                UIManager.setRobotOperation(VirtualMapActivityUIManager.ActivityState.ROBOT_ADDING_OBJECT, button, null);
+                UIManager.setRobotOperation(VirtualMapUI.ActivityState.ROBOT_ADDING_OBJECT, button, null);
                 break;
             }
             case NOTHING_DONE: {
@@ -37,13 +38,14 @@ public class ButtonsGeneralListener implements View.OnClickListener {
                 dialogBuilder.setPositiveButton("DELETE", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        UIManager.setRobotOperation(VirtualMapActivityUIManager.ActivityState.ROBOT_REMOVING_OBJECT, button, null);
+                        button.getShape().setColor(Color.RED);
+                        UIManager.setRobotOperation(VirtualMapUI.ActivityState.ROBOT_REMOVING_OBJECT, button, null);
                     }
                 });
                 dialogBuilder.setNegativeButton("MOVE", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        UIManager.setUIState(VirtualMapActivityUIManager.ActivityState.MOVE_OBJECT, button);
+                        UIManager.setUIState(VirtualMapUI.ActivityState.MOVE_OBJECT, button);
                     }
                 });
                 AlertDialog dialog = dialogBuilder.create();

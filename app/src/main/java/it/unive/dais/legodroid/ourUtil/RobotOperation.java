@@ -3,9 +3,13 @@ package it.unive.dais.legodroid.ourUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import it.unive.dais.legodroid.code.ManualActivity;
 import it.unive.dais.legodroid.lib.EV3;
+import it.unive.dais.legodroid.lib.plugs.GyroSensor;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
+import it.unive.dais.legodroid.lib.plugs.UltrasonicSensor;
 
 import static java.lang.Math.abs;
 
@@ -679,6 +683,159 @@ public final class RobotOperation {
             if(colorFound != trackColor){
                 smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
             }
+        }
+    }
+
+
+    //TODO MAKE PRIVATE IN FUTURE
+    public static void pickUpObject (EV3.Api api, VirtualMapUI.AsyncRobotTask robotTask) throws  RobotException{
+
+        try {
+            final float MAX_OBJ_DISTANCE = 15;
+            final int POWER = 10;
+
+            UltrasonicSensor ultrasonicSensor = api.getUltrasonicSensor(EV3.InputPort._4);
+            Future<Float> futureDistance;
+            float currentDistance = 0;
+
+
+            GyroSensorAngle gyroSensorAngle = new GyroSensorAngle(api, EV3.InputPort._3);
+            Thread gyroSensor = new Thread(gyroSensorAngle);
+            final float STARTING_ANGLE = gyroSensorAngle.getAngleNow();
+
+            Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+            Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+            Thread left = new Thread(leftMotor);
+            Thread right = new Thread(rightMotor);
+
+
+            boolean isObjectFound = false;
+            float objectDistance = 0;
+
+            left.start();
+            right.start();
+            gyroSensor.start();
+            while (!isObjectFound && gyroSensorAngle.getAngleNow() > STARTING_ANGLE - 180) {
+                futureDistance = ultrasonicSensor.getDistance();
+                currentDistance = futureDistance.get();
+                if (currentDistance <= MAX_OBJ_DISTANCE) {
+                    isObjectFound = true;
+                    objectDistance = currentDistance;
+                    leftMotor.brake();
+                    rightMotor.brake();
+                    leftMotor.setPower(0);
+                    rightMotor.setPower(0);
+                }
+                leftMotor.setPower(-POWER);
+                rightMotor.setPower(POWER);
+            }
+
+            leftMotor.brake();
+            rightMotor.brake();
+
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+
+            leftMotor.start();
+            rightMotor.start();
+
+            if (!isObjectFound) {
+                left.interrupt();
+                right.interrupt();
+                gyroSensor.interrupt();
+                throw new RobotException("Object not found.");
+            }
+
+            final float ANGLE_MIN = gyroSensorAngle.getAngleNow();
+
+            while (currentDistance <= objectDistance) {
+                futureDistance = ultrasonicSensor.getDistance();
+                currentDistance = futureDistance.get();
+                leftMotor.setPower(-POWER);
+                rightMotor.setPower(POWER);
+            }
+            leftMotor.brake();
+            rightMotor.brake();
+
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+
+            robotTask.moveToTrack(2);
+
+            leftMotor.start();
+            rightMotor.start();
+
+            final float ANGLE_MAX = gyroSensorAngle.getAngleNow();
+            float ANGLE_MED;
+            if (currentDistance >= 10)
+                ANGLE_MED = (ANGLE_MAX + ANGLE_MIN)/2 + (currentDistance/5);
+            else
+                ANGLE_MED = (ANGLE_MAX + ANGLE_MIN)/2;
+
+            while (gyroSensorAngle.getAngleNow() < ANGLE_MED) {
+                leftMotor.setPower(POWER);
+                rightMotor.setPower(-POWER);
+            }
+
+            leftMotor.brake();
+            rightMotor.brake();
+
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+
+            leftMotor.start();
+            rightMotor.start();
+
+            Future<Float> futureMotorPositionLeft = leftMotor.getPosition();
+            final float START_POS_LEFT = futureMotorPositionLeft.get();
+
+            Future<Float> futureMotorPositionRight = leftMotor.getPosition();
+            final float START_POS_RIGHT = futureMotorPositionRight.get();
+
+            robotTask.moveToPositionOnTrack(1,3);
+
+            while (currentDistance > 5) {
+                futureDistance = ultrasonicSensor.getDistance();
+                currentDistance = futureDistance.get();
+
+                leftMotor.setPower(POWER);
+                rightMotor.setPower(POWER);
+            }
+
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+
+            Grabber grabber = new Grabber(api, EV3.OutputPort.A);
+            Grabber.moveDownGrabber(api, grabber);
+
+            futureMotorPositionLeft = leftMotor.getPosition();
+            futureMotorPositionRight = rightMotor.getPosition();
+            float currentPositionLeft = futureMotorPositionLeft.get();
+            float currentPositionRight = futureMotorPositionRight.get();
+
+            while (currentPositionLeft > START_POS_LEFT && currentPositionRight > START_POS_RIGHT) {
+                futureMotorPositionLeft = leftMotor.getPosition();
+                futureMotorPositionRight = rightMotor.getPosition();
+                currentPositionLeft = futureMotorPositionLeft.get();
+                currentPositionRight = futureMotorPositionRight.get();
+                leftMotor.setPower(-POWER);
+                rightMotor.setPower(-POWER);
+            }
+
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+
+            Grabber.moveUpGrabber(api, grabber);
+
+            left.interrupt();
+            right.interrupt();
+            gyroSensor.interrupt();
+
+
+
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            throw new RobotException("Something went wrong. Please try this operation again.");
         }
     }
 

@@ -4,20 +4,18 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.NonNull;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.RelativeLayout;
 
 public class PositionButton extends android.support.v7.widget.AppCompatButton {
 
-    private VirtualMapActivityUIManager UIManager;
+    private VirtualMapUI UIManager;
     private VirtualMap map;
     private int trackNumber;
     private int positionNumber;
     final private GradientDrawable shape = new GradientDrawable();
 
 
-    public PositionButton(Context context, VirtualMapActivityUIManager UIManager,
+    public PositionButton(Context context, VirtualMapUI UIManager,
                           int trackNumber, int positionNumber) {
         super(context);
 
@@ -45,7 +43,7 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
         params.alignWithParent= false;
         this.setLayoutParams(params);
 
-        setSingleButtonListener(VirtualMapActivityUIManager.ActivityState.NOTHING_DONE, null);
+        setSingleButtonListener(VirtualMapUI.ActivityState.NOTHING_DONE, null);
     }
 
     public boolean isOccupied(){
@@ -70,7 +68,7 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
         }
     }
 
-    public void setSingleButtonListener (VirtualMapActivityUIManager.ActivityState activityState, PositionButton referencedButton) {
+    public void setSingleButtonListener (VirtualMapUI.ActivityState activityState, PositionButton referencedButton) {
         switch (activityState) {
             case NOTHING_DONE: {
                 setListenerOnNothingDoneState();
@@ -138,5 +136,9 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
 
     public int getPositionNumber() {
         return positionNumber;
+    }
+
+    public GradientDrawable getShape() {
+        return shape;
     }
 }
