@@ -42,12 +42,14 @@ public class ButtonsGeneralListener implements View.OnClickListener {
                         UIManager.setRobotOperation(VirtualMapUI.ActivityState.ROBOT_REMOVING_OBJECT, button, null);
                     }
                 });
-                dialogBuilder.setNegativeButton("MOVE", new DialogInterface.OnClickListener(){
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        UIManager.setUIState(VirtualMapUI.ActivityState.MOVE_OBJECT, button);
-                    }
-                });
+                if (!UIManager.getVirtualMap().isFull()) {
+                    dialogBuilder.setNegativeButton("MOVE", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            UIManager.setUIState(VirtualMapUI.ActivityState.MOVE_OBJECT, button);
+                        }
+                    });
+                }
                 AlertDialog dialog = dialogBuilder.create();
                 dialog.show();
                 break;

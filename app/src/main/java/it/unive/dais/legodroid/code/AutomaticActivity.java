@@ -37,8 +37,7 @@ public class AutomaticActivity extends AppCompatActivity {
 
                                                     ArrayList<VirtualMap.MapTrack> trackList = new ArrayList<>();
                                                     trackList.add(new VirtualMap.MapTrack(LightSensor.Color.YELLOW, 2));
-                                                    trackList.add(new VirtualMap.MapTrack(LightSensor.Color.GREEN, 3));
-                                                    trackList.add(new VirtualMap.MapTrack(LightSensor.Color.BLUE, 2));
+                                                    trackList.add(new VirtualMap.MapTrack(LightSensor.Color.GREEN, 1));
 
                                                     VirtualMap map = new VirtualMap(trackList);
 

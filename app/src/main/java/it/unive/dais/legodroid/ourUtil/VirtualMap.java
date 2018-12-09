@@ -40,6 +40,17 @@ public class VirtualMap implements Parcelable {
         this.backgroundColorIntensity = null;
     }
 
+    public boolean isFull () {
+        for (MapTrack track : trackList) {
+            for (boolean bool : track.getObjectList()) {
+                if (!bool) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public ArrayList<MapTrack> getMapTrackList () {
         return  this.trackList;
     }

@@ -7,6 +7,7 @@ import android.widget.RelativeLayout;
 import java.util.ArrayList;
 
 import it.unive.dais.legodroid.R;
+import it.unive.dais.legodroid.ourUtil.AsyncRobotTask;
 import it.unive.dais.legodroid.ourUtil.RobotView;
 import it.unive.dais.legodroid.ourUtil.VirtualMapUI;
 import it.unive.dais.legodroid.ourUtil.VirtualMapView;
@@ -52,7 +53,7 @@ public class VirtualMapActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        VirtualMapUI.AsyncRobotTask asyncRobotTask = UIManager.getAsyncRobotTask();
+        AsyncRobotTask asyncRobotTask = UIManager.getAsyncRobotTask();
         if (asyncRobotTask != null) {
             asyncRobotTask.cancel(true);
         }

@@ -7,7 +7,6 @@ import java.util.concurrent.Future;
 
 import it.unive.dais.legodroid.code.ManualActivity;
 import it.unive.dais.legodroid.lib.EV3;
-import it.unive.dais.legodroid.lib.plugs.GyroSensor;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
 import it.unive.dais.legodroid.lib.plugs.UltrasonicSensor;
 
@@ -469,13 +468,13 @@ public final class RobotOperation {
         smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
     }
 
-    public static void reachPosFromOrigin(EV3.Api api, LightSensorMonitor lightSensorMonitor, LightSensor.Color trackColor, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
+    public static void reachPosFromOrigin(EV3.Api api, LightSensorMonitor lightSensorMonitor, int trackNumber, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
 
         RobotOperation.checkColor(api, lightSensorMonitor, LightSensor.Color.BLACK, true);
 
-        reachBeginOfTrack(api, lightSensorMonitor, trackColor, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+        reachBeginOfTrack(api, lightSensorMonitor, trackNumber, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
 
-        reachPosFromBeginOfTrack(api, lightSensorMonitor, trackColor, numberOfPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+    //    reachPosFromBeginOfTrack(api, lightSensorMonitor, trackNumber, numberOfPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
 
     }
 
@@ -502,7 +501,7 @@ public final class RobotOperation {
         } else {
             returnToBeginOfTrack(api, lightSensorMonitor, trackColorStart, numberStartPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
             if (indexEnd > indexStart) {
-                reachPosFromOrigin(api, lightSensorMonitor, trackColorEnd, numberEndPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+      //          reachPosFromOrigin(api, lightSensorMonitor, trackColorEnd, numberEndPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
             } else {
                 LightSensor.Color colorFound = null;
 
@@ -666,12 +665,14 @@ public final class RobotOperation {
         }
     }
 
-    private static void reachBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, LightSensor.Color trackColor, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
+    private static void reachBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, int trackNumber, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
 
         LightSensor.Color colorFound = null;
 
-        while(colorFound != trackColor){
-            colorFound = RobotOperation.followLine(api,
+        int i =-1;
+
+        while (i != trackNumber){
+            RobotOperation.followLine(api,
                     lightSensorMonitor,
                     ManualActivity.Direction.FORWARD,
                     LightSensor.Color.BLACK,
@@ -680,7 +681,9 @@ public final class RobotOperation {
                     colorsToCheck
             );
 
-            if(colorFound != trackColor){
+            i++;
+
+            if(i != trackNumber){
                 smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
             }
         }
@@ -688,7 +691,7 @@ public final class RobotOperation {
 
 
     //TODO MAKE PRIVATE IN FUTURE
-    public static void pickUpObject (EV3.Api api, VirtualMapUI.AsyncRobotTask robotTask) throws  RobotException{
+    public static void pickUpObject (EV3.Api api, AsyncRobotTask robotTask) throws  RobotException{
 
         try {
             final float MAX_OBJ_DISTANCE = 15;
@@ -840,5 +843,46 @@ public final class RobotOperation {
     }
 
 
+    public static void addObject (EV3.Api api, AsyncRobotTask asyncRobotTask,
+                                  PositionButton referencedButton) throws RobotException {
+        try {
+            ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
+            colorsToCheck.add(LightSensor.Color.RED);
+            colorsToCheck.add(LightSensor.Color.BROWN);
+            colorsToCheck.add(LightSensor.Color.YELLOW);
+            colorsToCheck.add(LightSensor.Color.GREEN);
 
+            short blackLineIntensity = getReflectedIntensity(api, new LightSensorMonitor());
+            short backgroundIntensity = getBackgroundColorIntensity(api, new LightSensorMonitor());
+
+            reachPosFromOrigin(api, new LightSensorMonitor(), referencedButton.getTrackNumber(),
+                    referencedButton.getPositionNumber(),
+                    colorsToCheck, blackLineIntensity, backgroundIntensity);
+
+            asyncRobotTask.moveToPositionOnTrack(referencedButton.getTrackNumber(), referencedButton.getPositionNumber());
+
+            referencedButton.changeOccupiedState();
+
+            asyncRobotTask.moveToBeginning();
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            throw new RobotException("Something went wrong, please try again");
+        }
+    }
+
+    //PositionButton hanno un metodo changeOccupiedState per cambiare lo stato occupato/libero.
+    //AsyncTask chiama i metodi per muovere il robot sulla mappa virtuale,
+    // destinationButton è il bottone dove l'oggetto deve essere spostato e ha metodi per prendere numero del track e numero della posizione;
+    //buttonToMoveObjFrom è il bottone da cui muovere l'oggetto.
+
+    public static void moveObject(EV3.Api api, AsyncRobotTask asyncRobotTask,
+                                  PositionButton destinationButton, PositionButton buttonToMoveObjFrom) throws RobotException {
+
+    }
+
+    public static void removeObject(EV3.Api api, AsyncRobotTask asyncRobotTask,
+                                    PositionButton referencedButton) throws RobotException {
+
+    }
 }
