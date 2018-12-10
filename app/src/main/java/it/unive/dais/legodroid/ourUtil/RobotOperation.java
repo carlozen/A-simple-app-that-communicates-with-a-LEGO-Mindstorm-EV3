@@ -446,12 +446,12 @@ public final class RobotOperation {
         left.interrupt();
     }
 
-    public static void reachOriginFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, LightSensor.Color trackColorStart, int numberPosStart, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws InterruptedException, IOException, RobotException {
-        returnToBeginOfTrack(api, lightSensorMonitor, trackColorStart, numberPosStart, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+    public static void reachOriginFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, int numberPosStart, ArrayList<LightSensor.Color> colorsToCheck, LightSensor.Color colorStop, short blackLineIntensity, short backgroundColorIntensity) throws InterruptedException, IOException, RobotException {
+        returnToBeginOfTrack(api, lightSensorMonitor, numberPosStart, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
 
         LightSensor.Color colorFound = null;
 
-        while(colorFound != LightSensor.Color.RED){
+        while(colorFound != colorStop){
             colorFound = RobotOperation.followLine(api,
                     lightSensorMonitor,
                     ManualActivity.Direction.BACKWARD,
@@ -474,39 +474,29 @@ public final class RobotOperation {
 
         reachBeginOfTrack(api, lightSensorMonitor, trackNumber, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
 
-    //    reachPosFromBeginOfTrack(api, lightSensorMonitor, trackNumber, numberOfPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+        reachPosFromBeginOfTrack(api, lightSensorMonitor, numberOfPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
 
     }
 
-    public static void reachPosFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, VirtualMap virtualMap, LightSensor.Color trackColorStart, int numberStartPos, LightSensor.Color trackColorEnd, int numberEndPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws InterruptedException, IOException, RobotException {
+    public static void reachPosFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, VirtualMap virtualMap, int trackNumberStart, int numberStartPos, int trackNumberEnd, int numberEndPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws InterruptedException, IOException, RobotException {
         ArrayList<VirtualMap.MapTrack> mapTrackList = virtualMap.getMapTrackList();
 
-        int indexStart = -1, indexEnd = -1;
+        int deltaPos = 0;
 
-        for(int i = 0; i < mapTrackList.size(); i++) {
-            if (mapTrackList.get(i).getTrackColor() == trackColorStart) {
-                indexStart = i;
-            }
-            if (mapTrackList.get(i).getTrackColor() == trackColorEnd) {
-                indexEnd = i;
-            }
+        if(trackNumberEnd > mapTrackList.size() || trackNumberStart > mapTrackList.size()){
+            throw new RobotException("Track number do not exist.");
         }
 
-        if(indexStart == -1 || indexEnd == -1){
-            throw new RobotException("Color track not in the map");
-        }
-
-        if(trackColorStart == trackColorEnd){
-            reachAnotherPosOfTrack(api, lightSensorMonitor, numberStartPos, numberEndPos, trackColorStart, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+        if(trackNumberEnd == trackNumberStart){
+            reachAnotherPosOfTrack(api, lightSensorMonitor, numberStartPos, numberEndPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
         } else {
-            returnToBeginOfTrack(api, lightSensorMonitor, trackColorStart, numberStartPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
-            if (indexEnd > indexStart) {
-      //          reachPosFromOrigin(api, lightSensorMonitor, trackColorEnd, numberEndPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+            returnToBeginOfTrack(api, lightSensorMonitor, trackNumberStart, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+            if (trackNumberEnd > trackNumberStart) {
+                reachPosFromOrigin(api, lightSensorMonitor, trackNumberEnd, numberEndPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
             } else {
-                LightSensor.Color colorFound = null;
 
-                while(colorFound != trackColorEnd){
-                    colorFound = RobotOperation.followLine(api,
+                while(deltaPos != trackNumberStart - trackNumberEnd){
+                    RobotOperation.followLine(api,
                             lightSensorMonitor,
                             ManualActivity.Direction.BACKWARD,
                             LightSensor.Color.BLACK,
@@ -515,11 +505,13 @@ public final class RobotOperation {
                             colorsToCheck
                     );
 
-                    if(colorFound != trackColorEnd){
+                    deltaPos++;
+
+                    if(deltaPos != trackNumberStart - trackNumberEnd){
                         smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT);
                     }
                 }
-                reachPosFromBeginOfTrack(api, lightSensorMonitor, trackColorEnd, numberEndPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+                reachPosFromBeginOfTrack(api, lightSensorMonitor, numberEndPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
 
             }
 
@@ -527,12 +519,12 @@ public final class RobotOperation {
 
     }
 
-    private static void reachAnotherPosOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, int numberStartPos, int numberEndPos, LightSensor.Color trackColor, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
+    private static void reachAnotherPosOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, int numberStartPos, int numberEndPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
         if(numberEndPos > numberStartPos){
             int positions = numberEndPos - numberStartPos;
 
             while(positions > 0){
-                LightSensor.Color colorFound = RobotOperation.followLine(api,
+                RobotOperation.followLine(api,
                         lightSensorMonitor,
                         ManualActivity.Direction.FORWARD,
                         LightSensor.Color.BLACK,
@@ -541,13 +533,10 @@ public final class RobotOperation {
                         colorsToCheck
                 );
 
-                if(colorFound == trackColor){
-                    positions --;
-                    if(positions > 0){
-                        smallMovementUntilColor(api, lightSensorMonitor, trackColor, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
-                    }
-                } else {
-                    throw new RobotException("Find color different from track colors");
+
+                positions --;
+                if(positions > 0) {
+                    smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
                 }
             }
         } else {
@@ -564,33 +553,31 @@ public final class RobotOperation {
                             colorsToCheck
                     );
 
-                    if(colorFound == trackColor){
-                        position--;
-                        if(position > 0){
-                            smallMovementUntilColor(api, lightSensorMonitor, trackColor, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT);
-                        }
-                    } else {
-                        throw new RobotException("Find color different from track colors");
+
+                    position--;
+                    if(position > 0){
+                        smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT);
                     }
+
                 }
             }
         }
     }
 
-    public static void reachEndFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, LightSensor.Color trackColor, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
+    public static void reachEndFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, LightSensor.Color colorStop, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
 
         RobotOperation.checkColor(api, lightSensorMonitor, LightSensor.Color.BLACK, true);
 
-        returnToBeginOfTrack(api, lightSensorMonitor, trackColor, numberOfPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+        returnToBeginOfTrack(api, lightSensorMonitor, numberOfPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
 
-        reachEndFromBeginOfTrack(api, lightSensorMonitor, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+        reachEndFromBeginOfTrack(api, lightSensorMonitor, colorsToCheck, colorStop, blackLineIntensity, backgroundColorIntensity);
     }
 
-    private static void reachEndFromBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws InterruptedException, IOException, RobotException {
+    private static void reachEndFromBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, ArrayList<LightSensor.Color> colorsToCheck, LightSensor.Color colorStop, short blackLineIntensity, short backgroundColorIntensity) throws InterruptedException, IOException, RobotException {
 
         LightSensor.Color colorFound = null;
 
-        while(colorFound != LightSensor.Color.RED){
+        while(colorFound != colorStop){
             colorFound = RobotOperation.followLine(api,
                     lightSensorMonitor,
                     ManualActivity.Direction.FORWARD,
@@ -600,21 +587,19 @@ public final class RobotOperation {
                     colorsToCheck
             );
 
-            if(colorFound != LightSensor.Color.RED){
+            if(colorFound != colorStop){
                 smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
             }
         }
     }
 
-    private static void returnToBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, LightSensor.Color trackColor, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
-
-        LightSensor.Color colorFound;
+    private static void returnToBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
 
         int position = numberOfPos;
 
         while(position >= 0){
 
-            colorFound = RobotOperation.followLine(api,
+            RobotOperation.followLine(api,
                     lightSensorMonitor,
                     ManualActivity.Direction.BACKWARD,
                     LightSensor.Color.BLACK,
@@ -623,29 +608,27 @@ public final class RobotOperation {
                     colorsToCheck
             );
 
-            if(colorFound == trackColor) {
-                if (position >= 1) {
-                    RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT);
-                } else {
-                    RobotOperation.turnUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, VirtualMap.Wheel.RIGHT, ManualActivity.Direction.BACKWARD);
-                }
-                position--;
+            if (position >= 1) {
+                RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT);
+            } else {
+                RobotOperation.turnUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, VirtualMap.Wheel.RIGHT, ManualActivity.Direction.BACKWARD);
             }
+            position--;
+
 
         }
     }
 
-    private static void reachPosFromBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, LightSensor.Color trackColor, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
+    private static void reachPosFromBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
 
         RobotOperation.robotRotation(api, -70, VirtualMap.Wheel.RIGHT);
         RobotOperation.turnUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, VirtualMap.Wheel.LEFT, ManualActivity.Direction.FORWARD);
 
         int position = 0;
-        LightSensor.Color colorFound;
 
         while(position != numberOfPos) {
 
-            colorFound = RobotOperation.followLine(api,
+            RobotOperation.followLine(api,
                     lightSensorMonitor,
                     ManualActivity.Direction.FORWARD,
                     LightSensor.Color.BLACK,
@@ -654,20 +637,16 @@ public final class RobotOperation {
                     colorsToCheck
             );
 
-            if(colorFound == trackColor){
-                position ++;
-                if(position != numberOfPos) {
-                    smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
-                }
-            } else {
-                throw new RobotException("Find color different from track color.");
+
+            position ++;
+            if(position != numberOfPos) {
+                smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
             }
+
         }
     }
 
     private static void reachBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, int trackNumber, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
-
-        LightSensor.Color colorFound = null;
 
         int i =-1;
 
