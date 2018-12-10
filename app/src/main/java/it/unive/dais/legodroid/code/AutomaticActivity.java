@@ -39,7 +39,7 @@ public class AutomaticActivity extends AppCompatActivity {
                                                     trackList.add(new VirtualMap.MapTrack(LightSensor.Color.YELLOW, 2));
                                                     trackList.add(new VirtualMap.MapTrack(LightSensor.Color.GREEN, 1));
 
-                                                    VirtualMap map = new VirtualMap(trackList);
+                                                    VirtualMap map = new VirtualMap(trackList, (short)3, (short)10); //TODO: change?
 
                                                     virtualMapIntent.putExtra("map", map);
                                                     startActivity(virtualMapIntent);

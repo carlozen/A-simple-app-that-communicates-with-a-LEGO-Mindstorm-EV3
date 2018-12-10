@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import it.unive.dais.legodroid.code.ManualActivity;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
@@ -24,6 +23,8 @@ public final class RobotOperation {
 
         LightSensorColor lightSensorColor;
 
+        LightSensor.Color colorRes = null;
+
         try {
 
             Thread right, left;
@@ -39,25 +40,17 @@ public final class RobotOperation {
 
             Short reflectedIntensity;
 
-
-
-
-            final double P = 0.5;
-            final double I = 0.05;
-            final double D = 0.5;
-            final int OFFSET = 50;
+            double P = 0.5;
+            double I = 0.05;
+            double D = 0.5;
+            int OFFSET = 50;
 
             int maxSpeed;
             int integral = 0;
             int derivative;
             int lastError = 0;
 
-            //if (direction == ManualActivity.Direction.FORWARD)
-                maxSpeed = 2;
-            /*else if (direction == ManualActivity.Direction.BACKWARD)
-                maxSpeed = -3;*/
-                //TODO To be changed to not throw exceptions
-            //else throw new IllegalArgumentException();
+            maxSpeed = 2;
 
             LightSensorIntensity lightSensorIntensity = new LightSensorIntensity(api, EV3.InputPort._1, lightSensorMonitor);
             Thread lightIntensity = new Thread(lightSensorIntensity);
@@ -67,15 +60,34 @@ public final class RobotOperation {
             Thread lightColor = new Thread(lightSensorColor);
             lightColor.start();
 
+            GyroSensorAngle gyroSensorAngle = new GyroSensorAngle(api);
+            float angleStart = gyroSensorAngle.getAngleNow();
+
             int turningValue;
             int leftPower, rightPower, difference;
 
-            while (!lightSensorColor.getIsObstacleFound()) {
+            Boolean flag = false;
+
+            while (!flag) {
 
                 rightMotor.setPower(0);
                 leftMotor.setPower(0);
 
-                reflectedIntensity = lightSensorIntensity.getReflectedNow();
+                if(direction == ManualActivity.Direction.BACKWARD && abs(gyroSensorAngle.getAngleNow() - angleStart) >= 90){
+                    direction = ManualActivity.Direction.FORWARD;
+                }
+
+                reflectedIntensity = null;
+                while(reflectedIntensity ==  null) {
+                    try {
+                        reflectedIntensity = lightSensorIntensity.getReflectedNow();
+                    } catch (ExecutionException e) {
+                        reflectedIntensity = null;
+                        lightSensorMonitor.release();
+                        e.printStackTrace();
+
+                    }
+                }
 
                 int error = (normalizeOnPercent(reflectedIntensity, lineReflectedColor,
                         backgroundReflectedColor) - OFFSET) /10;
@@ -95,9 +107,6 @@ public final class RobotOperation {
                     rightPower = 20;
                 }
 
-                //if the difference between two values is big then is more probably make mistakes -> go slowly
-                //if the difference is small you go on -> go quickly
-
                 difference = 10 - abs(leftPower - rightPower);
                 if(difference < 3)
                     difference = 3;
@@ -108,14 +117,34 @@ public final class RobotOperation {
                 } else {
                     rightMotor.setPower(rightPower * difference * (-1));
                     leftMotor.setPower(leftPower * difference * (-1));
+                    P = 0.3; //TODO: to be tested
                 }
 
                 Thread.sleep(25);
 
+                flag = null;
+                while(flag == null) {
+                    try {
+                        flag = lightSensorColor.getIsObstacleFound();
+                    } catch (ExecutionException e) {
+                        rightMotor.setPower(0);
+                        leftMotor.setPower(0);
+                        lightSensorMonitor.release();
+                        //e.printStackTrace();
+                        flag = null;
+                    }
+                }
             }
+
+            rightMotor.setPower(10);
+            leftMotor.setPower(10);  //TODO: to be tested
+
+            Thread.sleep(20);
 
             rightMotor.setPower(0);
             leftMotor.setPower(0);
+
+            colorRes = lightSensorColor.getColorNow();
 
             rightMotor.brake();
             leftMotor.brake();
@@ -135,7 +164,7 @@ public final class RobotOperation {
             e.printStackTrace();
             throw new RobotException("Something went wrong. Please try this operation again.");
         }
-        return lightSensorColor.getColorObstacleFound();
+        return colorRes;
     }
 
 
@@ -185,7 +214,9 @@ public final class RobotOperation {
             t.start();
 
             color = lightSensorColor.getColorNow();
-            t.interrupt();
+
+
+            lightSensorColor.killThread(t);
 
             return color;
         } catch (IOException | ExecutionException | InterruptedException e) {
@@ -203,7 +234,7 @@ public final class RobotOperation {
             t.start();
 
             res = lightSensorIntensity.getReflectedNow();
-            t.interrupt();
+            //t.interrupt();
 
             return res;
         } catch (IOException | InterruptedException | ExecutionException e) {
@@ -215,7 +246,6 @@ public final class RobotOperation {
     //TODO Far muovere il robot a destra per prendere il colore prima dell'operazione di scelta del colore.
     public static short getBackgroundColorIntensity(EV3.Api api, LightSensorMonitor lightSensorMonitor) throws RobotException {
 
-        checkColor(api, lightSensorMonitor, LightSensor.Color.BLACK, true);
         robotRotation (api, 30, VirtualMap.Wheel.LEFT);
         //turnUntilColor(api, lightSensorMonitor, LightSensor.Color.WHITE, VirtualMap.Wheel.LEFT, ManualActivity.Direction.FORWARD);
 
@@ -226,8 +256,8 @@ public final class RobotOperation {
 
         //smallMovement(api, ManualActivity.Direction.BACKWARD, -100);
 
-        robotRotation (api, -30, VirtualMap.Wheel.LEFT);
-        //turnUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, VirtualMap.Wheel.LEFT, ManualActivity.Direction.BACKWARD);
+        //robotRotation (api, -30, VirtualMap.Wheel.LEFT);
+        turnUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, VirtualMap.Wheel.LEFT, ManualActivity.Direction.BACKWARD);
 
 
         return backgroundColor;
@@ -237,7 +267,7 @@ public final class RobotOperation {
         try {
             int power = 20;
 
-            GyroSensorAngle gyroSensorAngle = new GyroSensorAngle(api, EV3.InputPort._3);
+            GyroSensorAngle gyroSensorAngle = new GyroSensorAngle(api);
             Thread gyroSensor = new Thread(gyroSensorAngle);
             gyroSensor.start();
 
@@ -249,12 +279,12 @@ public final class RobotOperation {
                 if (angle < 0) {
                     leftMotor.setPower(-power);
                     while (gyroSensorAngle.getAngleNow() > currentAngle + angle) {
-                        Thread.sleep(15);
+                        Thread.sleep(50);
                     }
                 } else {
                     leftMotor.setPower(power);
                     while (gyroSensorAngle.getAngleNow() < currentAngle + angle) {
-                        Thread.sleep(15);
+                        Thread.sleep(50);
                     }
                 }
                 leftMotor.setPower(0);
@@ -446,10 +476,14 @@ public final class RobotOperation {
         left.interrupt();
     }
 
-    public static void reachOriginFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, int numberPosStart, ArrayList<LightSensor.Color> colorsToCheck, LightSensor.Color colorStop, short blackLineIntensity, short backgroundColorIntensity) throws InterruptedException, IOException, RobotException {
-        returnToBeginOfTrack(api, lightSensorMonitor, numberPosStart, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+    public static void reachOriginFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, ArrayList<LightSensor.Color> colorsToCheck, LightSensor.Color colorStop, short blackLineIntensity, short backgroundColorIntensity, AsyncRobotTask asyncRobotTask, PositionButton referencedButton) throws InterruptedException, IOException, RobotException {
+        returnToBeginOfTrack(api, lightSensorMonitor, colorsToCheck, blackLineIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
 
         LightSensor.Color colorFound = null;
+
+        int i = referencedButton.getTrackNumber();
+
+        asyncRobotTask.moveToTrack(i);
 
         while(colorFound != colorStop){
             colorFound = RobotOperation.followLine(api,
@@ -461,41 +495,47 @@ public final class RobotOperation {
                     colorsToCheck
             );
 
+            i--;
+
+            asyncRobotTask.moveToTrack(i);
+
             if(colorFound != LightSensor.Color.RED){
                 smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT);
             }
         }
+
+        asyncRobotTask.moveToBeginning();
+
         smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
+
     }
 
-    public static void reachPosFromOrigin(EV3.Api api, LightSensorMonitor lightSensorMonitor, int trackNumber, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
+    public static void reachPosFromOrigin(EV3.Api api, LightSensorMonitor lightSensorMonitor, ArrayList<LightSensor.Color> colorsToCheck,
+                                          short blackLineIntensity, short backgroundColorIntensity,
+                                          AsyncRobotTask asyncRobotTask, PositionButton referencedButton) throws RobotException, IOException, InterruptedException {
 
         RobotOperation.checkColor(api, lightSensorMonitor, LightSensor.Color.BLACK, true);
 
-        reachBeginOfTrack(api, lightSensorMonitor, trackNumber, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+        reachBeginOfTrack(api, lightSensorMonitor, referencedButton.getTrackNumber(), colorsToCheck, blackLineIntensity,
+                backgroundColorIntensity, asyncRobotTask);
 
-        reachPosFromBeginOfTrack(api, lightSensorMonitor, numberOfPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+        reachPosFromBeginOfTrack(api, lightSensorMonitor, colorsToCheck, blackLineIntensity,
+                backgroundColorIntensity, asyncRobotTask, referencedButton);
 
     }
 
-    public static void reachPosFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, VirtualMap virtualMap, int trackNumberStart, int numberStartPos, int trackNumberEnd, int numberEndPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws InterruptedException, IOException, RobotException {
-        ArrayList<VirtualMap.MapTrack> mapTrackList = virtualMap.getMapTrackList();
-
+    public static void reachPosFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity, AsyncRobotTask asyncRobotTask, PositionButton buttonToMoveObjFrom, PositionButton destinationButton) throws InterruptedException, IOException, RobotException {
         int deltaPos = 0;
 
-        if(trackNumberEnd > mapTrackList.size() || trackNumberStart > mapTrackList.size()){
-            throw new RobotException("Track number do not exist.");
-        }
-
-        if(trackNumberEnd == trackNumberStart){
-            reachAnotherPosOfTrack(api, lightSensorMonitor, numberStartPos, numberEndPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+        if(buttonToMoveObjFrom.getTrackNumber() == destinationButton.getTrackNumber()){
+            reachAnotherPosOfTrack(api, lightSensorMonitor, destinationButton.getPositionNumber(), colorsToCheck, blackLineIntensity, backgroundColorIntensity, asyncRobotTask, buttonToMoveObjFrom);
         } else {
-            returnToBeginOfTrack(api, lightSensorMonitor, trackNumberStart, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
-            if (trackNumberEnd > trackNumberStart) {
-                reachPosFromOrigin(api, lightSensorMonitor, trackNumberEnd, numberEndPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+            returnToBeginOfTrack(api, lightSensorMonitor, colorsToCheck, blackLineIntensity, backgroundColorIntensity, asyncRobotTask, buttonToMoveObjFrom);
+            if (destinationButton.getTrackNumber() > buttonToMoveObjFrom.getTrackNumber()) {
+                reachPosFromOrigin(api, lightSensorMonitor, colorsToCheck, blackLineIntensity, backgroundColorIntensity, asyncRobotTask, destinationButton);
             } else {
 
-                while(deltaPos != trackNumberStart - trackNumberEnd){
+                while(deltaPos != buttonToMoveObjFrom.getTrackNumber() - destinationButton.getTrackNumber()){
                     RobotOperation.followLine(api,
                             lightSensorMonitor,
                             ManualActivity.Direction.BACKWARD,
@@ -507,11 +547,13 @@ public final class RobotOperation {
 
                     deltaPos++;
 
-                    if(deltaPos != trackNumberStart - trackNumberEnd){
+                    asyncRobotTask.moveToTrack(buttonToMoveObjFrom.getTrackNumber() - deltaPos);
+
+                    if(deltaPos != buttonToMoveObjFrom.getTrackNumber() - destinationButton.getTrackNumber()){
                         smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT);
                     }
                 }
-                reachPosFromBeginOfTrack(api, lightSensorMonitor, numberEndPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+                reachPosFromBeginOfTrack(api, lightSensorMonitor, colorsToCheck, blackLineIntensity, backgroundColorIntensity, asyncRobotTask, destinationButton);
 
             }
 
@@ -519,9 +561,9 @@ public final class RobotOperation {
 
     }
 
-    private static void reachAnotherPosOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, int numberStartPos, int numberEndPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
-        if(numberEndPos > numberStartPos){
-            int positions = numberEndPos - numberStartPos;
+    private static void reachAnotherPosOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, int destinationPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity, AsyncRobotTask asyncRobotTask, PositionButton buttonToMoveObjFrom) throws RobotException, IOException, InterruptedException {
+        if(destinationPos > buttonToMoveObjFrom.getPositionNumber()){
+            int positions = destinationPos - buttonToMoveObjFrom.getPositionNumber();
 
             while(positions > 0){
                 RobotOperation.followLine(api,
@@ -535,16 +577,19 @@ public final class RobotOperation {
 
 
                 positions --;
+
+                asyncRobotTask.moveToPositionOnTrack(buttonToMoveObjFrom.getTrackNumber(), destinationPos - positions);
+
                 if(positions > 0) {
                     smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
                 }
             }
         } else {
-            if(numberEndPos < numberStartPos){
-                int position = numberStartPos - numberEndPos;
+            if(destinationPos < buttonToMoveObjFrom.getPositionNumber()){
+                int position = buttonToMoveObjFrom.getPositionNumber() - destinationPos;
 
                 while(position > 0){
-                    LightSensor.Color colorFound = RobotOperation.followLine(api,
+                    RobotOperation.followLine(api,
                             lightSensorMonitor,
                             ManualActivity.Direction.BACKWARD,
                             LightSensor.Color.BLACK,
@@ -555,6 +600,9 @@ public final class RobotOperation {
 
 
                     position--;
+
+                    asyncRobotTask.moveToPositionOnTrack(buttonToMoveObjFrom.getTrackNumber(), destinationPos + position);
+
                     if(position > 0){
                         smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT);
                     }
@@ -564,18 +612,22 @@ public final class RobotOperation {
         }
     }
 
-    public static void reachEndFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, LightSensor.Color colorStop, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
+    public static void reachEndFromPos(EV3.Api api, LightSensorMonitor lightSensorMonitor, ArrayList<LightSensor.Color> colorsToCheck, LightSensor.Color colorStop, short blackLineIntensity, short backgroundColorIntensity, AsyncRobotTask asyncRobotTask, PositionButton referencedButton) throws RobotException, IOException, InterruptedException {
 
         RobotOperation.checkColor(api, lightSensorMonitor, LightSensor.Color.BLACK, true);
 
-        returnToBeginOfTrack(api, lightSensorMonitor, numberOfPos, colorsToCheck, blackLineIntensity, backgroundColorIntensity);
+        returnToBeginOfTrack(api, lightSensorMonitor, colorsToCheck, blackLineIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
 
-        reachEndFromBeginOfTrack(api, lightSensorMonitor, colorsToCheck, colorStop, blackLineIntensity, backgroundColorIntensity);
+        reachEndFromBeginOfTrack(api, lightSensorMonitor, colorsToCheck, colorStop, blackLineIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
     }
 
-    private static void reachEndFromBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, ArrayList<LightSensor.Color> colorsToCheck, LightSensor.Color colorStop, short blackLineIntensity, short backgroundColorIntensity) throws InterruptedException, IOException, RobotException {
+    private static void reachEndFromBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, ArrayList<LightSensor.Color> colorsToCheck, LightSensor.Color colorStop, short blackLineIntensity, short backgroundColorIntensity, AsyncRobotTask asyncRobotTask, PositionButton referencedButton) throws InterruptedException, IOException, RobotException {
 
         LightSensor.Color colorFound = null;
+
+        int i = referencedButton.getTrackNumber();
+
+        asyncRobotTask.moveToTrack(i);
 
         while(colorFound != colorStop){
             colorFound = RobotOperation.followLine(api,
@@ -587,15 +639,19 @@ public final class RobotOperation {
                     colorsToCheck
             );
 
+            i--;
+
+            asyncRobotTask.moveToTrack(i);
+
             if(colorFound != colorStop){
                 smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
             }
         }
     }
 
-    private static void returnToBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
+    private static void returnToBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity, AsyncRobotTask asyncRobotTask, PositionButton referencedButton) throws RobotException, IOException, InterruptedException {
 
-        int position = numberOfPos;
+        int position = referencedButton.getPositionNumber();
 
         while(position >= 0){
 
@@ -608,6 +664,8 @@ public final class RobotOperation {
                     colorsToCheck
             );
 
+            asyncRobotTask.moveToPositionOnTrack(referencedButton.getTrackNumber(), position);
+
             if (position >= 1) {
                 RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT);
             } else {
@@ -619,14 +677,14 @@ public final class RobotOperation {
         }
     }
 
-    private static void reachPosFromBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, int numberOfPos, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
+    private static void reachPosFromBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity, AsyncRobotTask asyncRobotTask, PositionButton referencedButton) throws RobotException, IOException, InterruptedException {
 
         RobotOperation.robotRotation(api, -70, VirtualMap.Wheel.RIGHT);
         RobotOperation.turnUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, VirtualMap.Wheel.LEFT, ManualActivity.Direction.FORWARD);
 
         int position = 0;
 
-        while(position != numberOfPos) {
+        while(position != referencedButton.getPositionNumber()) {
 
             RobotOperation.followLine(api,
                     lightSensorMonitor,
@@ -639,14 +697,17 @@ public final class RobotOperation {
 
 
             position ++;
-            if(position != numberOfPos) {
+
+            asyncRobotTask.moveToPositionOnTrack(referencedButton.getTrackNumber(), referencedButton.getPositionNumber());
+
+            if(position != referencedButton.getPositionNumber()) {
                 smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
             }
 
         }
     }
 
-    private static void reachBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, int trackNumber, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity) throws RobotException, IOException, InterruptedException {
+    private static void reachBeginOfTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, int trackNumber, ArrayList<LightSensor.Color> colorsToCheck, short blackLineIntensity, short backgroundColorIntensity, AsyncRobotTask asyncRobotTask) throws RobotException, IOException, InterruptedException {
 
         int i =-1;
 
@@ -661,6 +722,8 @@ public final class RobotOperation {
             );
 
             i++;
+
+            asyncRobotTask.moveToTrack(i);
 
             if(i != trackNumber){
                 smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
@@ -681,7 +744,7 @@ public final class RobotOperation {
             float currentDistance = 0;
 
 
-            GyroSensorAngle gyroSensorAngle = new GyroSensorAngle(api, EV3.InputPort._3);
+            GyroSensorAngle gyroSensorAngle = new GyroSensorAngle(api);
             Thread gyroSensor = new Thread(gyroSensorAngle);
             final float STARTING_ANGLE = gyroSensorAngle.getAngleNow();
 
@@ -822,8 +885,8 @@ public final class RobotOperation {
     }
 
 
-    public static void addObject (EV3.Api api, AsyncRobotTask asyncRobotTask,
-                                  PositionButton referencedButton) throws RobotException {
+    public static void addObject(EV3.Api api, AsyncRobotTask asyncRobotTask,
+                                 Short backgroundColorIntensity, Short blackColorIntensity, PositionButton referencedButton) throws RobotException {
         try {
             ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
             colorsToCheck.add(LightSensor.Color.RED);
@@ -831,23 +894,46 @@ public final class RobotOperation {
             colorsToCheck.add(LightSensor.Color.YELLOW);
             colorsToCheck.add(LightSensor.Color.GREEN);
 
-            short blackLineIntensity = getReflectedIntensity(api, new LightSensorMonitor());
-            short backgroundIntensity = getBackgroundColorIntensity(api, new LightSensorMonitor());
+            LightSensor.Color colorStop = LightSensor.Color.RED;
 
-            reachPosFromOrigin(api, new LightSensorMonitor(), referencedButton.getTrackNumber(),
-                    referencedButton.getPositionNumber(),
-                    colorsToCheck, blackLineIntensity, backgroundIntensity);
+            LightSensorMonitor lightSensorMonitor = new LightSensorMonitor();
+            Grabber grabber = new Grabber(api, EV3.OutputPort.A);
+            Thread t = new Thread(grabber);
+            t.start();
+
+            if(!grabber.isPresent){
+                //TODO: warning message
+            }
+
+            //grabber.down() //TODO:implements
+
+            reachPosFromOrigin(api, lightSensorMonitor,
+                    colorsToCheck, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
+
+            putObject(api, grabber, lightSensorMonitor);
 
             asyncRobotTask.moveToPositionOnTrack(referencedButton.getTrackNumber(), referencedButton.getPositionNumber());
 
             referencedButton.changeOccupiedState();
 
-            asyncRobotTask.moveToBeginning();
+            reachOriginFromPos(api, lightSensorMonitor, colorsToCheck, colorStop, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             throw new RobotException("Something went wrong, please try again");
         }
+    }
+
+    //TODO: to be tested
+    private static void putObject(EV3.Api api, Grabber grabber, LightSensorMonitor lightSensorMonitor) throws RobotException, IOException, InterruptedException {
+        robotRotation(api, -90, VirtualMap.Wheel.RIGHT);
+
+        //grabber.up(); //TODO: implements
+
+        robotRotation(api, 90, VirtualMap.Wheel.RIGHT);
+
+        smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT);
+
     }
 
     //PositionButton hanno un metodo changeOccupiedState per cambiare lo stato occupato/libero.
@@ -856,12 +942,70 @@ public final class RobotOperation {
     //buttonToMoveObjFrom è il bottone da cui muovere l'oggetto.
 
     public static void moveObject(EV3.Api api, AsyncRobotTask asyncRobotTask,
-                                  PositionButton destinationButton, PositionButton buttonToMoveObjFrom) throws RobotException {
+                                  Short backgroundColorIntensity, Short blackColorIntensity, PositionButton destinationButton, PositionButton buttonToMoveObjFrom) throws RobotException, IOException, InterruptedException {
+
+        ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
+        colorsToCheck.add(LightSensor.Color.RED);
+        colorsToCheck.add(LightSensor.Color.BROWN);
+        colorsToCheck.add(LightSensor.Color.YELLOW);
+        colorsToCheck.add(LightSensor.Color.GREEN);
+
+        LightSensor.Color colorStop = LightSensor.Color.RED;
+
+        LightSensorMonitor lightSensorMonitor = new LightSensorMonitor();
+        Grabber grabber = new Grabber(api, EV3.OutputPort.A);
+        Thread t = new Thread(grabber);
+        t.start();
+
+        //grabber.up(); //TODO
+
+        reachPosFromOrigin(api, lightSensorMonitor,
+                colorsToCheck, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, buttonToMoveObjFrom);
+
+        pickUpObject(api, asyncRobotTask);
+
+        buttonToMoveObjFrom.changeOccupiedState();
+
+        reachPosFromPos(api, lightSensorMonitor, colorsToCheck, blackColorIntensity, backgroundColorIntensity,
+                asyncRobotTask, buttonToMoveObjFrom, destinationButton);
+
+        putObject(api, grabber, lightSensorMonitor);
+
+        destinationButton.changeOccupiedState();
+
+        reachOriginFromPos(api, lightSensorMonitor, colorsToCheck,
+                colorStop, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, destinationButton);
+
+        t.interrupt();
 
     }
 
     public static void removeObject(EV3.Api api, AsyncRobotTask asyncRobotTask,
-                                    PositionButton referencedButton) throws RobotException {
+                                    Short backgroundColorIntensity, Short blackColorIntensity, PositionButton referencedButton) throws RobotException, IOException, InterruptedException {
 
+        ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
+        colorsToCheck.add(LightSensor.Color.RED);
+        colorsToCheck.add(LightSensor.Color.BROWN);
+        colorsToCheck.add(LightSensor.Color.YELLOW);
+        colorsToCheck.add(LightSensor.Color.GREEN);
+
+        LightSensor.Color colorStop = LightSensor.Color.RED;
+
+        LightSensorMonitor lightSensorMonitor = new LightSensorMonitor();
+        Grabber grabber = new Grabber(api, EV3.OutputPort.A);
+        Thread t = new Thread(grabber);
+        t.start();
+
+        reachPosFromOrigin(api, lightSensorMonitor,
+                colorsToCheck, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
+
+        pickUpObject(api, asyncRobotTask);
+
+        referencedButton.changeOccupiedState();
+
+        reachOriginFromPos(api, lightSensorMonitor, colorsToCheck,
+                colorStop, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
+
+        //grabber.up(); //TODO
     }
 }

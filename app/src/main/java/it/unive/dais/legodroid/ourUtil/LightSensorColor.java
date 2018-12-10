@@ -3,6 +3,8 @@ package it.unive.dais.legodroid.ourUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
 
@@ -28,22 +30,18 @@ class LightSensorColor extends LightSensor implements Runnable{
 
     }
 
-    public boolean getIsObstacleFound() {
+    public boolean getIsObstacleFound() throws InterruptedException, ExecutionException, IOException {
+        LightSensor.Color temp;
         boolean res = false;
-        try{
 
-            lightSensorMonitor.give();
-            res = colorsList.contains(getColor().get());
 
-            if(res)
-                colorObstacleFound = getColor().get();
+        temp = getColorNow();
 
-            lightSensorMonitor.release();
-
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-            hasExceptionOccurred = true;
+        if(colorsList.contains(temp)) {
+            res = true;
+            colorObstacleFound = temp;
         }
+
         return res;
     }
 
@@ -57,11 +55,16 @@ class LightSensorColor extends LightSensor implements Runnable{
 
     public LightSensor.Color getColorNow() throws IOException, ExecutionException, InterruptedException {
         LightSensor.Color color;
+        Future<LightSensor.Color> colorFuture;
 
         lightSensorMonitor.give();
         color = super.getColor().get();
         lightSensorMonitor.release();
 
         return color;
+    }
+
+    public void killThread(Thread t) {
+        t.interrupt();
     }
 }

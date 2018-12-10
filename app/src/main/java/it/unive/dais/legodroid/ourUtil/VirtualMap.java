@@ -51,6 +51,14 @@ public class VirtualMap implements Parcelable {
         return true;
     }
 
+    public Short getBlackColorIntensity() {
+        return blackColorIntensity;
+    }
+
+    public Short getBackgroundColorIntensity() {
+        return backgroundColorIntensity;
+    }
+
     public ArrayList<MapTrack> getMapTrackList () {
         return  this.trackList;
     }
@@ -195,6 +203,8 @@ public class VirtualMap implements Parcelable {
     //Parcelable Constructor
     private VirtualMap (Parcel in) {
         this.trackList = in.readArrayList(MapTrack.class.getClassLoader());
+        this.backgroundColorIntensity = (short)in.readInt();
+        this.blackColorIntensity = (short)in.readInt();
     }
 
     //Useless method for our needs, but needs implementation.
@@ -207,6 +217,8 @@ public class VirtualMap implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeArray(this.trackList.toArray());
+        parcel.writeInt(this.blackColorIntensity);
+        parcel.writeInt(this.backgroundColorIntensity);
     }
 
     @Override
@@ -225,8 +237,8 @@ public class VirtualMap implements Parcelable {
 
     public boolean save(String mapName) {
         try {
-       //     String writeValue = MainActivity.mGson.toJson(this);
-        //    MainActivity.mEditor.putString(mapName, writeValue);
+            String writeValue = MainActivity.mGson.toJson(this);
+            MainActivity.mEditor.putString(mapName, writeValue);
             MainActivity.mEditor.commit();
             return true;
         }

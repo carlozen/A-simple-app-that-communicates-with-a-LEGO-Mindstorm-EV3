@@ -8,8 +8,8 @@ import it.unive.dais.legodroid.lib.plugs.GyroSensor;
 
 class GyroSensorAngle extends GyroSensor implements Runnable{
 
-    public GyroSensorAngle(EV3.Api api, EV3.InputPort inputPort) {
-        super(api, inputPort);
+    public GyroSensorAngle(EV3.Api api) {
+        super(api, EV3.InputPort._2);
     }
 
     @Override

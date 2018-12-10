@@ -44,20 +44,21 @@ public final class AsyncRobotTask extends AsyncTask<Void, Integer, Void> {
         try {
             switch (UIManager.getActivityState()) {
                 case ROBOT_ADDING_OBJECT: {
-                    RobotOperation.addObject(api, this, UIManager.getLastClickedButton());
+                    RobotOperation.addObject(api, this, UIManager.getVirtualMap().getBackgroundColorIntensity(),
+                            UIManager.getVirtualMap().getBlackColorIntensity(), UIManager.getLastClickedButton());
                     break;
                 }
 
+                //TODO: cambia all'interno della mappa
                 case ROBOT_MOVING_OBJECT: {
-                    RobotOperation.moveObject(api, this, UIManager.getLastClickedButton(), buttonToMoveObjFrom);
-                    UIManager.getLastClickedButton().changeOccupiedState();
-                    buttonToMoveObjFrom.changeOccupiedState();
+                    RobotOperation.moveObject(api, this, UIManager.getVirtualMap().getBackgroundColorIntensity(),
+                            UIManager.getVirtualMap().getBlackColorIntensity(), UIManager.getLastClickedButton(), buttonToMoveObjFrom);
                     break;
                 }
 
                 case ROBOT_REMOVING_OBJECT: {
-                    RobotOperation.removeObject (api, this, UIManager.getLastClickedButton());
-                    UIManager.getLastClickedButton().changeOccupiedState();
+                    RobotOperation.removeObject (api, this, UIManager.getVirtualMap().getBackgroundColorIntensity(),
+                            UIManager.getVirtualMap().getBlackColorIntensity(), UIManager.getLastClickedButton());
                     break;
                 }
                 default: {

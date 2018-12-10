@@ -11,6 +11,9 @@ import android.widget.Button;
 //import com.google.gson.Gson;
 //import com.google.gson.GsonBuilder;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.IOException;
 
 import it.unive.dais.legodroid.R;
@@ -23,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     public static EV3 ev3;
     public static SharedPreferences mSettings;
     public static SharedPreferences.Editor mEditor;
-    //public static Gson mGson;
+    public static Gson mGson;
 
 
     @Override
@@ -37,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
         mSettings = getSharedPreferences("MapSaved", Context.MODE_PRIVATE);
         mEditor = mSettings.edit();
 
-      //  GsonBuilder gsonb = new GsonBuilder();
-       // mGson = gsonb.create();
+        GsonBuilder gsonb = new GsonBuilder();
+        mGson = gsonb.create();
 
         rules.setOnClickListener(new View.OnClickListener() {
             @Override
