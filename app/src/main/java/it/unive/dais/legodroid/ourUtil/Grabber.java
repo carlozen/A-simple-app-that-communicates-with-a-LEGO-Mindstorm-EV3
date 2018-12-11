@@ -13,34 +13,14 @@ import it.unive.dais.legodroid.lib.plugs.UltrasonicSensor;
 
 public class Grabber extends TachoMotor implements Runnable{
 
-    Future<Float> position;
-    Future<Float> position1;
-    Future<Float> position2;
+    private final float angle = 90;
+    private boolean up = true;
 
     boolean isPresent;
 
     public Grabber(EV3.Api api, EV3.OutputPort outputPort){
         super(api, outputPort);
     }
-
-    public Grabber(EV3.Api api, EV3.OutputPort outputPort, int speed, int power) {
-        this(api, outputPort);
-
-        try{
-            setPower(power);
-            setSpeed(speed);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    /*public static void moveGrabber(Grabber grabber, Thread t3, EV3.Api api, ManualActivity.Direction direction, int speed, int power){
-        grabber = new Grabber(api, EV3.OutputPort.A, direction, speed, power );
-        t3 = new Thread(grabber);
-        t3.start();
-    }*/
-
 
     @Override
     public void run() {
@@ -50,71 +30,6 @@ public class Grabber extends TachoMotor implements Runnable{
             e.printStackTrace();
         }
     }
-
-
-
-    public static void moveDownGrabber(EV3.Api api, Grabber grabber){
-        grabber = new Grabber(api, EV3.OutputPort.A);
-        try {
-            grabber.setStepPower(-60, 5, 0, 145, true);
-            try {
-                Thread.currentThread().sleep(1000);
-                grabber.stop();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    public static void moveUpGrabber(EV3.Api api, Grabber grabber){
-        grabber = new Grabber(api, EV3.OutputPort.A);
-        try {
-            grabber.setStepPower(60, 5, 0, 145, true);
-            try {
-                Thread.currentThread().sleep(1000);
-                grabber.stop();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            grabber.stop();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void inizializeGrabber(EV3.Api api, Grabber grabber, Thread thread){
-        grabber = new Grabber(api, EV3.OutputPort.A, 30, 30 );
-        thread = new Thread(grabber);
-        thread.start();
-        try {
-            Thread.currentThread().sleep(1000);
-            grabber.brake();
-        } catch (InterruptedException | IOException e) {
-            e.printStackTrace();
-        }
-        thread.interrupt();
-    }
-
-    public static void stopGrabber(EV3.Api api, Grabber grabber, Thread thread){
-        if(grabber != null){
-            try {
-                grabber.stop();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            thread.interrupt();
-        }
-    }
-
-
-
-    public static void moveGrabber(EV3.Api api, Grabber grabber, Thread thread, int speed, int power){
-        grabber = new Grabber(api, EV3.OutputPort.A, speed, power );
-        thread = new Thread(grabber);
-        thread.start();
-    }
-
 
     public static boolean getIsPresent(EV3.Api api){
         Future<Float> futureDistance;
@@ -139,5 +54,40 @@ public class Grabber extends TachoMotor implements Runnable{
             e.printStackTrace();
         }
         t3.interrupt();
+    }
+
+    public void down() throws IOException, ExecutionException, InterruptedException {
+        if(isUp()){
+            float position = getPosition().get();
+
+            setPower(-50);
+
+            while(getPosition().get() > position - angle){
+            }
+
+            setPower(0);
+
+            up = false;
+        }
+
+    }
+
+    public boolean isUp() {
+        return up;
+    }
+
+    public void up() throws IOException, ExecutionException, InterruptedException {
+        if(!isUp()){
+            float position = getPosition().get();
+
+            setPower(80);
+
+            while(getPosition().get() < position + angle){
+            }
+
+            setPower(0);
+
+            up = true;
+        }
     }
 }

@@ -18,6 +18,7 @@ import it.unive.dais.legodroid.R;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
 import it.unive.dais.legodroid.lib.util.Prelude;
+import it.unive.dais.legodroid.ourUtil.LightSensorMonitor;
 import it.unive.dais.legodroid.ourUtil.RobotException;
 import it.unive.dais.legodroid.ourUtil.RobotOperation;
 import it.unive.dais.legodroid.ourUtil.VirtualMap;
@@ -39,7 +40,7 @@ public class AutomaticActivity extends AppCompatActivity {
                                                     trackList.add(new VirtualMap.MapTrack(LightSensor.Color.YELLOW, 2));
                                                     trackList.add(new VirtualMap.MapTrack(LightSensor.Color.GREEN, 1));
 
-                                                    VirtualMap map = new VirtualMap(trackList, (short)3, (short)10); //TODO: change?
+                                                    VirtualMap map = new VirtualMap(trackList, (short)3, (short)49); //TODO: change?
 
                                                     virtualMapIntent.putExtra("map", map);
                                                     startActivity(virtualMapIntent);
@@ -64,6 +65,7 @@ public class AutomaticActivity extends AppCompatActivity {
     private static void scanMap(EV3.Api api, LightSensor.Color colorStop, ArrayList<LightSensor.Color> colorsToCheck) {
         try {
             VirtualMap virtualMap = VirtualMap.scan(api, colorStop, colorsToCheck);
+            //VirtualMap.backTrack(api, new LightSensorMonitor(), (short)3, (short)42, LightSensor.Color.YELLOW, 2);
         } catch (RobotException | InterruptedException | IOException e) {
             e.printStackTrace();
         }

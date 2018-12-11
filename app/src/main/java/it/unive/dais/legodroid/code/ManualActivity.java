@@ -50,7 +50,7 @@ public class ManualActivity extends AppCompatActivity{
         Button releaseGrabber = findViewById(R.id.release);
 
 
-        ManualActivity thisActivity = this;
+        /*ManualActivity thisActivity = this;
         try {
             isGrabberUp = true;
             MainActivity.ev3.run(api -> Grabber.inizializeGrabber(api, grabber, t3));
@@ -68,7 +68,7 @@ public class ManualActivity extends AppCompatActivity{
         //takeGrabber.setOnTouchListener(moveGrabber(thisActivity, -10, -10));
 
         releaseGrabber.setOnTouchListener(raiseUp(thisActivity));
-        takeGrabber.setOnTouchListener(moveDown(thisActivity));
+        takeGrabber.setOnTouchListener(moveDown(thisActivity));*/
     }
 
 
@@ -80,7 +80,7 @@ public class ManualActivity extends AppCompatActivity{
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     if (isGrabberUp == false) {
                         isGrabberUp = true;
-                        Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.moveUpGrabber(api, grabber)));
+                        //Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.moveUpGrabber(api, grabber)));
                         load = false;
                     }
                 }
@@ -96,7 +96,7 @@ public class ManualActivity extends AppCompatActivity{
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     if(isGrabberUp == true){
                         isGrabberUp = false;
-                        Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.moveDownGrabber(api, grabber)));
+                        //Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.moveDownGrabber(api, grabber)));
 
                         try {
                             MainActivity.ev3.run(new Consumer<EV3.Api>() {
@@ -137,10 +137,10 @@ public class ManualActivity extends AppCompatActivity{
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                        Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.moveGrabber(api, grabber, t3, speed, power)));
+                        //Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.moveGrabber(api, grabber, t3, speed, power)));
                 } else {
                     if(motionEvent.getAction()== MotionEvent.ACTION_UP){
-                        Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.stopGrabber(api, grabber, t3)));
+                        //Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.stopGrabber(api, grabber, t3)));
                     }
                 }
                 return true;
