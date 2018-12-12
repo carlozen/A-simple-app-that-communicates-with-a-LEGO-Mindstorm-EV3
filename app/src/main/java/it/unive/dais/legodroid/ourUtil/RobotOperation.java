@@ -593,6 +593,10 @@ public final class RobotOperation {
         if(buttonToMoveObjFrom.getTrackNumber() == destinationButton.getTrackNumber()){
             sameTrackMovement = reachAnotherPosOfTrack(api, lightSensorMonitor, destinationButton.getPositionNumber(), colorsToCheck, blackLineIntensity, backgroundColorIntensity, asyncRobotTask, buttonToMoveObjFrom);
         } else {
+
+            RobotOperation.robotRotation(api, 55, VirtualMap.Wheel.LEFT);
+            RobotOperation.turnUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, VirtualMap.Wheel.RIGHT, ManualActivity.Direction.FORWARD);
+
             VirtualMap.backTrack(api, lightSensorMonitor, blackLineIntensity, backgroundColorIntensity, colorsToCheck, buttonToMoveObjFrom.getPositionNumber());
 
             if (destinationButton.getTrackNumber() > buttonToMoveObjFrom.getTrackNumber()) {
@@ -817,7 +821,7 @@ public final class RobotOperation {
         }
     }
 
-    public static void pickUpObjectTest(EV3.Api api, AsyncRobotTask robotTask) throws InterruptedException, ExecutionException, IOException {
+    public static void pickUpObjectTest(EV3.Api api) throws InterruptedException, ExecutionException, IOException {
 
         final float distance = 10;
         final float inGrabber = 3;
@@ -864,7 +868,7 @@ public final class RobotOperation {
         t.interrupt();
         left.interrupt();
         right.interrupt();
-        
+
     }
 
     private static void turnUntilObstacle(EV3.Api api, Thread t, UltrasonicSensorDistance ultrasonicSensorDistance, float distance, VirtualMap.Wheel wheel, ManualActivity.Direction direction) throws IOException, ExecutionException, InterruptedException {
