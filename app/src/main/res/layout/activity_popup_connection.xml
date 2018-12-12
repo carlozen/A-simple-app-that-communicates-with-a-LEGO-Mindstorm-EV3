@@ -1,48 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@drawable/popup_connection"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/activity_pop_up_connection">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp">
+    <Button
+        android:id="@+id/tryAgain"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="47dp"
+        android:layout_marginStart="54dp"
+        android:background="@android:color/transparent"
+        android:backgroundTint="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="@+id/returnToHomePage"
+        app:layout_constraintEnd_toStartOf="@+id/returnToHomePage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/returnToHomePage" />
 
-        <TextView
-            android:id="@+id/connectionFailed"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Controlla la connessione al robot"
-            tools:layout_editor_absoluteX="112dp"
-            tools:layout_editor_absoluteY="8dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="330dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/tryAgain"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Riprova"
-                tools:layout_editor_absoluteX="239dp"
-                tools:layout_editor_absoluteY="361dp" />
-
-            <Button
-                android:id="@+id/returnToHomePage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Indietro"
-                tools:layout_editor_absoluteX="64dp"
-                tools:layout_editor_absoluteY="361dp" />
-        </LinearLayout>
-    </LinearLayout>
+    <Button
+        android:id="@+id/returnToHomePage"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginBottom="40dp"
+        android:layout_marginEnd="49dp"
+        android:background="@android:color/transparent"
+        android:backgroundTint="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tryAgain" />
 </android.support.constraint.ConstraintLayout>

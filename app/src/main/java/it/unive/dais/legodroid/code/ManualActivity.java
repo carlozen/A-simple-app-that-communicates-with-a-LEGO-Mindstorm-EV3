@@ -1,13 +1,14 @@
 package it.unive.dais.legodroid.code;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 
 import java.io.IOException;
-import java.util.concurrent.Future;
 
 import it.unive.dais.legodroid.R;
 import it.unive.dais.legodroid.lib.EV3;
@@ -39,24 +40,29 @@ public class ManualActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //PROVA PER FAR ANDARE IL CONTROLLER FULL SCREEN
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+
         setContentView(R.layout.activity_manual);
 
-        Button up = findViewById(R.id.up);
-        Button down = findViewById(R.id.down);
-        Button left = findViewById(R.id.left);
-        Button right = findViewById(R.id.right);
+        FloatingActionButton up = findViewById(R.id.up);
+        FloatingActionButton down = findViewById(R.id.down);
+        FloatingActionButton left = findViewById(R.id.left);
+        FloatingActionButton right = findViewById(R.id.right);
 
-        Button takeGrabber = findViewById(R.id.take);
-        Button releaseGrabber = findViewById(R.id.release);
+        FloatingActionButton takeGrabber = findViewById(R.id.take);
+        FloatingActionButton releaseGrabber = findViewById(R.id.release);
 
 
-        /*ManualActivity thisActivity = this;
-        try {
+        ManualActivity thisActivity = this;
+        /*try {
             isGrabberUp = true;
-            MainActivity.ev3.run(api -> Grabber.inizializeGrabber(api, grabber, t3));
+        //    MainActivity.ev3.run(api -> Grabber.inizializeGrabber(api, grabber, t3));
         } catch (EV3.AlreadyRunningException e) {
             e.printStackTrace();
-        }
+        }*/
 
         up.setOnTouchListener(startAndStop(thisActivity, 2, Direction.FORWARD));
         down.setOnTouchListener(startAndStop(thisActivity, 2, Direction.BACKWARD));
@@ -68,7 +74,7 @@ public class ManualActivity extends AppCompatActivity{
         //takeGrabber.setOnTouchListener(moveGrabber(thisActivity, -10, -10));
 
         releaseGrabber.setOnTouchListener(raiseUp(thisActivity));
-        takeGrabber.setOnTouchListener(moveDown(thisActivity));*/
+        takeGrabber.setOnTouchListener(moveDown(thisActivity));
     }
 
 
@@ -208,29 +214,6 @@ public class ManualActivity extends AppCompatActivity{
         }
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

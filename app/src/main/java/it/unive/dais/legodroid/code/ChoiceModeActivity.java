@@ -6,11 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import java.io.IOException;
-
 import it.unive.dais.legodroid.R;
-import it.unive.dais.legodroid.lib.EV3;
-import it.unive.dais.legodroid.lib.comm.BluetoothConnection;
 
 public class ChoiceModeActivity extends AppCompatActivity {
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Legodroid App</string>
+    <string name="app_name">ACGR Robotics</string>
     <string name="title_activity_automatic">AutomaticActivity</string>
     <string name="title_activity_virtual_map">VirtualMapActivity</string>
 </resources>
