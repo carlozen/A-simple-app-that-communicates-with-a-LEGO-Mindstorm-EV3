@@ -817,7 +817,96 @@ public final class RobotOperation {
         }
     }
 
-    
+    public static void pickUpObjectTest(EV3.Api api, AsyncRobotTask robotTask) throws InterruptedException, ExecutionException, IOException {
+
+        final float distance = 10;
+        final float inGrabber = 3;
+
+        Grabber grabber = new Grabber(api);
+        Thread grab = new Thread(grabber);
+        grab.start();
+
+        UltrasonicSensorDistance ultrasonicSensorDistance = new UltrasonicSensorDistance(api);
+        Thread t = new Thread(ultrasonicSensorDistance);
+        t.start();
+
+        grabber.up();
+
+        turnUntilObstacle(api, t, ultrasonicSensorDistance, distance, VirtualMap.Wheel.RIGHT, ManualActivity.Direction.FORWARD);
+        t.join();
+
+        Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+        Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+
+        Thread right = new Thread(rightMotor);
+        Thread left = new Thread(leftMotor);
+        t = new Thread(ultrasonicSensorDistance);
+
+        right.start();
+        left.start();
+        t.start();
+
+        if(!ultrasonicSensorDistance.isDetected(inGrabber)){
+            leftMotor.setPower(30);
+            rightMotor.setPower(30);
+        }
+
+        while (!ultrasonicSensorDistance.isDetected(inGrabber)){
+            Thread.sleep(25);
+        }
+
+        leftMotor.brake();
+        rightMotor.brake();
+
+        grabber.down();
+
+        grab.interrupt();
+        t.interrupt();
+        left.interrupt();
+        right.interrupt();
+        
+    }
+
+    private static void turnUntilObstacle(EV3.Api api, Thread t, UltrasonicSensorDistance ultrasonicSensorDistance, float distance, VirtualMap.Wheel wheel, ManualActivity.Direction direction) throws IOException, ExecutionException, InterruptedException {
+        final int power = 50;
+
+        Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+        Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+
+        Thread right = new Thread(rightMotor);
+        Thread left = new Thread(leftMotor);
+
+        right.start();
+        left.start();
+
+        if(!ultrasonicSensorDistance.isDetected(distance)){
+            if (wheel == VirtualMap.Wheel.LEFT) {
+                if (direction == ManualActivity.Direction.FORWARD) {
+                    leftMotor.setPower(power);
+                } else {
+                    leftMotor.setPower(-power);
+                }
+            } else {
+                if (direction == ManualActivity.Direction.FORWARD) {
+                    rightMotor.setPower(power);
+                } else {
+                    rightMotor.setPower(-power);
+                }
+            }
+        }
+
+        while(!ultrasonicSensorDistance.isDetected(distance)) {
+            Thread.sleep(25);
+        }
+
+        rightMotor.brake();
+        leftMotor.brake();
+
+        left.interrupt();
+        right.interrupt();
+        t.interrupt();
+
+    }
 
 
     //TODO MAKE PRIVATE IN FUTURE
@@ -939,7 +1028,7 @@ public final class RobotOperation {
             leftMotor.setPower(0);
             rightMotor.setPower(0);
 
-            Grabber grabber = new Grabber(api, EV3.OutputPort.A);
+            Grabber grabber = new Grabber(api);
             //Grabber.moveDownGrabber(api, grabber);
 
             futureMotorPositionLeft = leftMotor.getPosition();
@@ -986,7 +1075,7 @@ public final class RobotOperation {
             LightSensor.Color colorStop = LightSensor.Color.RED;
 
             LightSensorMonitor lightSensorMonitor = new LightSensorMonitor();
-            Grabber grabber = new Grabber(api, EV3.OutputPort.A);
+            Grabber grabber = new Grabber(api);
             Thread t = new Thread(grabber);
             t.start();
 
@@ -1067,7 +1156,7 @@ public final class RobotOperation {
         LightSensor.Color colorStop = LightSensor.Color.RED;
 
         LightSensorMonitor lightSensorMonitor = new LightSensorMonitor();
-        Grabber grabber = new Grabber(api, EV3.OutputPort.A);
+        Grabber grabber = new Grabber(api);
         Thread t = new Thread(grabber);
         t.start();
 
@@ -1104,7 +1193,7 @@ public final class RobotOperation {
         LightSensor.Color colorStop = LightSensor.Color.RED;
 
         LightSensorMonitor lightSensorMonitor = new LightSensorMonitor();
-        Grabber grabber = new Grabber(api, EV3.OutputPort.A);
+        Grabber grabber = new Grabber(api);
         Thread t = new Thread(grabber);
         t.start();
 
