@@ -165,7 +165,7 @@ public class VirtualMap implements Parcelable {
 
             positions--;
             if (positions >= 0) {
-                RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.RIGHT, 1);
+                RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.RIGHT, 1, 0);
             }
         }
 
@@ -201,7 +201,7 @@ public class VirtualMap implements Parcelable {
 
                 positionsNumber++;
 
-                RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1);
+                RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1, 4);
 
             } else {
                 RobotOperation.checkColor(api, lightSensorMonitor, colorStop, true);
