@@ -144,4 +144,8 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
     public GradientDrawable getShape() {
         return shape;
     }
+
+    public VirtualMapUI getUIManager() {
+        return UIManager;
+    }
 }

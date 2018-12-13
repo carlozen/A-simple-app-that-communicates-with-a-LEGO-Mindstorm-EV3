@@ -1,14 +1,14 @@
 package it.unive.dais.legodroid.code;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import it.unive.dais.legodroid.R;
 import it.unive.dais.legodroid.lib.EV3;
@@ -26,7 +26,6 @@ public class ManualActivity extends AppCompatActivity{
         RIGHT
     }
 
-
     protected Motor rightMotor = null;
     protected Motor leftMotor = null;
     protected Grabber grabber = null;
@@ -40,29 +39,17 @@ public class ManualActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //PROVA PER FAR ANDARE IL CONTROLLER FULL SCREEN
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-
         setContentView(R.layout.activity_manual);
 
-        FloatingActionButton up = findViewById(R.id.up);
-        FloatingActionButton down = findViewById(R.id.down);
-        FloatingActionButton left = findViewById(R.id.left);
-        FloatingActionButton right = findViewById(R.id.right);
+        Button up = findViewById(R.id.up);
+        Button down = findViewById(R.id.down);
+        Button left = findViewById(R.id.left);
+        Button right = findViewById(R.id.right);
 
-        FloatingActionButton takeGrabber = findViewById(R.id.take);
-        FloatingActionButton releaseGrabber = findViewById(R.id.release);
-
+        Button takeGrabber = findViewById(R.id.take);
+        Button releaseGrabber = findViewById(R.id.release);
 
         ManualActivity thisActivity = this;
-        /*try {
-            isGrabberUp = true;
-        //    MainActivity.ev3.run(api -> Grabber.inizializeGrabber(api, grabber, t3));
-        } catch (EV3.AlreadyRunningException e) {
-            e.printStackTrace();
-        }*/
 
         up.setOnTouchListener(startAndStop(thisActivity, 2, Direction.FORWARD));
         down.setOnTouchListener(startAndStop(thisActivity, 2, Direction.BACKWARD));
@@ -73,29 +60,57 @@ public class ManualActivity extends AppCompatActivity{
         //releaseGrabber.setOnTouchListener(moveGrabber(thisActivity, 10, 10));
         //takeGrabber.setOnTouchListener(moveGrabber(thisActivity, -10, -10));
 
-        releaseGrabber.setOnTouchListener(raiseUp(thisActivity));
-        takeGrabber.setOnTouchListener(moveDown(thisActivity));
+        releaseGrabber.setOnTouchListener(grabberUp());
+        takeGrabber.setOnTouchListener(grabberDown());
     }
 
-
-
-    private View.OnTouchListener raiseUp(ManualActivity manualActivity){
+    private View.OnTouchListener grabberDown() {
         return new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (isGrabberUp == false) {
-                        isGrabberUp = true;
-                        //Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.moveUpGrabber(api, grabber)));
-                        load = false;
+                Prelude.trap(() -> MainActivity.ev3.run(api -> {
+                    Grabber grabber = new Grabber(api);
+                    Thread t = new Thread(grabber);
+                    t.start();
+
+                    try {
+                        grabber.down();
+                    } catch (IOException | ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
                     }
-                }
+
+                    t.interrupt();
+                }));
                 return true;
             }
         };
     }
 
-    private View.OnTouchListener moveDown(ManualActivity manualActivity){
+
+    private View.OnTouchListener grabberUp(){
+        return new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Prelude.trap(() -> MainActivity.ev3.run(api -> {
+                    Grabber grabber = new Grabber(api);
+                    Thread t = new Thread(grabber);
+                    t.start();
+
+                    try {
+                        grabber.up();
+                    } catch (IOException | ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    t.interrupt();
+
+                }));
+                return true;
+            }
+        };
+    }
+
+    /*private View.OnTouchListener moveDown(ManualActivity manualActivity){
         return new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -119,8 +134,7 @@ public class ManualActivity extends AppCompatActivity{
                 return true;
             }
         };
-    }
-
+    }*/
 
     private View.OnTouchListener startAndStop(ManualActivity manualActivity, int numberOfMotors, Direction direction) {
         return new View.OnTouchListener() {
@@ -138,7 +152,7 @@ public class ManualActivity extends AppCompatActivity{
         };
     }
 
-    private View.OnTouchListener moveGrabber(ManualActivity manualActivity, int speed, int power) {
+    /*private View.OnTouchListener moveGrabber(ManualActivity manualActivity, int speed, int power) {
         return new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -152,13 +166,7 @@ public class ManualActivity extends AppCompatActivity{
                 return true;
             }
         };
-    }
-
-
-
-
-
-
+    }*/
 
     private void startMotors(EV3.Api api, Direction direction, int numberOfMotors){
 
@@ -189,10 +197,6 @@ public class ManualActivity extends AppCompatActivity{
             }
         }
 
-
-
-
-
     }
 
     private void stopMotors(EV3.Api api) {
@@ -214,6 +218,29 @@ public class ManualActivity extends AppCompatActivity{
         }
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

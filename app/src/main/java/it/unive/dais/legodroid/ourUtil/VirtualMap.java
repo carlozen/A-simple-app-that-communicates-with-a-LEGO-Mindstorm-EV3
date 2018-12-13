@@ -113,48 +113,12 @@ public class VirtualMap implements Parcelable {
         return new VirtualMap(trackList, blackLineIntensity, backgroundColorIntensity);
     }
 
-    /*public static void backTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, short blackLineIntensity, short backgroundColorIntensity, LightSensor.Color trackColor, int positionNumber) throws RobotException, IOException, InterruptedException {
-
-        ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
-        colorsToCheck.add(trackColor);
-
-        LightSensor.Color colorFound;
-
-        Integer positions = positionNumber;
-
-        RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT);
-
-        while(positions >= 0) {
-            colorFound = RobotOperation.followLine(api,
-                    lightSensorMonitor,
-                    ManualActivity.Direction.BACKWARD,
-                    LightSensor.Color.BLACK,
-                    blackLineIntensity,
-                    backgroundColorIntensity,
-                    colorsToCheck
-            );
-
-            if(colorFound == trackColor) {
-                if (positions >= 1) {
-                    RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT);
-                } else {
-                    RobotOperation.turnUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, Wheel.RIGHT, ManualActivity.Direction.BACKWARD);
-                }
-                positions--;
-            }
-        }
-
-
-    }*/
-
     public static void backTrack(EV3.Api api, LightSensorMonitor lightSensorMonitor, short blackLineIntensity, short backgroundColorIntensity, ArrayList<LightSensor.Color> colorsToCheck, int positionNumber) throws RobotException, IOException, InterruptedException {
 
         Integer positions = positionNumber;
 
-        LightSensor.Color colorFound;
-
         while(positions >= 0) {
-            colorFound = RobotOperation.followLine(api,
+             RobotOperation.followLine(api,
                     lightSensorMonitor,
                     ManualActivity.Direction.FORWARD,
                     LightSensor.Color.BLACK,
@@ -165,7 +129,7 @@ public class VirtualMap implements Parcelable {
 
             positions--;
             if (positions >= 0) {
-                RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.RIGHT, 1);
+                RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1);
             }
         }
 
@@ -284,10 +248,8 @@ public class VirtualMap implements Parcelable {
 
         Map loadValues = MainActivity.mSettings.getAll();
 
-        Iterator<String> it = loadValues.values().iterator();
-        while(it.hasNext()){
-            String value = it.next();
-          //  virtualMaps.add(MainActivity.mGson.fromJson(value, VirtualMap.class));
+        for (String value : (Iterable<String>) loadValues.values()) {
+              virtualMaps.add(MainActivity.mGson.fromJson(value, VirtualMap.class));
         }
 
         return virtualMaps;

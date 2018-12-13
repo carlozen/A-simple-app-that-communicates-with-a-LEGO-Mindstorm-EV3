@@ -1,12 +1,9 @@
 package it.unive.dais.legodroid.ourUtil;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import it.unive.dais.legodroid.code.ManualActivity;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.TachoMotor;
 import it.unive.dais.legodroid.lib.plugs.UltrasonicSensor;
@@ -18,8 +15,8 @@ public class Grabber extends TachoMotor implements Runnable{
 
     boolean isPresent;
 
-    public Grabber(EV3.Api api, EV3.OutputPort outputPort){
-        super(api, outputPort);
+    public Grabber(EV3.Api api){
+        super(api, EV3.OutputPort.A);
     }
 
     @Override
