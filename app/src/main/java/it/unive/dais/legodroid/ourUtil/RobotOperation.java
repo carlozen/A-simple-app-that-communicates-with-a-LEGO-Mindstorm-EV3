@@ -1204,34 +1204,41 @@ public final class RobotOperation {
     }
 
     public static void removeObject(EV3.Api api, AsyncRobotTask asyncRobotTask,
-                                    Short backgroundColorIntensity, Short blackColorIntensity, PositionButton referencedButton) throws RobotException, IOException, InterruptedException {
-
-        ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
-        colorsToCheck.add(LightSensor.Color.RED);
-        colorsToCheck.add(LightSensor.Color.YELLOW);
-        colorsToCheck.add(LightSensor.Color.GREEN);
-
-        LightSensor.Color colorStop = LightSensor.Color.RED;
-
-        LightSensorMonitor lightSensorMonitor = new LightSensorMonitor();
-        Grabber grabber = new Grabber(api);
-        Thread t = new Thread(grabber);
-        t.start();
-
-        reachPosFromOrigin(api, lightSensorMonitor,
-                colorsToCheck, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
-
-//        pickUpObject(api, asyncRobotTask);
-
-        referencedButton.changeOccupiedState();
-
-        reachOriginFromPos(api, lightSensorMonitor, colorsToCheck,
-                colorStop, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
+                                    Short backgroundColorIntensity, Short blackColorIntensity, PositionButton referencedButton) throws RobotException {
 
         try {
-            grabber.up();
-        } catch (ExecutionException e) {
+            ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
+            colorsToCheck.add(LightSensor.Color.RED);
+            colorsToCheck.add(LightSensor.Color.YELLOW);
+            colorsToCheck.add(LightSensor.Color.GREEN);
+
+            LightSensor.Color colorStop = LightSensor.Color.RED;
+
+            LightSensorMonitor lightSensorMonitor = new LightSensorMonitor();
+            Grabber grabber = new Grabber(api);
+            Thread t = new Thread(grabber);
+            t.start();
+
+            reachPosFromOrigin(api, lightSensorMonitor,
+                    colorsToCheck, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
+
+            pickUpObject(api);
+
+            referencedButton.changeOccupiedState();
+
+            turnUntilColor(api, new LightSensorMonitor(), LightSensor.Color.BLACK, VirtualMap.Wheel.LEFT, ManualActivity.Direction.BACKWARD);
+
+            reachOriginFromPos(api, lightSensorMonitor, colorsToCheck,
+                    colorStop, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
+
+            try {
+                grabber.up();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+            throw new RobotException("Qualcosa è andato storto, riprova questa operazione.");
         }
 
     }

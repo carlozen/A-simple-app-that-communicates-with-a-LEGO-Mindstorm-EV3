@@ -57,8 +57,8 @@ public final class AsyncRobotTask extends AsyncTask<Void, Integer, Void> {
                 }
 
                 case ROBOT_REMOVING_OBJECT: {
-                    /*RobotOperation.removeObject (api, this, UIManager.getVirtualMap().getBackgroundColorIntensity(),
-                            UIManager.getVirtualMap().getBlackColorIntensity(), UIManager.getLastClickedButton());*/
+                    RobotOperation.removeObject (api, this, UIManager.getVirtualMap().getBackgroundColorIntensity(),
+                            UIManager.getVirtualMap().getBlackColorIntensity(), UIManager.getLastClickedButton());
                     break;
                 }
                 default: {
