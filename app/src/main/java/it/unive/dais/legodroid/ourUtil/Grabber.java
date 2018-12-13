@@ -11,7 +11,7 @@ import it.unive.dais.legodroid.lib.plugs.UltrasonicSensor;
 public class Grabber extends TachoMotor implements Runnable{
 
     private final float angle = 90;
-    private boolean up = true;
+    private static boolean up = false;
 
     boolean isPresent;
 

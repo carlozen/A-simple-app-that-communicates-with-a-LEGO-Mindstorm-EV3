@@ -51,8 +51,8 @@ public final class AsyncRobotTask extends AsyncTask<Void, Integer, Void> {
 
                 //TODO: cambia all'interno della mappa
                 case ROBOT_MOVING_OBJECT: {
-                    /*RobotOperation.moveObject(api, this, UIManager.getVirtualMap().getBackgroundColorIntensity(),
-                            UIManager.getVirtualMap().getBlackColorIntensity(), UIManager.getLastClickedButton(), buttonToMoveObjFrom);*/
+                    RobotOperation.moveObject(api, this, UIManager.getVirtualMap().getBackgroundColorIntensity(),
+                            UIManager.getVirtualMap().getBlackColorIntensity(), UIManager.getLastClickedButton(), buttonToMoveObjFrom);
                     break;
                 }
 
