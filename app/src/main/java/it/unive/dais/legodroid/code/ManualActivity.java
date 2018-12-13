@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import it.unive.dais.legodroid.R;
@@ -24,7 +25,6 @@ public class ManualActivity extends AppCompatActivity{
         LEFT,
         RIGHT
     }
-
 
     protected Motor rightMotor = null;
     protected Motor leftMotor = null;
@@ -49,14 +49,7 @@ public class ManualActivity extends AppCompatActivity{
         Button takeGrabber = findViewById(R.id.take);
         Button releaseGrabber = findViewById(R.id.release);
 
-
-        /*ManualActivity thisActivity = this;
-        try {
-            isGrabberUp = true;
-            MainActivity.ev3.run(api -> Grabber.inizializeGrabber(api, grabber, t3));
-        } catch (EV3.AlreadyRunningException e) {
-            e.printStackTrace();
-        }
+        ManualActivity thisActivity = this;
 
         up.setOnTouchListener(startAndStop(thisActivity, 2, Direction.FORWARD));
         down.setOnTouchListener(startAndStop(thisActivity, 2, Direction.BACKWARD));
@@ -67,29 +60,57 @@ public class ManualActivity extends AppCompatActivity{
         //releaseGrabber.setOnTouchListener(moveGrabber(thisActivity, 10, 10));
         //takeGrabber.setOnTouchListener(moveGrabber(thisActivity, -10, -10));
 
-        releaseGrabber.setOnTouchListener(raiseUp(thisActivity));
-        takeGrabber.setOnTouchListener(moveDown(thisActivity));*/
+        releaseGrabber.setOnTouchListener(grabberUp());
+        takeGrabber.setOnTouchListener(grabberDown());
     }
 
-
-
-    private View.OnTouchListener raiseUp(ManualActivity manualActivity){
+    private View.OnTouchListener grabberDown() {
         return new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (isGrabberUp == false) {
-                        isGrabberUp = true;
-                        //Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.moveUpGrabber(api, grabber)));
-                        load = false;
+                Prelude.trap(() -> MainActivity.ev3.run(api -> {
+                    Grabber grabber = new Grabber(api);
+                    Thread t = new Thread(grabber);
+                    t.start();
+
+                    try {
+                        grabber.down();
+                    } catch (IOException | ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
                     }
-                }
+
+                    t.interrupt();
+                }));
                 return true;
             }
         };
     }
 
-    private View.OnTouchListener moveDown(ManualActivity manualActivity){
+
+    private View.OnTouchListener grabberUp(){
+        return new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Prelude.trap(() -> MainActivity.ev3.run(api -> {
+                    Grabber grabber = new Grabber(api);
+                    Thread t = new Thread(grabber);
+                    t.start();
+
+                    try {
+                        grabber.up();
+                    } catch (IOException | ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    t.interrupt();
+
+                }));
+                return true;
+            }
+        };
+    }
+
+    /*private View.OnTouchListener moveDown(ManualActivity manualActivity){
         return new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -113,8 +134,7 @@ public class ManualActivity extends AppCompatActivity{
                 return true;
             }
         };
-    }
-
+    }*/
 
     private View.OnTouchListener startAndStop(ManualActivity manualActivity, int numberOfMotors, Direction direction) {
         return new View.OnTouchListener() {
@@ -132,7 +152,7 @@ public class ManualActivity extends AppCompatActivity{
         };
     }
 
-    private View.OnTouchListener moveGrabber(ManualActivity manualActivity, int speed, int power) {
+    /*private View.OnTouchListener moveGrabber(ManualActivity manualActivity, int speed, int power) {
         return new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -146,13 +166,7 @@ public class ManualActivity extends AppCompatActivity{
                 return true;
             }
         };
-    }
-
-
-
-
-
-
+    }*/
 
     private void startMotors(EV3.Api api, Direction direction, int numberOfMotors){
 
@@ -182,10 +196,6 @@ public class ManualActivity extends AppCompatActivity{
 
             }
         }
-
-
-
-
 
     }
 
