@@ -827,6 +827,13 @@ public final class RobotOperation {
 
         final float distance = 10;
         final float inGrabber = 3;
+        final float distanceToObjectForPick = 5;
+
+        Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+        Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+
+        Thread right = new Thread(rightMotor);
+        Thread left = new Thread(leftMotor);
 
         Grabber grabber = new Grabber(api);
         Thread grab = new Thread(grabber);
@@ -838,28 +845,17 @@ public final class RobotOperation {
 
         grabber.up();
 
-        turnUntilObstacle(api, t, ultrasonicSensorDistance, distance, VirtualMap.Wheel.RIGHT, ManualActivity.Direction.FORWARD);
+        float distanceToObject = turnUntilObstacle(api, t, ultrasonicSensorDistance, distance, VirtualMap.Wheel.RIGHT, ManualActivity.Direction.FORWARD);
         t.join();
 
-        Motor rightMotor = new Motor(api, EV3.OutputPort.C);
-        Motor leftMotor = new Motor(api, EV3.OutputPort.B);
-
-        Thread right = new Thread(rightMotor);
-        Thread left = new Thread(leftMotor);
         t = new Thread(ultrasonicSensorDistance);
 
         right.start();
         left.start();
         t.start();
 
-        if(!ultrasonicSensorDistance.isDetected(inGrabber)){
-            leftMotor.setPower(15);
-            rightMotor.setPower(15);
-        }
-
-        while (!ultrasonicSensorDistance.isDetected(inGrabber)){
-            Thread.sleep(0);
-        }
+        rightMotor.move(distanceToObject - distanceToObjectForPick);
+        leftMotor.move(distanceToObject - distanceToObjectForPick);
 
         leftMotor.brake();
         rightMotor.brake();
@@ -873,7 +869,7 @@ public final class RobotOperation {
 
     }
 
-    private static void turnUntilObstacle(EV3.Api api, Thread t, UltrasonicSensorDistance ultrasonicSensorDistance, float distance, VirtualMap.Wheel wheel, ManualActivity.Direction direction) throws IOException, ExecutionException, InterruptedException {
+    private static float turnUntilObstacle(EV3.Api api, Thread t, UltrasonicSensorDistance ultrasonicSensorDistance, float distance, VirtualMap.Wheel wheel, ManualActivity.Direction direction) throws IOException, ExecutionException, InterruptedException {
         final int power = 20;
 
         Motor rightMotor = new Motor(api, EV3.OutputPort.C);
@@ -909,6 +905,8 @@ public final class RobotOperation {
             Thread.sleep(25);
         }
 
+        float distanceToObject = ultrasonicSensorDistance.getDistanceToObject();
+
         rightMotor.brake();
         leftMotor.brake();
 
@@ -916,6 +914,7 @@ public final class RobotOperation {
         right.interrupt();
         t.interrupt();
 
+        return distanceToObject;
     }
 
 

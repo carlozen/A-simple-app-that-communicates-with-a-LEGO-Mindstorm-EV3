@@ -8,6 +8,8 @@ import it.unive.dais.legodroid.lib.plugs.UltrasonicSensor;
 
 class UltrasonicSensorDistance extends UltrasonicSensor implements Runnable{
 
+    private float distanceToObject;
+
     public UltrasonicSensorDistance(EV3.Api api){
         super(api, EV3.InputPort._4);
     }
@@ -17,11 +19,15 @@ class UltrasonicSensorDistance extends UltrasonicSensor implements Runnable{
     }
 
     public boolean isDetected(float distance) throws IOException, ExecutionException, InterruptedException {
-        Float obstacle = super.getDistance().get();
-        if(obstacle <= distance)
+        distanceToObject = super.getDistance().get();
+        if(distanceToObject <= distance)
             return true;
         else
             return false;
+    }
+
+    public float getDistanceToObject(){
+        return distanceToObject;
     }
 
 
