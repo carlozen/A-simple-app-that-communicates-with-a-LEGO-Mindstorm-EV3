@@ -845,7 +845,7 @@ public final class RobotOperation {
 
         grabber.up();
 
-        float distanceToObject = turnUntilObstacle(api, t, ultrasonicSensorDistance, distance, VirtualMap.Wheel.RIGHT, ManualActivity.Direction.FORWARD);
+        float distanceToObject = turnUntilObstacle(api, t, ultrasonicSensorDistance, distance, VirtualMap.Wheel.LEFT, ManualActivity.Direction.BACKWARD);
         t.join();
 
         t = new Thread(ultrasonicSensorDistance);
