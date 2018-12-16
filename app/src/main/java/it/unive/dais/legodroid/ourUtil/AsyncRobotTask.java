@@ -1,10 +1,12 @@
 package it.unive.dais.legodroid.ourUtil;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.view.View;
 
 import it.unive.dais.legodroid.lib.EV3;
+import it.unive.dais.legodroid.lib.plugs.LightSensor;
 
 @SuppressLint("StaticFieldLeak")
 public final class AsyncRobotTask extends AsyncTask<Void, Integer, Void> {
@@ -24,7 +26,10 @@ public final class AsyncRobotTask extends AsyncTask<Void, Integer, Void> {
 
     @Override
     protected void onPreExecute() {
-        robotView.setVisibility(View.VISIBLE);
+        if (robotView.getVisibility()==View.GONE) {
+            robotView.setVisibility(View.VISIBLE);
+        }
+        robotView.setPositionByTrack(null,null);
     }
 
     public void moveToTrack(int track) {
@@ -66,6 +71,8 @@ public final class AsyncRobotTask extends AsyncTask<Void, Integer, Void> {
                 }
             }
         } catch (RobotException e) {
+            if (buttonToMoveObjFrom.getBackgroundColor() == Color.RED)
+                buttonToMoveObjFrom.setBackgroundColor(Color.BLACK);
             e.printStackTrace();
         }
         return null;
@@ -73,6 +80,7 @@ public final class AsyncRobotTask extends AsyncTask<Void, Integer, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
+        robotView.setPositionByTrack(null, null);
         UIManager.setUIState(VirtualMapUI.ActivityState.NOTHING_DONE, null);
     }
 

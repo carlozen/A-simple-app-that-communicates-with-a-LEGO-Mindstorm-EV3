@@ -2,7 +2,7 @@ package it.unive.dais.legodroid.ourUtil;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.ColorSpace;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.NonNull;
 import android.widget.RelativeLayout;
@@ -15,7 +15,7 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
     private VirtualMap map;
     private int trackNumber;
     private int positionNumber;
-    final private GradientDrawable shape = new GradientDrawable();
+    //final private GradientDrawable shape = new GradientDrawable();
 
 
     public PositionButton(Context context, VirtualMapUI UIManager,
@@ -28,6 +28,8 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
         this.trackNumber = trackNumber;
         this.positionNumber = positionNumber;
         this.setPadding(30,30,30,30);
+
+       /*
         shape.setShape(GradientDrawable.OVAL);
 
         if (isOccupied())
@@ -37,7 +39,17 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
 
         shape.setStroke(3, Color.BLACK);
 
+        shape.setGradientType(GradientDrawable.LINEAR_GRADIENT);
+
         this.setBackground(shape);
+        */
+
+        if (isOccupied())
+            this.setBackgroundColor(Color.BLACK);
+        else
+            this.setBackgroundColor(Color.WHITE);
+
+
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -58,17 +70,27 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
         this.setX(x);
     }
 
+    /*public Color getButtonColor () {
+        return Color[shape.getColor().getDefaultColor()];
+    }*/
+
     public void changeOccupiedState () {
         map.getMapTrackList().get(trackNumber).getObjectList().set(positionNumber,
                 !map.getMapTrackList().get(trackNumber).getObjectList().get(positionNumber));
         if (isOccupied()) {
-            shape.setColor(Color.BLACK);
-            this.setBackground(shape);
+      //      shape.setColor(Color.BLACK);
+       //     this.setBackground(shape);
+            this.setBackgroundColor(Color.BLACK);
         }
         else {
-            shape.setColor(Color.WHITE);
-            this.setBackground(shape);
+          //  shape.setColor(Color.WHITE);
+          //  this.setBackground(shape);
+            this.setBackgroundColor(Color.WHITE);
         }
+    }
+
+    public int getBackgroundColor () {
+        return ((ColorDrawable)getBackground()).getColor();
     }
 
     public void setSingleButtonListener (VirtualMapUI.ActivityState activityState, PositionButton referencedButton) {
@@ -123,7 +145,7 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
             this.setClickable(false);
             if (this.trackNumber == referencedButton.trackNumber &&
                     this.positionNumber == referencedButton.positionNumber) {
-                AnimationGenerator.setGlowingAnimation(this, shape);
+                AnimationGenerator.setGlowingAnimation(this);
             }
         }
 
@@ -141,9 +163,11 @@ public class PositionButton extends android.support.v7.widget.AppCompatButton {
         return positionNumber;
     }
 
+    /*
     public GradientDrawable getShape() {
         return shape;
     }
+    */
 
     public VirtualMapUI getUIManager() {
         return UIManager;

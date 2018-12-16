@@ -17,6 +17,8 @@ import it.unive.dais.legodroid.ourUtil.VirtualMap;
 public class VirtualMapActivity extends AppCompatActivity {
 
     private VirtualMapUI UIManager;
+    private float virtualRobotXPos = -1;
+    private float virtualRobotYPos = -1;
 
     VirtualMapView mapView;
 
@@ -70,11 +72,18 @@ public class VirtualMapActivity extends AppCompatActivity {
             }
         }
         UIManager.resetAllButtonsListeners();
+
+        if (virtualRobotXPos != -1 || virtualRobotYPos != -1) {
+            UIManager.getRobotView().setX(virtualRobotXPos);
+            UIManager.getRobotView().setY(virtualRobotYPos);
+        }
     }
 
     @Override
     protected void onPause() {
         UIManager.unsetAllButtons();
+        virtualRobotXPos = UIManager.getRobotView().getX();
+        virtualRobotYPos = UIManager.getRobotView().getY();
         super.onPause();
     }
 

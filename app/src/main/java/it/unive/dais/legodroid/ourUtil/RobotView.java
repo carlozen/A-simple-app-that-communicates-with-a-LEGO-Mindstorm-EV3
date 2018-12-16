@@ -23,15 +23,13 @@ public class RobotView extends android.support.v7.widget.AppCompatImageView {
         params.alignWithParent= false;
         this.setBackgroundColor(Color.RED);
         this.setLayoutParams(params);
-        this.setVisibility(VISIBLE);
+        this.setVisibility(GONE);
 
     }
 
     public void setStartingPosition (int x, int y) {
         this.startingPositionX = x;
         this.startingPositionY = y;
-        this.setX(startingPositionX);
-        this.setY(startingPositionY);
     }
 
     public int getStartingPositionX() {

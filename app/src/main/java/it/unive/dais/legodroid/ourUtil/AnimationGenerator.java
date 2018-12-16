@@ -78,10 +78,9 @@ public final class AnimationGenerator {
 
     }
 
-    public static void setGlowingAnimation(View view, GradientDrawable shape) {
+    public static void setGlowingAnimation(View view) {
 
-        shape.setColor(Color.RED);
-        view.setBackground(shape);
+        view.setBackgroundColor(Color.RED);
         Animation redIn =  new AlphaAnimation(0.7f,1.0f);
         Animation redOut =  new AlphaAnimation(1.0f,0.7f);
         redIn.setAnimationListener(new Animation.AnimationListener() {

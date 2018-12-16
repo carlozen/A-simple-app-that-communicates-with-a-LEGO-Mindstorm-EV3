@@ -38,7 +38,7 @@ public class ButtonsGeneralListener implements View.OnClickListener {
                 dialogBuilder.setPositiveButton("DELETE", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        button.getShape().setColor(Color.RED);
+                        button.setBackgroundColor(Color.RED);
                         UIManager.setRobotOperation(VirtualMapUI.ActivityState.ROBOT_REMOVING_OBJECT, button, null);
                     }
                 });

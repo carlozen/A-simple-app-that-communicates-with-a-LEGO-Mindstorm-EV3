@@ -77,6 +77,15 @@ public final class RobotOperation {
                     try {
                         reflectedIntensity = lightSensorIntensity.getReflectedNow();
                     } catch (ExecutionException e) {
+                        try {
+                            rightMotor.brake();
+                            leftMotor.brake();
+                            rightMotor.setPower(0);
+                            leftMotor.setPower(0);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                            throw new RobotException("Something went wrong. Please try this operation again.");
+                        }
                         reflectedIntensity = null;
                         lightSensorMonitor.release();
                         e.printStackTrace();
@@ -174,11 +183,13 @@ public final class RobotOperation {
                     try {
                         flag = lightSensorColor.getIsObstacleFound();
                     } catch (ExecutionException e) {
-                        rightMotor.setPower(0);
                         leftMotor.setPower(0);
+                        rightMotor.setPower(0);
+                        rightMotor.brake();
+                        leftMotor.brake();
                         exception = true;
                         lightSensorMonitor.release();
-                        //e.printStackTrace();
+                        e.printStackTrace();
                         flag = null;
                     }
                 }
@@ -246,6 +257,17 @@ public final class RobotOperation {
             }
 
         } catch (IOException | InterruptedException | ExecutionException e) {
+            try {
+                Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+                Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+                rightMotor.brake();
+                leftMotor.brake();
+                rightMotor.setPower(0);
+                leftMotor.setPower(0);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                throw new RobotException("Something went wrong. Please try this operation again.");
+            }
             e.printStackTrace();
             throw new RobotException("Something went wrong. Please try this operation again.");
         }
@@ -266,6 +288,17 @@ public final class RobotOperation {
                 } catch (ExecutionException e) {
                     color = null;
                     lightSensorMonitor.release();
+                    try {
+                        Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+                        Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+                        rightMotor.brake();
+                        leftMotor.brake();
+                        rightMotor.setPower(0);
+                        leftMotor.setPower(0);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        throw new RobotException("Something went wrong. Please try this operation again.");
+                    }
                 }
             }
 
@@ -293,6 +326,17 @@ public final class RobotOperation {
 
             return res;
         } catch (IOException | InterruptedException | ExecutionException e) {
+            try {
+                Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+                Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+                rightMotor.brake();
+                leftMotor.brake();
+                rightMotor.setPower(0);
+                leftMotor.setPower(0);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                throw new RobotException("Something went wrong. Please try this operation again.");
+            }
             e.printStackTrace();
             throw new RobotException("Something went wrong. Please try this operation again.");
         }
@@ -823,103 +867,162 @@ public final class RobotOperation {
         }
     }
 
-    public static void pickUpObjectTest(EV3.Api api) throws InterruptedException, ExecutionException, IOException {
+    public static void pickUpObjectTest(EV3.Api api) throws RobotException {
+        try {
+            final float distance = 25;
+            final float distanceToObjectForPick = 5;
 
-        final float distance = 10;
-        final float inGrabber = 3;
-        final float distanceToObjectForPick = 5;
+            Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+            Motor leftMotor = new Motor(api, EV3.OutputPort.B);
 
-        Motor rightMotor = new Motor(api, EV3.OutputPort.C);
-        Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+            Thread right = new Thread(rightMotor);
+            Thread left = new Thread(leftMotor);
 
-        Thread right = new Thread(rightMotor);
-        Thread left = new Thread(leftMotor);
+            Grabber grabber = new Grabber(api);
+            Thread grab = new Thread(grabber);
+            grab.start();
 
-        Grabber grabber = new Grabber(api);
-        Thread grab = new Thread(grabber);
-        grab.start();
+            UltrasonicSensorDistance ultrasonicSensorDistance = new UltrasonicSensorDistance(api);
+            Thread t = new Thread(ultrasonicSensorDistance);
+            t.start();
 
-        UltrasonicSensorDistance ultrasonicSensorDistance = new UltrasonicSensorDistance(api);
-        Thread t = new Thread(ultrasonicSensorDistance);
-        t.start();
+            grabber.up();
 
-        grabber.up();
+            float distanceToObject = turnUntilObstacle(api, t, ultrasonicSensorDistance, distance, VirtualMap.Wheel.LEFT, ManualActivity.Direction.BACKWARD);
+            t.join();
 
-        float distanceToObject = turnUntilObstacle(api, t, ultrasonicSensorDistance, distance, VirtualMap.Wheel.LEFT, ManualActivity.Direction.BACKWARD);
-        t.join();
+            t = new Thread(ultrasonicSensorDistance);
 
-        t = new Thread(ultrasonicSensorDistance);
+            right.start();
+            left.start();
+            t.start();
 
-        right.start();
-        left.start();
-        t.start();
+            moveUntilObject(api, distanceToObject - distanceToObjectForPick);
 
-        rightMotor.move(distanceToObject - distanceToObjectForPick);
-        leftMotor.move(distanceToObject - distanceToObjectForPick);
+       //     rightMotor.move(distanceToObject - distanceToObjectForPick);
+       //     leftMotor.move(distanceToObject - distanceToObjectForPick);
 
-        leftMotor.brake();
-        rightMotor.brake();
+       //     leftMotor.brake();
+       //     rightMotor.brake();
 
-        grabber.down();
+            grabber.down();
 
-        grab.interrupt();
-        t.interrupt();
-        left.interrupt();
-        right.interrupt();
+            grab.interrupt();
+            t.interrupt();
+            left.interrupt();
+            right.interrupt();
+        } catch (IOException | ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+            throw new RobotException("Qualcosa è andato storto. Riprova l'operazione.");
+        }
 
     }
 
-    private static float turnUntilObstacle(EV3.Api api, Thread t, UltrasonicSensorDistance ultrasonicSensorDistance, float distance, VirtualMap.Wheel wheel, ManualActivity.Direction direction) throws IOException, ExecutionException, InterruptedException {
-        final int power = 20;
+    private static void moveUntilObject (EV3.Api api, float distance) throws RobotException{
 
-        Motor rightMotor = new Motor(api, EV3.OutputPort.C);
-        Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+        try {
+            final float wheelRadius = 2.25f;
 
-        Thread right = new Thread(rightMotor);
-        Thread left = new Thread(leftMotor);
+            Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+            Motor leftMotor = new Motor(api, EV3.OutputPort.B);
 
-        right.start();
-        left.start();
+            Thread right = new Thread(rightMotor);
+            Thread left = new Thread(leftMotor);
 
-        if(!ultrasonicSensorDistance.isDetected(distance)){
-            if (wheel == VirtualMap.Wheel.LEFT) {
-                if (direction == ManualActivity.Direction.FORWARD) {
-                    leftMotor.setPower(power);
-                    rightMotor.setPower(-power);
+
+            float alpha = (180 * distance) / ((float) Math.PI * wheelRadius); //TODO: le misure sono in centimetri, se sono in altra unità di misura modificare a e wheelRadius
+
+            float leftPosition = leftMotor.getPosition().get();
+            float rightPosition = rightMotor.getPosition().get();
+
+            while (leftMotor.getPosition().get() < leftPosition + alpha || rightMotor.getPosition().get() < rightPosition + alpha) { //TODO: forse  getPosition().get() < position + alpha --> dipende da come gira
+                rightMotor.setPower(20);
+                leftMotor.setPower(20);
+            }
+
+            rightMotor.brake();
+            leftMotor.brake();
+            rightMotor.setPower(0);
+            leftMotor.setPower(0);
+            right.interrupt();
+            left.interrupt();
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            throw new RobotException("Qualcosa è andato storto, riprova questa operazione.");
+        }
+
+    }
+
+    private static float turnUntilObstacle(EV3.Api api, Thread t, UltrasonicSensorDistance ultrasonicSensorDistance, float distance, VirtualMap.Wheel wheel, ManualActivity.Direction direction) throws RobotException{
+        try {
+            final int power = 20;
+
+            Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+            Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+            GyroSensorAngle gyroSensorAngle = new GyroSensorAngle(api);
+
+            final float initialAngle = gyroSensorAngle.getAngleNow();
+
+            Thread right = new Thread(rightMotor);
+            Thread left = new Thread(leftMotor);
+
+            right.start();
+            left.start();
+
+            if (!ultrasonicSensorDistance.isDetected(distance)) {
+                if (wheel == VirtualMap.Wheel.LEFT) {
+                    if (direction == ManualActivity.Direction.FORWARD) {
+                        leftMotor.setPower(power);
+                    } else {
+                        leftMotor.setPower(-power);
+                    }
                 } else {
-                    leftMotor.setPower(-power);
-                    rightMotor.setPower(power);
-                }
-            } else {
-                if (direction == ManualActivity.Direction.FORWARD) {
-                    rightMotor.setPower(power);
-                    leftMotor.setPower(-power);
-                } else {
-                    rightMotor.setPower(-power);
-                    leftMotor.setPower(power);
+                    if (direction == ManualActivity.Direction.FORWARD) {
+                        rightMotor.setPower(power);
+                    } else {
+                        rightMotor.setPower(-power);
+                    }
                 }
             }
+
+            boolean isFound = false;
+
+            while (!isFound && gyroSensorAngle.getAngleNow() > initialAngle - 180) {
+                isFound = ultrasonicSensorDistance.isDetected(distance);
+            }
+
+            if (!isFound) {
+
+                rightMotor.brake();
+                leftMotor.brake();
+                rightMotor.setPower(0);
+                rightMotor.setPower(0);
+                left.interrupt();
+                right.interrupt();
+                throw new RobotException("Il robot non è stato in grado di trovare l'oggetto.");
+            }
+
+            rightMotor.brake();
+            leftMotor.brake();
+
+            rightMotor.setPower(0);
+            rightMotor.setPower(0);
+
+            float distanceToObject = ultrasonicSensorDistance.getDistanceToObject();
+
+            left.interrupt();
+            right.interrupt();
+            t.interrupt();
+
+            return distanceToObject;
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            throw  new RobotException("Qualcosa è andato storto, ripetere l'operazione.");
         }
-
-        while(!ultrasonicSensorDistance.isDetected(distance)) {
-            Thread.sleep(25);
-        }
-
-        float distanceToObject = ultrasonicSensorDistance.getDistanceToObject();
-
-        rightMotor.brake();
-        leftMotor.brake();
-
-        left.interrupt();
-        right.interrupt();
-        t.interrupt();
-
-        return distanceToObject;
     }
 
 
-    //TODO MAKE PRIVATE IN FUTURE
-    //TODO: pickUpObject deve solo limitarsi a prendere l'oggetto, si assume che dopo averlo preso rimanga fermo
+    /*
     public static void pickUpObject (EV3.Api api) throws  RobotException{
         try {
 
@@ -944,11 +1047,8 @@ public final class RobotOperation {
             Motor rightMotor = new Motor(api, EV3.OutputPort.C);
             Thread left = new Thread(leftMotor);
             Thread right = new Thread(rightMotor);
-
-
             boolean isObjectFound = false;
             float objectDistance = 0;
-
             left.start();
             right.start();
             gyroSensor.start();
@@ -999,7 +1099,6 @@ public final class RobotOperation {
 
             leftMotor.start();
             rightMotor.start();
-/*
             final float ANGLE_MAX = gyroSensorAngle.getAngleNow();
             float ANGLE_MED;
             if (currentDistance >= 10)
@@ -1019,7 +1118,7 @@ public final class RobotOperation {
 
             leftMotor.start();
             rightMotor.start();
-*/
+
             Future<Float> futureMotorPositionLeft = leftMotor.getPosition();
             final float START_POS_LEFT = futureMotorPositionLeft.get();
 
@@ -1053,7 +1152,7 @@ public final class RobotOperation {
                 leftMotor.setPower(-POWER);
                 rightMotor.setPower(-POWER);
             }
-            */
+
 
             leftMotor.setPower(0);
             rightMotor.setPower(0);
@@ -1070,7 +1169,7 @@ public final class RobotOperation {
             throw new RobotException("Something went wrong. Please try this operation again.");
         }
     }
-
+*/
 
     public static void addObject(EV3.Api api, AsyncRobotTask asyncRobotTask,
                                  Short backgroundColorIntensity, Short blackColorIntensity, PositionButton referencedButton) throws RobotException {
@@ -1172,7 +1271,7 @@ public final class RobotOperation {
             reachPosFromOrigin(api, lightSensorMonitor,
                     colorsToCheck, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, buttonToMoveObjFrom);
 
-            pickUpObject(api); //TODO: to be tested
+            pickUpObjectTest(api); //TODO: to be tested
 
             if (destinationButton.getTrackNumber() == buttonToMoveObjFrom.getTrackNumber() &&
                     destinationButton.getPositionNumber() > buttonToMoveObjFrom.getPositionNumber())
@@ -1221,7 +1320,7 @@ public final class RobotOperation {
             reachPosFromOrigin(api, lightSensorMonitor,
                     colorsToCheck, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
 
-            pickUpObject(api);
+            pickUpObjectTest(api);
 
             referencedButton.changeOccupiedState();
 

@@ -60,7 +60,7 @@ public class Motor extends TachoMotor implements Runnable{
 
         float position = getPosition().get();
 
-        setPower(40);
+        setPower(20);
 
         while(getPosition().get() < position + alpha){ //TODO: forse  getPosition().get() < position + alpha --> dipende da come gira
         }
