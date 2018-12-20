@@ -3,11 +3,10 @@ package it.unive.dais.legodroid.ourUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+
 import it.unive.dais.legodroid.code.ManualActivity;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
-import it.unive.dais.legodroid.lib.plugs.UltrasonicSensor;
 
 import static java.lang.Math.abs;
 
@@ -545,7 +544,7 @@ public final class RobotOperation {
 
     }
 
-    public static void smallMovementUntilColor(EV3.Api api, LightSensorMonitor lightSensorMonitor, LightSensor.Color trackColor, ManualActivity.Direction direction, ManualActivity.Direction turn, int difference) throws RobotException, IOException, InterruptedException {
+    public static void smallMovementUntilBlackOrWhite(EV3.Api api, LightSensorMonitor lightSensorMonitor, ManualActivity.Direction direction, ManualActivity.Direction turn, int difference) throws RobotException, IOException, InterruptedException {
         int power = 20;
         int sign;
 
@@ -554,6 +553,11 @@ public final class RobotOperation {
         } else {
             sign = -1;
         }
+
+        ArrayList<LightSensor.Color> colorArray = new ArrayList<>();
+        colorArray.add(LightSensor.Color.BLACK);
+        colorArray.add(LightSensor.Color.WHITE);
+        colorArray.add(LightSensor.Color.BLUE);
 
         Motor rightMotor = new Motor(api, EV3.OutputPort.C);
         Motor leftMotor = new Motor(api, EV3.OutputPort.B);
@@ -564,7 +568,7 @@ public final class RobotOperation {
         right.start();
         left.start();
 
-        while(RobotOperation.getReflectedColor(api, lightSensorMonitor) != trackColor){
+        while(!colorArray.contains(RobotOperation.getReflectedColor(api, lightSensorMonitor))) {
 
             if (turn == ManualActivity.Direction.LEFT) {
                 leftMotor.setPower((power - difference) * sign);
@@ -617,13 +621,14 @@ public final class RobotOperation {
             asyncRobotTask.moveToTrack(i);
 
             if(colorFound != LightSensor.Color.RED){
-                smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.RIGHT, 2);
+                smallMovementUntilBlackOrWhite(api, lightSensorMonitor, ManualActivity.Direction.FORWARD, ManualActivity.Direction.RIGHT, 2);
             }
         }
 
         asyncRobotTask.moveToBeginning();
 
-        smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.RIGHT, 1);
+        //TODO GIRARE IL ROBOT OPPURE LASCIARE COSI'?
+        //smallMovementUntilBlackOrWhite(api, lightSensorMonitor, ManualActivity.Direction.FORWARD, ManualActivity.Direction.RIGHT, 1);
 
     }
 
@@ -688,7 +693,7 @@ public final class RobotOperation {
                     asyncRobotTask.moveToTrack(buttonToMoveObjFrom.getTrackNumber() - deltaPos);
 
                     if(deltaPos != buttonToMoveObjFrom.getTrackNumber() - destinationButton.getTrackNumber()){
-                        smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT, 1);
+                        smallMovementUntilBlackOrWhite(api, lightSensorMonitor, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT, 1);
                     }
                 }
 
@@ -733,7 +738,7 @@ public final class RobotOperation {
                 asyncRobotTask.moveToPositionOnTrack(buttonToMoveObjFrom.getTrackNumber(), destinationPos - positions);
 
                 if(positions > 0) {
-                    smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1);
+                    smallMovementUntilBlackOrWhite(api, lightSensorMonitor, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1);
                 }
             }
             return ManualActivity.Direction.FORWARD;
@@ -759,7 +764,7 @@ public final class RobotOperation {
                     asyncRobotTask.moveToPositionOnTrack(buttonToMoveObjFrom.getTrackNumber(), destinationPos + position);
 
                     if(position > 0){
-                        smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT, 1);
+                        smallMovementUntilBlackOrWhite(api, lightSensorMonitor, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT, 1);
                     }
 
                 }
@@ -801,7 +806,7 @@ public final class RobotOperation {
             asyncRobotTask.moveToTrack(i);
 
             if(colorFound != colorStop){
-                smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1);
+                smallMovementUntilBlackOrWhite(api, lightSensorMonitor, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1);
             }
         }
     }
@@ -825,7 +830,7 @@ public final class RobotOperation {
             asyncRobotTask.moveToPositionOnTrack(referencedButton.getTrackNumber(), position);
 
             if (position >= 1) {
-                RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT, 1);
+                RobotOperation.smallMovementUntilBlackOrWhite(api, lightSensorMonitor, ManualActivity.Direction.BACKWARD, ManualActivity.Direction.RIGHT, 1);
             } else {
                 RobotOperation.turnUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, VirtualMap.Wheel.RIGHT, ManualActivity.Direction.BACKWARD);
             }
@@ -857,7 +862,7 @@ public final class RobotOperation {
             asyncRobotTask.moveToPositionOnTrack(referencedButton.getTrackNumber(), referencedButton.getPositionNumber());
 
             if(position != referencedButton.getPositionNumber()) {
-                smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1);
+                smallMovementUntilBlackOrWhite(api, lightSensorMonitor, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1);
             }
 
         }
@@ -883,7 +888,7 @@ public final class RobotOperation {
             asyncRobotTask.moveToTrack(i);
 
             if(i != trackNumber){
-                smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.RIGHT, 1);
+                smallMovementUntilBlackOrWhite(api, lightSensorMonitor, ManualActivity.Direction.FORWARD, ManualActivity.Direction.RIGHT, 1);
             }
         }
     }
@@ -1246,7 +1251,7 @@ public final class RobotOperation {
         if(direction == ManualActivity.Direction.FORWARD)
             robotRotation(api, -90, VirtualMap.Wheel.RIGHT);
         else {
-            smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.RIGHT, 1);
+            smallMovementUntilBlackOrWhite(api, lightSensorMonitor, ManualActivity.Direction.FORWARD, ManualActivity.Direction.RIGHT, 1);
             robotRotation(api, 90, VirtualMap.Wheel.LEFT);
         }
 

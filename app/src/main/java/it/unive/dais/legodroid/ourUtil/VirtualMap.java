@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -131,7 +130,7 @@ public class VirtualMap implements Parcelable {
 
             positions--;
             if (positions >= 0) {
-                RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1);
+                RobotOperation.smallMovementUntilBlackOrWhite(api, lightSensorMonitor, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1);
             }
         }
 
@@ -168,7 +167,7 @@ public class VirtualMap implements Parcelable {
 
                 positionsNumber++;
 
-                RobotOperation.smallMovementUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1);
+                RobotOperation.smallMovementUntilBlackOrWhite(api, lightSensorMonitor, ManualActivity.Direction.FORWARD, ManualActivity.Direction.LEFT, 1);
 
             } else {
                 RobotOperation.checkColor(api, lightSensorMonitor, colorStop, true);
