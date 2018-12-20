@@ -86,7 +86,8 @@ public class VirtualMap implements Parcelable {
                         LightSensor.Color.BLACK,
                         blackLineIntensity,
                         backgroundColorIntensity,
-                        colorsToCheck
+                        colorsToCheck,
+                        Wheel.RIGHT
                 );
 
             if (colorFound != colorStop) {
@@ -124,7 +125,8 @@ public class VirtualMap implements Parcelable {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck
+                    colorsToCheck,
+                     Wheel.LEFT
             );
 
             positions--;
@@ -158,7 +160,8 @@ public class VirtualMap implements Parcelable {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck
+                    colorsToCheck,
+                    Wheel.RIGHT
             );
 
             if (colorFound == trackColor) {

@@ -16,7 +16,8 @@ public final class RobotOperation {
     public static LightSensor.Color followLine (EV3.Api api, LightSensorMonitor lightSensorMonitor,
                                                 ManualActivity.Direction direction,
                                                 LightSensor.Color lineColor, short lineReflectedColor,
-                                                short backgroundReflectedColor, ArrayList<LightSensor.Color> colorsList)
+                                                short backgroundReflectedColor, ArrayList<LightSensor.Color> colorsList,
+                                                VirtualMap.Wheel lineSide)
     throws RobotException{
 
 
@@ -105,8 +106,14 @@ public final class RobotOperation {
                 if(direction == ManualActivity.Direction.FORWARD) {
                     turningValue = (int) (P*error + I*integral + D*derivative);
 
-                    leftPower = maxSpeed - turningValue;
-                    rightPower = maxSpeed + turningValue;
+                    if (lineSide == VirtualMap.Wheel.RIGHT) {
+                        leftPower = maxSpeed - turningValue;
+                        rightPower = maxSpeed + turningValue;
+                    }
+                    else {
+                        leftPower = maxSpeed + turningValue;
+                        rightPower = maxSpeed - turningValue;
+                    }
 
                     difference = 10 - abs(leftPower - rightPower);
                     if(difference < 3)
@@ -601,7 +608,8 @@ public final class RobotOperation {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck
+                    colorsToCheck,
+                    VirtualMap.Wheel.LEFT
             );
 
             i--;
@@ -671,7 +679,8 @@ public final class RobotOperation {
                             LightSensor.Color.BLACK,
                             blackLineIntensity,
                             backgroundColorIntensity,
-                            colorsToCheck
+                            colorsToCheck,
+                            VirtualMap.Wheel.LEFT
                     );
 
                     deltaPos++;
@@ -714,7 +723,8 @@ public final class RobotOperation {
                         LightSensor.Color.BLACK,
                         blackLineIntensity,
                         backgroundColorIntensity,
-                        colorsToCheck
+                        colorsToCheck,
+                        VirtualMap.Wheel.RIGHT
                 );
 
 
@@ -740,7 +750,8 @@ public final class RobotOperation {
                             LightSensor.Color.BLACK,
                             blackLineIntensity,
                             backgroundColorIntensity,
-                            colorsToCheck
+                            colorsToCheck,
+                            VirtualMap.Wheel.LEFT
                     );
 
                     position--;
@@ -781,7 +792,8 @@ public final class RobotOperation {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck
+                    colorsToCheck,
+                    VirtualMap.Wheel.RIGHT
             );
 
             i--;
@@ -806,7 +818,8 @@ public final class RobotOperation {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck
+                    colorsToCheck,
+                    VirtualMap.Wheel.LEFT
             );
 
             asyncRobotTask.moveToPositionOnTrack(referencedButton.getTrackNumber(), position);
@@ -834,7 +847,8 @@ public final class RobotOperation {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck
+                    colorsToCheck,
+                    VirtualMap.Wheel.RIGHT
             );
 
 
@@ -860,7 +874,8 @@ public final class RobotOperation {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck
+                    colorsToCheck,
+                    VirtualMap.Wheel.LEFT
             );
 
             i++;
