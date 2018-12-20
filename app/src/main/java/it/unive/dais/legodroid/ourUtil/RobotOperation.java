@@ -260,10 +260,12 @@ public final class RobotOperation {
             try {
                 Motor rightMotor = new Motor(api, EV3.OutputPort.C);
                 Motor leftMotor = new Motor(api, EV3.OutputPort.B);
-                rightMotor.brake();
-                leftMotor.brake();
                 rightMotor.setPower(0);
                 leftMotor.setPower(0);
+                rightMotor.start();
+                leftMotor.start();
+                rightMotor.brake();
+                leftMotor.brake();
             } catch (IOException ex) {
                 ex.printStackTrace();
                 throw new RobotException("Something went wrong. Please try this operation again.");
@@ -291,10 +293,12 @@ public final class RobotOperation {
                     try {
                         Motor rightMotor = new Motor(api, EV3.OutputPort.C);
                         Motor leftMotor = new Motor(api, EV3.OutputPort.B);
-                        rightMotor.brake();
-                        leftMotor.brake();
                         rightMotor.setPower(0);
                         leftMotor.setPower(0);
+                        leftMotor.start();
+                        rightMotor.start();
+                        rightMotor.brake();
+                        leftMotor.brake();
                     } catch (IOException ex) {
                         ex.printStackTrace();
                         throw new RobotException("Something went wrong. Please try this operation again.");
@@ -329,10 +333,12 @@ public final class RobotOperation {
             try {
                 Motor rightMotor = new Motor(api, EV3.OutputPort.C);
                 Motor leftMotor = new Motor(api, EV3.OutputPort.B);
-                rightMotor.brake();
-                leftMotor.brake();
                 rightMotor.setPower(0);
                 leftMotor.setPower(0);
+                leftMotor.start();
+                rightMotor.start();
+                rightMotor.brake();
+                leftMotor.brake();
             } catch (IOException ex) {
                 ex.printStackTrace();
                 throw new RobotException("Something went wrong. Please try this operation again.");
