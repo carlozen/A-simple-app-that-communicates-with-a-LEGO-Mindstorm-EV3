@@ -26,13 +26,12 @@
             android:name=".code.PopupConnectionActivity"
             android:theme="@style/AppTheme.Popup" />
         <activity
-            android:name=".code.AutomaticActivity"
-            android:label="@string/title_activity_automatic"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:name=".code.AutomaticActivity" />
         <activity
-            android:name=".code.VirtualMapActivity"
-            android:label="@string/title_activity_virtual_map"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:name=".code.VirtualMapActivity" />
+        <activity
+            android:name=".code.PopupSavedMapsActivity"
+            android:theme="@style/AppTheme.Popup" />
     </application>
 
 </manifest>

@@ -23,23 +23,29 @@ public class AutomaticActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_automatic);
 
+        //TODO TEST BUTTONS START
+
+        Button addMapTestButton = findViewById(R.id.add_map_test);
+        addMapTestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ArrayList<VirtualMap.MapTrack> trackList = new ArrayList<>();
+                trackList.add(new VirtualMap.MapTrack(LightSensor.Color.YELLOW, 2));
+                trackList.add(new VirtualMap.MapTrack(LightSensor.Color.GREEN, 1));
+                VirtualMap map = new VirtualMap(trackList, (short)3, (short)49); //TODO: change?
+                map.save();
+            }
+        });
+
+        //TODO TEST BUTTONS END
+
         Button selectMapButton = findViewById(R.id.select_map);
         selectMapButton.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View view) {
-                                                    Intent virtualMapIntent = new Intent (AutomaticActivity.this, VirtualMapActivity.class);
-
-                                                    ArrayList<VirtualMap.MapTrack> trackList = new ArrayList<>();
-                                                    trackList.add(new VirtualMap.MapTrack(LightSensor.Color.YELLOW, 2));
-                                                    trackList.add(new VirtualMap.MapTrack(LightSensor.Color.GREEN, 1));
-
-                                                    VirtualMap map = new VirtualMap(trackList, (short)3, (short)49); //TODO: change?
-
-                                                    virtualMapIntent.putExtra("map", map);
-                                                    startActivity(virtualMapIntent);
-                                                }
-                                            }
-        );
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(AutomaticActivity.this, PopupSavedMapsActivity.class));
+            }
+        });
 
         Button followLineButton = findViewById(R.id.followLine);
         followLineButton.setOnClickListener(new View.OnClickListener() {

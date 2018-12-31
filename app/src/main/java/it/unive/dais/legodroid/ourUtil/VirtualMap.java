@@ -225,17 +225,17 @@ public class VirtualMap implements Parcelable {
         for (int i = 0; i< this.trackList.size(); i++) {
             builder.append(String.format(Locale.ENGLISH, "TRACK %d: Positions %d; Color %s\n", i, this.trackList.get(i).objectList.size(),
                     this.trackList.get(i).trackColor.toString()));
-            for (int j = 0; j<this.trackList.get(i).getObjectList().size();j++) {
-                builder.append(String.format(Locale.ENGLISH,"\t Position %d: %b\n", j, this.trackList.get(i).getObjectList().get(j)));
-            }
         }
         return builder.toString();
     }
 
-    public boolean save(String mapName) {
+    public boolean save() {
         try {
             String writeValue = MainActivity.mGson.toJson(this);
-            MainActivity.mEditor.putString(mapName, writeValue);
+
+            Map loadValues = MainActivity.mSettings.getAll();
+
+            MainActivity.mEditor.putString(Integer.valueOf(loadValues.size()).toString(), writeValue);
             MainActivity.mEditor.commit();
             return true;
         }
@@ -255,6 +255,28 @@ public class VirtualMap implements Parcelable {
         }
 
         return virtualMaps;
+    }
+
+    public static boolean removeSavedMap (int position) {
+        try {
+            MainActivity.mEditor.remove(Integer.valueOf(position).toString());
+
+            Map loadValues = MainActivity.mSettings.getAll();
+
+            for (int i = position + 1; i< loadValues.size(); i++) {
+                MainActivity.mEditor.putString(Integer.valueOf(i-1).toString(),
+                        MainActivity.mSettings.getString(Integer.valueOf(i).toString(), ""));
+                MainActivity.mEditor.remove(Integer.valueOf(i).toString());
+            }
+
+            MainActivity.mEditor.commit();
+
+            return true;
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
     }
 
     public static class MapTrack implements Parcelable{
