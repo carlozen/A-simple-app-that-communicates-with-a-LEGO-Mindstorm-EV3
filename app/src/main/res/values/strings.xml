@@ -3,4 +3,6 @@
     <string name="title_activity_automatic">AutomaticActivity</string>
     <string name="title_activity_virtual_map">VirtualMapActivity</string>
     <string name="title_activity_saved_maps">SavedMapsActivity</string>
+    <string name="title_activity_popup_scanning">PopupScanningActivity</string>
+    <string name="title_activity_popup_error">PopupErrorActivity</string>
 </resources>

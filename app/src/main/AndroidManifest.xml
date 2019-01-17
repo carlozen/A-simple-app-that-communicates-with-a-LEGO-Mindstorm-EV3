@@ -25,12 +25,16 @@
         <activity
             android:name=".code.PopupConnectionActivity"
             android:theme="@style/AppTheme.Popup" />
-        <activity
-            android:name=".code.AutomaticActivity" />
-        <activity
-            android:name=".code.VirtualMapActivity" />
+        <activity android:name=".code.AutomaticActivity" />
+        <activity android:name=".code.VirtualMapActivity" />
         <activity
             android:name=".code.PopupSavedMapsActivity"
+            android:theme="@style/AppTheme.Popup" />
+        <activity
+            android:name=".code.PopupScanningActivity"
+            android:theme="@style/AppTheme.Popup" />
+        <activity
+            android:name=".code.PopupErrorActivity"
             android:theme="@style/AppTheme.Popup" />
     </application>
 
