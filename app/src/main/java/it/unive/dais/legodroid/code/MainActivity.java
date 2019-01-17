@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*try {
+                try {
 
                     ev3 = new EV3(new BluetoothConnection("EV3").connect());
                     Intent intent = new Intent(MainActivity.this, ChoiceModeActivity.class);
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                     startActivity(new Intent(MainActivity.this, PopupConnectionActivity.class));
 
-                }*/
+                }
                 Intent intent = new Intent(MainActivity.this, ChoiceModeActivity.class);
                 startActivity(intent);
             }
