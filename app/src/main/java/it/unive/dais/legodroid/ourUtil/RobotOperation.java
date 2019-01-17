@@ -3,6 +3,7 @@ package it.unive.dais.legodroid.ourUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import it.unive.dais.legodroid.code.ManualActivity;
 import it.unive.dais.legodroid.lib.EV3;
@@ -15,8 +16,7 @@ public final class RobotOperation {
     public static LightSensor.Color followLine (EV3.Api api, LightSensorMonitor lightSensorMonitor,
                                                 ManualActivity.Direction direction,
                                                 LightSensor.Color lineColor, short lineReflectedColor,
-                                                short backgroundReflectedColor, ArrayList<LightSensor.Color> colorsList,
-                                                VirtualMap.Wheel lineSide)
+                                                short backgroundReflectedColor, ArrayList<LightSensor.Color> colorsList)
     throws RobotException{
 
 
@@ -105,14 +105,8 @@ public final class RobotOperation {
                 if(direction == ManualActivity.Direction.FORWARD) {
                     turningValue = (int) (P*error + I*integral + D*derivative);
 
-                    if (lineSide == VirtualMap.Wheel.RIGHT) {
-                        leftPower = maxSpeed - turningValue;
-                        rightPower = maxSpeed + turningValue;
-                    }
-                    else {
-                        leftPower = maxSpeed + turningValue;
-                        rightPower = maxSpeed - turningValue;
-                    }
+                    leftPower = maxSpeed - turningValue;
+                    rightPower = maxSpeed + turningValue;
 
                     difference = 10 - abs(leftPower - rightPower);
                     if(difference < 3)
@@ -612,8 +606,7 @@ public final class RobotOperation {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck,
-                    VirtualMap.Wheel.LEFT
+                    colorsToCheck
             );
 
             i--;
@@ -684,8 +677,7 @@ public final class RobotOperation {
                             LightSensor.Color.BLACK,
                             blackLineIntensity,
                             backgroundColorIntensity,
-                            colorsToCheck,
-                            VirtualMap.Wheel.LEFT
+                            colorsToCheck
                     );
 
                     deltaPos++;
@@ -728,8 +720,7 @@ public final class RobotOperation {
                         LightSensor.Color.BLACK,
                         blackLineIntensity,
                         backgroundColorIntensity,
-                        colorsToCheck,
-                        VirtualMap.Wheel.RIGHT
+                        colorsToCheck
                 );
 
 
@@ -755,8 +746,7 @@ public final class RobotOperation {
                             LightSensor.Color.BLACK,
                             blackLineIntensity,
                             backgroundColorIntensity,
-                            colorsToCheck,
-                            VirtualMap.Wheel.LEFT
+                            colorsToCheck
                     );
 
                     position--;
@@ -797,8 +787,7 @@ public final class RobotOperation {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck,
-                    VirtualMap.Wheel.RIGHT
+                    colorsToCheck
             );
 
             i--;
@@ -823,8 +812,7 @@ public final class RobotOperation {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck,
-                    VirtualMap.Wheel.LEFT
+                    colorsToCheck
             );
 
             asyncRobotTask.moveToPositionOnTrack(referencedButton.getTrackNumber(), position);
@@ -852,8 +840,7 @@ public final class RobotOperation {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck,
-                    VirtualMap.Wheel.RIGHT
+                    colorsToCheck
             );
 
 
@@ -879,8 +866,7 @@ public final class RobotOperation {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck,
-                    VirtualMap.Wheel.LEFT
+                    colorsToCheck
             );
 
             i++;
@@ -970,6 +956,14 @@ public final class RobotOperation {
             leftMotor.brake();
             rightMotor.setPower(0);
             leftMotor.setPower(0);
+
+          /*  leftMotor.setPower(-20);
+            leftMotor.start();
+
+            Thread.sleep(500);
+            leftMotor.brake();
+            leftMotor.setPower(0);
+*/
             right.interrupt();
             left.interrupt();
         } catch (IOException | InterruptedException | ExecutionException e) {
@@ -1365,5 +1359,41 @@ public final class RobotOperation {
             throw new RobotException("Qualcosa è andato storto, riprova questa operazione.");
         }
 
+    }
+
+    public static void moveForward(EV3.Api api, int distance) throws RobotException {
+        try {
+            Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+            Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+
+            Thread right = new Thread(rightMotor);
+            Thread left = new Thread(leftMotor);
+
+            right.start();
+            left.start();
+
+            Future<Float> leftMotorPosition = leftMotor.getPosition();
+            Future<Float> rightMotorPosition = rightMotor.getPosition();
+
+
+            float leftStartingPosition = leftMotorPosition.get();
+            float rightStartingPosition = rightMotorPosition.get();
+            while (leftMotorPosition.get() < leftStartingPosition + distance ||
+                    rightMotorPosition.get() < rightStartingPosition + distance) {
+                rightMotor.setPower(20);
+                leftMotor.setPower(20);
+                leftMotorPosition = leftMotor.getPosition();
+                rightMotorPosition = rightMotor.getPosition();
+            }
+            leftMotor.brake();
+            rightMotor.brake();
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+            right.interrupt();
+            left.interrupt();
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            throw new RobotException("Qualcosa è andato storto, ritentare l'operazione.");
+        }
     }
 }

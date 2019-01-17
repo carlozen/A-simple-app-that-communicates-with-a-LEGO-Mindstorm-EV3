@@ -85,8 +85,7 @@ public class VirtualMap implements Parcelable {
                         LightSensor.Color.BLACK,
                         blackLineIntensity,
                         backgroundColorIntensity,
-                        colorsToCheck,
-                        Wheel.RIGHT
+                        colorsToCheck
                 );
 
             if (colorFound != colorStop) {
@@ -101,8 +100,10 @@ public class VirtualMap implements Parcelable {
 
                 backTrack(api, lightSensorMonitor, backgroundColorIntensity, blackLineIntensity, colorArrayList, position);
 
-                RobotOperation.robotRotation(api, -55, Wheel.RIGHT);
-                RobotOperation.turnUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, Wheel.LEFT, ManualActivity.Direction.FORWARD);
+                //RobotOperation.robotRotation(api, -55, Wheel.RIGHT);
+                //RobotOperation.turnUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, Wheel.LEFT, ManualActivity.Direction.FORWARD);
+                RobotOperation.moveForward (api, 300);
+                RobotOperation.turnUntilColor(api, lightSensorMonitor, LightSensor.Color.BLACK, Wheel.LEFT, ManualActivity.Direction.BACKWARD);
             }
         }
 
@@ -124,8 +125,7 @@ public class VirtualMap implements Parcelable {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck,
-                     Wheel.LEFT
+                    colorsToCheck
             );
 
             positions--;
@@ -159,8 +159,7 @@ public class VirtualMap implements Parcelable {
                     LightSensor.Color.BLACK,
                     blackLineIntensity,
                     backgroundColorIntensity,
-                    colorsToCheck,
-                    Wheel.RIGHT
+                    colorsToCheck
             );
 
             if (colorFound == trackColor) {

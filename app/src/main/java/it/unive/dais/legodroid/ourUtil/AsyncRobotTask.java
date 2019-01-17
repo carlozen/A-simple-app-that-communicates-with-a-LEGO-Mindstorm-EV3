@@ -1,10 +1,12 @@
 package it.unive.dais.legodroid.ourUtil;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.view.View;
 
+import it.unive.dais.legodroid.code.PopupErrorActivity;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
 
@@ -74,6 +76,9 @@ public final class AsyncRobotTask extends AsyncTask<Void, Integer, Void> {
             if (buttonToMoveObjFrom.getBackgroundColor() == Color.RED)
                 buttonToMoveObjFrom.setBackgroundColor(Color.BLACK);
             e.printStackTrace();
+            Intent intent = new Intent(UIManager.getContext(), PopupErrorActivity.class);
+            intent.putExtra("error", e.getMessage());
+            UIManager.getContext().startActivity(intent);
         }
         return null;
     }
