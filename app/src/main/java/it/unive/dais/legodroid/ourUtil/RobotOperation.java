@@ -3,6 +3,7 @@ package it.unive.dais.legodroid.ourUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import it.unive.dais.legodroid.code.ManualActivity;
 import it.unive.dais.legodroid.lib.EV3;
@@ -956,13 +957,13 @@ public final class RobotOperation {
             rightMotor.setPower(0);
             leftMotor.setPower(0);
 
-            leftMotor.setPower(-20);
+          /*  leftMotor.setPower(-20);
             leftMotor.start();
 
             Thread.sleep(500);
             leftMotor.brake();
             leftMotor.setPower(0);
-
+*/
             right.interrupt();
             left.interrupt();
         } catch (IOException | InterruptedException | ExecutionException e) {
@@ -1358,5 +1359,41 @@ public final class RobotOperation {
             throw new RobotException("Qualcosa è andato storto, riprova questa operazione.");
         }
 
+    }
+
+    public static void moveForward(EV3.Api api, int distance) throws RobotException {
+        try {
+            Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+            Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+
+            Thread right = new Thread(rightMotor);
+            Thread left = new Thread(leftMotor);
+
+            right.start();
+            left.start();
+
+            Future<Float> leftMotorPosition = leftMotor.getPosition();
+            Future<Float> rightMotorPosition = rightMotor.getPosition();
+
+
+            float leftStartingPosition = leftMotorPosition.get();
+            float rightStartingPosition = rightMotorPosition.get();
+            while (leftMotorPosition.get() < leftStartingPosition + distance ||
+                    rightMotorPosition.get() < rightStartingPosition + distance) {
+                rightMotor.setPower(20);
+                leftMotor.setPower(20);
+                leftMotorPosition = leftMotor.getPosition();
+                rightMotorPosition = rightMotor.getPosition();
+            }
+            leftMotor.brake();
+            rightMotor.brake();
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+            right.interrupt();
+            left.interrupt();
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            throw new RobotException("Qualcosa è andato storto, ritentare l'operazione.");
+        }
     }
 }
