@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
@@ -89,7 +90,15 @@ public class PopupSavedMapsActivity extends AppCompatActivity {
                 final VirtualMap map = virtualMapList.get(i);
                 Button mapButton = new Button(this);
                 mapButton.setTransformationMethod(null);
+
+
+
+                mapButton.setGravity(Gravity.CENTER_VERTICAL);
+                mapButton.setScaleY(1.2f);
+
                 mapButton.setText(map.toString());
+
+
 
                 mapButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -102,9 +111,15 @@ public class PopupSavedMapsActivity extends AppCompatActivity {
                 });
 
 
-                Button deleteButton = new Button(this);
-                deleteButton.setText("X");
-                deleteButton.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                ImageButton deleteButton = new ImageButton(this);
+                deleteButton.setBackgroundResource(R.drawable.delete_icon);
+                //deleteButton.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+                deleteButton.setScaleX(0.4f);
+                deleteButton.setScaleY(0.4f);
+
+
+
                 int finalI = i;
                 deleteButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -114,8 +129,7 @@ public class PopupSavedMapsActivity extends AppCompatActivity {
                     }
                 });
 
-                deleteButton.setGravity(Gravity.CENTER_VERTICAL);
-
+                //deleteButton.setGravity(Gravity.CENTER_VERTICAL);
                 tableRow.addView(mapButton);
                 tableRow.addView(deleteButton);
             }
