@@ -9,12 +9,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/saved_maps_back_button"
-            android:text="Indietro"
-            android:layout_gravity="end|top" />
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end|top"
+            android:layout_margin="5dp"
+            android:background="@drawable/back_icon" />
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"

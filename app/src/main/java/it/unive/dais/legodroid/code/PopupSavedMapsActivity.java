@@ -94,7 +94,6 @@ public class PopupSavedMapsActivity extends AppCompatActivity {
 
 
                 mapButton.setGravity(Gravity.CENTER_VERTICAL);
-                mapButton.setScaleY(1.2f);
 
                 mapButton.setText(map.toString());
 
