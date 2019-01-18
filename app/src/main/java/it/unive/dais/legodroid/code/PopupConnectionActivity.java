@@ -36,28 +36,14 @@ public class PopupConnectionActivity extends Activity {
 
         getWindow().setAttributes(params);
 
-        Button tryAgain = findViewById(R.id.tryAgain);
-        Button returnToHomePage = findViewById(R.id.returnToHomePage);
+        Button close = findViewById(R.id.close);
 
+        PopupConnectionActivity popup = this;
         //TODO: to be tested
-        tryAgain.setOnClickListener(new View.OnClickListener() {
+        close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    MainActivity.ev3 = new EV3(new BluetoothConnection("EV3").connect());
-                    finish();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    //TODO: add snackbar with warning message
-                }
-            }
-        });
-
-        //TODO: to be tested
-        returnToHomePage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(PopupConnectionActivity.this, MainActivity.class));
+                popup.finish();
             }
         });
 

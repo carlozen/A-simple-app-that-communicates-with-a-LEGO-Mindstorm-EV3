@@ -7,27 +7,13 @@
     android:background="@drawable/activity_pop_up_connection">
 
     <Button
-        android:id="@+id/tryAgain"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="47dp"
-        android:layout_marginStart="54dp"
-        android:background="@android:color/transparent"
-        android:backgroundTint="@android:color/transparent"
-        app:layout_constraintBottom_toBottomOf="@+id/returnToHomePage"
-        app:layout_constraintEnd_toStartOf="@+id/returnToHomePage"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/returnToHomePage" />
-
-    <Button
-        android:id="@+id/returnToHomePage"
-        android:layout_width="0dp"
+        android:id="@+id/close"
+        android:layout_width="117dp"
         android:layout_height="52dp"
-        android:layout_marginBottom="40dp"
         android:layout_marginEnd="49dp"
+        android:layout_marginBottom="40dp"
         android:background="@android:color/transparent"
         android:backgroundTint="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tryAgain" />
+        app:layout_constraintEnd_toEndOf="parent" />
 </android.support.constraint.ConstraintLayout>
