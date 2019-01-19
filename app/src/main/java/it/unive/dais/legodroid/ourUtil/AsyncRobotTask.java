@@ -73,8 +73,10 @@ public final class AsyncRobotTask extends AsyncTask<Void, Integer, Void> {
                 }
             }
         } catch (RobotException e) {
-            if (buttonToMoveObjFrom.getBackgroundColor() == Color.RED)
+            if (buttonToMoveObjFrom != null && buttonToMoveObjFrom.getBackgroundColor() == Color.RED)
                 buttonToMoveObjFrom.setBackgroundColor(Color.BLACK);
+            if (UIManager.getLastClickedButton() != null && UIManager.getLastClickedButton().getBackgroundColor() == Color.RED)
+                UIManager.getLastClickedButton().setBackgroundColor(Color.BLACK);
             e.printStackTrace();
             Intent intent = new Intent(UIManager.getContext(), PopupErrorActivity.class);
             intent.putExtra("error", e.getMessage());

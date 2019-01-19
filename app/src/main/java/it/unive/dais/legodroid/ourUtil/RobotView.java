@@ -1,7 +1,6 @@
 package it.unive.dais.legodroid.ourUtil;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.widget.RelativeLayout;
 
@@ -13,6 +12,7 @@ public class RobotView extends android.support.v7.widget.AppCompatImageView {
     private int startingPositionY;
     private int trackOffset;
     private final ArrayList<Integer> positionOffsetList = new ArrayList<>();
+    private boolean positionInitiated = false;
 
     public RobotView(Context context) {
         super(context);
@@ -23,8 +23,16 @@ public class RobotView extends android.support.v7.widget.AppCompatImageView {
         params.alignWithParent= false;
         this.setBackgroundColor(Color.RED);
         this.setLayoutParams(params);
-        this.setVisibility(GONE);
+        this.setVisibility(VISIBLE);
 
+    }
+
+    public void initiatePosition () {
+        this.positionInitiated = true;
+    }
+
+    public boolean isInitiated () {
+        return positionInitiated;
     }
 
     public void setStartingPosition (int x, int y) {

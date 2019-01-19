@@ -1,6 +1,9 @@
 package it.unive.dais.legodroid.ourUtil;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -136,6 +139,19 @@ public class VirtualMapUI {
                     addObjectButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+
+
+                            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+                            dialogBuilder.setMessage("POSIZIONA L'OGGETTO ALL'INTERNO DEL GRABBER");
+                            dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                }
+                            });
+                            AlertDialog dialog = dialogBuilder.create();
+                            dialog.show();
+
+
                             setAllButtonsListeners(ActivityState.ADD_OBJECT, null);
                             addObjectButton.setVisibility(View.GONE);
                             operationDescriptionView.setText("Select one of the blank spaces to add an object.");
