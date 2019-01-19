@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(MainActivity.this, PopupConnectionActivity.class));
 
                 }
+
                 //Intent intent = new Intent(MainActivity.this, ChoiceModeActivity.class);
                 //startActivity(intent);
             }
