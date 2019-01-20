@@ -69,7 +69,7 @@ public final class AsyncRobotTask extends AsyncTask<Void, Integer, Void> {
                     break;
                 }
                 default: {
-                    throw new RobotException("Something went wrong. Please try this operation again.");
+                    throw new RobotException("Sembra che qualcosa sia andato storto. Per favore, ritenta l'operazione.");
                 }
             }
         } catch (RobotException e) {

@@ -13,6 +13,9 @@ import static java.lang.Math.abs;
 
 public final class RobotOperation {
 
+
+    private final static String commonException = "Sembra che qualcosa sia andato storto. Per favore, ritenta l'operazione.";
+
     public static LightSensor.Color followLine (EV3.Api api, LightSensorMonitor lightSensorMonitor,
                                                 ManualActivity.Direction direction,
                                                 LightSensor.Color lineColor, short lineReflectedColor,
@@ -84,7 +87,7 @@ public final class RobotOperation {
                             leftMotor.setPower(0);
                         } catch (IOException ex) {
                             ex.printStackTrace();
-                            throw new RobotException("Something went wrong. Please try this operation again.");
+                            throw new RobotException(commonException);
                         }
                         reflectedIntensity = null;
                         lightSensorMonitor.release();
@@ -214,13 +217,13 @@ public final class RobotOperation {
             lightIntensity.interrupt();
 
             if (lightSensorColor.isHasExceptionOccurred()) {
-                throw new RobotException("Something went wrong. Please try this operation again.");
+                throw new RobotException(commonException);
             }
 
         }
         catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            throw new RobotException("Something went wrong. Please try this operation again.");
+            throw new RobotException(commonException);
         }
         return lightSensorColor.getColorObstacleFound();
     }
@@ -244,16 +247,16 @@ public final class RobotOperation {
 
             if (isColor) {
                 if (reflectedColor != color)
-                    throw new RobotException("It seems like the Robot has failed this operation. \n" +
-                            "Please, make sure you are correctly following the rules of this specific operation or that the " +
-                            "map format is correct and then try to start this operation again.");
+                    throw new RobotException("Sembra che il Robot abbia fallito l'operazione. " +
+                            "Per favore, assicurati che il robot sia posizionato nel modo corretto o che " +
+                            "il formato della mappa sia corretto e riprova l'operazione.");
             }
 
             else {
                 if (reflectedColor == color)
-                    throw new RobotException("It seems like the Robot has failed this operation. \n" +
-                            "Please, make sure you are correctly following the rules of this specific operation or that the " +
-                            "map format is correct and then try to start this operation again.");
+                    throw new RobotException("Sembra che il Robot abbia fallito l'operazione. " +
+                            "Per favore, assicurati che il robot sia posizionato nel modo corretto o che " +
+                            "il formato della mappa sia corretto e riprova l'operazione.");
             }
 
         } catch (IOException | InterruptedException | ExecutionException e) {
@@ -268,10 +271,10 @@ public final class RobotOperation {
                 leftMotor.brake();
             } catch (IOException ex) {
                 ex.printStackTrace();
-                throw new RobotException("Something went wrong. Please try this operation again.");
+                throw new RobotException(commonException);
             }
             e.printStackTrace();
-            throw new RobotException("Something went wrong. Please try this operation again.");
+            throw new RobotException(commonException);
         }
         t.interrupt();
     }
@@ -301,7 +304,7 @@ public final class RobotOperation {
                         leftMotor.brake();
                     } catch (IOException ex) {
                         ex.printStackTrace();
-                        throw new RobotException("Something went wrong. Please try this operation again.");
+                        throw new RobotException(commonException);
                     }
                 }
             }
@@ -313,7 +316,7 @@ public final class RobotOperation {
             return color;
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            throw new RobotException("Something went wrong. Please try this operation again.");
+            throw new RobotException(commonException);
         }
     }
 
@@ -341,10 +344,10 @@ public final class RobotOperation {
                 leftMotor.brake();
             } catch (IOException ex) {
                 ex.printStackTrace();
-                throw new RobotException("Something went wrong. Please try this operation again.");
+                throw new RobotException(commonException);
             }
             e.printStackTrace();
-            throw new RobotException("Something went wrong. Please try this operation again.");
+            throw new RobotException(commonException);
         }
     }
 
@@ -419,7 +422,7 @@ public final class RobotOperation {
 
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            throw new RobotException("Something went wrong. Please try this operation again.");
+            throw new RobotException(commonException);
         }
     }
 
@@ -657,7 +660,12 @@ public final class RobotOperation {
                                           short blackLineIntensity, short backgroundColorIntensity,
                                           AsyncRobotTask asyncRobotTask, PositionButton referencedButton) throws RobotException, IOException, InterruptedException {
 
-        RobotOperation.checkColor(api, lightSensorMonitor, LightSensor.Color.BLACK, true);
+        try {
+            RobotOperation.checkColor(api, lightSensorMonitor, LightSensor.Color.BLACK, true);
+        } catch (RobotException e) {
+            throw new RobotException("Qualcosa è andato storto. Assicurati che il grabber sia abbassato e che il sensore si trovi sulla linea" +
+                    " nera e ad inizio mappa prima di iniziare l'operazione.");
+        }
 
         reachBeginOfTrack(api, lightSensorMonitor, referencedButton.getTrackNumber(), colorsToCheck, blackLineIntensity,
                 backgroundColorIntensity, asyncRobotTask);
@@ -969,7 +977,7 @@ public final class RobotOperation {
             right.interrupt();
         } catch (IOException | ExecutionException | InterruptedException e) {
             e.printStackTrace();
-            throw new RobotException("Qualcosa è andato storto. Riprova l'operazione.");
+            throw new RobotException(commonException);
         }
 
     }
@@ -1012,7 +1020,7 @@ public final class RobotOperation {
             left.interrupt();
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            throw new RobotException("Qualcosa è andato storto, riprova questa operazione.");
+            throw new RobotException(commonException);
         }
 
     }
@@ -1063,7 +1071,7 @@ public final class RobotOperation {
                 rightMotor.setPower(0);
                 left.interrupt();
                 right.interrupt();
-                throw new RobotException("Il robot non è stato in grado di trovare l'oggetto.");
+                throw new RobotException("Qualcosa è andato storto. Il robot non è stato in grado di trovare l'oggetto.");
             }
 
             rightMotor.brake();
@@ -1081,7 +1089,7 @@ public final class RobotOperation {
             return distanceToObject;
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            throw  new RobotException("Qualcosa è andato storto, ripetere l'operazione.");
+            throw  new RobotException(commonException);
         }
     }
 
@@ -1280,7 +1288,7 @@ public final class RobotOperation {
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            throw new RobotException("Something went wrong, please try again");
+            throw new RobotException(commonException);
         }
     }
 
@@ -1362,7 +1370,7 @@ public final class RobotOperation {
             t.interrupt();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            throw new RobotException("Qualcosa è andato storto, riprova l'operazione.");
+            throw new RobotException(commonException);
         }
 
     }
@@ -1404,7 +1412,7 @@ public final class RobotOperation {
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            throw new RobotException("Qualcosa è andato storto, riprova questa operazione.");
+            throw new RobotException(commonException);
         }
 
     }
@@ -1441,7 +1449,7 @@ public final class RobotOperation {
             left.interrupt();
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            throw new RobotException("Qualcosa è andato storto, ritentare l'operazione.");
+            throw new RobotException(commonException);
         }
     }
 }

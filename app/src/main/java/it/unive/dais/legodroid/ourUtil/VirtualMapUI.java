@@ -125,16 +125,17 @@ public class VirtualMapUI {
         switch (getActivityState()) {
             case ADD_OBJECT: {
                 addObjectButton.setVisibility(View.GONE);
-                operationDescriptionView.setText("Select one of the blank spaces to add an object.");
+                operationDescriptionView.setText("Seleziona una delle posizioni lampeggianti libere per aggiungere un oggetto.");
                 break;
             }
             case NOTHING_DONE: {
                 if (virtualMap.isFull()) {
-                    operationDescriptionView.setText("The map is full. Please click on an object to remove it.");
+                    operationDescriptionView.setText("La mappa è piena. Per favore, clicca su un oggetto per rimuoverlo.");
                     addObjectButton.setVisibility(View.GONE);
                 }
                 else {
-                    operationDescriptionView.setText("Add an object or press on an existing one to move it or remove it");
+                    operationDescriptionView.setText("Aggiungi un oggetto col tasto \"+\" o selezionane uno " +
+                            "esistente per spostarlo oppure rimuoverlo.");
                     addObjectButton.setVisibility(View.VISIBLE);
                     addObjectButton.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -142,7 +143,7 @@ public class VirtualMapUI {
 
 
                             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-                            dialogBuilder.setMessage("POSIZIONA L'OGGETTO ALL'INTERNO DEL GRABBER");
+                            dialogBuilder.setMessage("Assicurati che l'oggetto sia posizionato all'interno del Grabber.");
                             dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -154,7 +155,7 @@ public class VirtualMapUI {
 
                             setAllButtonsListeners(ActivityState.ADD_OBJECT, null);
                             addObjectButton.setVisibility(View.GONE);
-                            operationDescriptionView.setText("Select one of the blank spaces to add an object.");
+                            operationDescriptionView.setText("Seleziona una delle posizioni lampeggianti libere per aggiungere un oggetto.");
                         }
                     });
                 }
@@ -162,13 +163,13 @@ public class VirtualMapUI {
             }
             case MOVE_OBJECT: {
                 addObjectButton.setVisibility(View.GONE);
-                operationDescriptionView.setText("Select one of the blank spaces to move the selected object.");
+                operationDescriptionView.setText("Seleziona una delle posizioni lampeggianti libere per spostare l'oggetto selezionato.");
                 break;
             }
             default: {
                 addObjectButton.setVisibility(View.GONE);
                 AnimationGenerator.setFadingAnimation(operationDescriptionView);
-                operationDescriptionView.setText("The Robot is Operating...");
+                operationDescriptionView.setText("Il Robot sta eseguendo l'operazione...");
                 break;
             }
         }

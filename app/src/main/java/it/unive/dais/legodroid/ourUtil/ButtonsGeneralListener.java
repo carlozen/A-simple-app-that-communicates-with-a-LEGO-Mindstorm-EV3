@@ -34,8 +34,8 @@ public class ButtonsGeneralListener implements View.OnClickListener {
             }
             case NOTHING_DONE: {
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(button.getContext());
-                dialogBuilder.setMessage("SELECT WHAT YOU WANT TO DO WITH THIS OBJECT");
-                dialogBuilder.setPositiveButton("DELETE", new DialogInterface.OnClickListener(){
+                dialogBuilder.setMessage("Seleziona l'operazione da eseguire sull'oggetto selezionato.");
+                dialogBuilder.setPositiveButton("RIMUOVI", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         button.setBackgroundColor(Color.RED);
@@ -43,7 +43,7 @@ public class ButtonsGeneralListener implements View.OnClickListener {
                     }
                 });
                 if (!UIManager.getVirtualMap().isFull()) {
-                    dialogBuilder.setNegativeButton("MOVE", new DialogInterface.OnClickListener() {
+                    dialogBuilder.setNegativeButton("SPOSTA", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             UIManager.setUIState(VirtualMapUI.ActivityState.MOVE_OBJECT, button);

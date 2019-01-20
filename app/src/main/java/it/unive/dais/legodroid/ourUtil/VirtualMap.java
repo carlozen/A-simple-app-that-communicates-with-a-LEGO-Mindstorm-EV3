@@ -108,8 +108,8 @@ public class VirtualMap implements Parcelable {
         }
 
         if (trackList.size() == 0)
-            throw new RobotException("It seems your map has no tracks. \n" +
-                    "Every map needs at least one track with at least one object position.");
+            throw new RobotException("Sembra che il Robot non abbia corsie per posizionare oggetti. " +
+                    "Ogni mappa necessita di almeno una corsia con almeno una posizione.");
 
         return new VirtualMap(trackList, blackLineIntensity, backgroundColorIntensity);
     }
@@ -174,8 +174,8 @@ public class VirtualMap implements Parcelable {
         }
 
         if (positionsNumber < 0)
-            throw new RobotException("It seems this track is empty. \n" +
-                    "Every track needs at least a black object position.");
+            throw new RobotException("Sembra che questa corsia sia vuota. " +
+                    "Ogni corsia necessita di almeno una posizione del suo colore.");
         else
             trackList.add(trackList.size(), new MapTrack(trackColor, positionsNumber));
 
@@ -220,9 +220,9 @@ public class VirtualMap implements Parcelable {
     @Override
     public String toString () {
         StringBuilder builder = new StringBuilder();
-        builder.append(String.format(Locale.ENGLISH,"Virtual Map of %d tracks \n", this.trackList.size()));
+        builder.append(String.format(Locale.ENGLISH,"Mappa Virtuale con %d corsie \n", this.trackList.size()));
         for (int i = 0; i< this.trackList.size(); i++) {
-            builder.append(String.format(Locale.ENGLISH, "TRACK %d: Positions %d; Color %s\n", i, this.trackList.get(i).objectList.size(),
+            builder.append(String.format(Locale.ENGLISH, "CORSIA %d: Posizioni %d; Colore %s\n", i, this.trackList.get(i).objectList.size(),
                     this.trackList.get(i).trackColor.toString()));
         }
         return builder.toString();

@@ -1,6 +1,7 @@
 package it.unive.dais.legodroid.code;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -41,13 +42,13 @@ public class ManualActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manual);
 
-        Button up = findViewById(R.id.up);
-        Button down = findViewById(R.id.down);
-        Button left = findViewById(R.id.left);
-        Button right = findViewById(R.id.right);
+        FloatingActionButton up = findViewById(R.id.up);
+        FloatingActionButton down = findViewById(R.id.down);
+        FloatingActionButton left = findViewById(R.id.left);
+        FloatingActionButton right = findViewById(R.id.right);
 
-        Button takeGrabber = findViewById(R.id.take);
-        Button releaseGrabber = findViewById(R.id.release);
+        FloatingActionButton takeGrabber = findViewById(R.id.take);
+        FloatingActionButton releaseGrabber = findViewById(R.id.release);
 
         ManualActivity thisActivity = this;
 
