@@ -11,7 +11,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".code.MainActivity">
+        <activity
+            android:name=".code.MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -19,23 +22,46 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".code.ChoiceModeActivity" />
-        <activity android:name=".code.RulesActivity" />
-        <activity android:name=".code.ManualActivity" />
+        <activity
+            android:name=".code.ChoiceModeActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".code.RulesActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".code.ManualActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"/>
         <activity
             android:name=".code.PopupConnectionActivity"
-            android:theme="@style/AppTheme.Popup" />
-        <activity android:name=".code.AutomaticActivity" />
-        <activity android:name=".code.VirtualMapActivity" />
+            android:theme="@style/AppTheme.Popup"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".code.AutomaticActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".code.VirtualMapActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".code.PopupSavedMapsActivity"
-            android:theme="@style/AppTheme.Popup" />
+            android:theme="@style/AppTheme.Popup"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".code.PopupScanningActivity"
-            android:theme="@style/AppTheme.Popup" />
+            android:theme="@style/AppTheme.Popup"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".code.PopupErrorActivity"
-            android:theme="@style/AppTheme.Popup" />
+            android:theme="@style/AppTheme.Popup"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
