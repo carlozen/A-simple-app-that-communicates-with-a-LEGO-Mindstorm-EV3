@@ -567,7 +567,7 @@ public final class RobotOperation {
         right.start();
         left.start();
 
-        while(!colorArray.contains(RobotOperation.getReflectedColor(api, lightSensorMonitor, null, null))) {
+        while(!colorArray.contains(RobotOperation.getReflectedColor(api, lightSensorMonitor, rightMotor, leftMotor))) {
 
             if (turn == ManualActivity.Direction.LEFT) {
                 leftMotor.setPower((power - difference) * sign);
