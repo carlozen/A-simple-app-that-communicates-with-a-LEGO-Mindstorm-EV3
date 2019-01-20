@@ -1,9 +1,12 @@
 package it.unive.dais.legodroid.code;
 
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import it.unive.dais.legodroid.R;
@@ -31,5 +34,24 @@ public class RulesActivity extends AppCompatActivity{
                 "MANUALE: usa le frecce direzionali per muovere il robot e i tasti azione per alzare o abbassare il braccio meccanico\n" +
                 "\n" +
                 "AUTOMATICA: scegli se far operare il robot autonomamente su una superficie di lavoro precedentemente memorizzata o se fargli memorizzare una nuova superficie. Identificata l’area di lavoro questa verrà visualizzate a schermo e l’utente dovrà indicare al robot la stazione in cui depositare l’oggetto; il robot porterà a termine l’operazione e la stazione appena utilizzata verrà segnata come occupata.");
+
+
+        Button sliderRobotBuildOption = findViewById(R.id.robot_build_options);
+        Button sliderMapBuildOption = findViewById(R.id.map_build_options);
+
+        sliderRobotBuildOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(RulesActivity.this, RobotOptionActivity.class));
+            }
+        });
+
+        sliderMapBuildOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(RulesActivity.this, MapOptionActivity.class));
+            }
+        });
+
     }
 }

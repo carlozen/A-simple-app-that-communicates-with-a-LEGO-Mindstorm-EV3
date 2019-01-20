@@ -25,43 +25,45 @@
         <activity
             android:name=".code.ChoiceModeActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".code.RulesActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".code.ManualActivity"
             android:configChanges="orientation"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="landscape" />
         <activity
             android:name=".code.PopupConnectionActivity"
-            android:theme="@style/AppTheme.Popup"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Popup" />
         <activity
             android:name=".code.AutomaticActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".code.VirtualMapActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".code.PopupSavedMapsActivity"
-            android:theme="@style/AppTheme.Popup"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Popup" />
         <activity
             android:name=".code.PopupScanningActivity"
-            android:theme="@style/AppTheme.Popup"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Popup" />
         <activity
             android:name=".code.PopupErrorActivity"
-            android:theme="@style/AppTheme.Popup"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Popup" />
+        <activity android:name=".code.RobotOptionActivity" />
+        <activity android:name=".code.MapOptionActivity"></activity>
     </application>
 
 </manifest>
