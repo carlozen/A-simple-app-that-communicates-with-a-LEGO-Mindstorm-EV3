@@ -42,13 +42,13 @@ public class ManualActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manual);
 
-        FloatingActionButton up = findViewById(R.id.up);
-        FloatingActionButton down = findViewById(R.id.down);
-        FloatingActionButton left = findViewById(R.id.left);
-        FloatingActionButton right = findViewById(R.id.right);
+        Button up = findViewById(R.id.up);
+        Button down = findViewById(R.id.down);
+        Button left = findViewById(R.id.left);
+        Button right = findViewById(R.id.right);
 
-        FloatingActionButton takeGrabber = findViewById(R.id.take);
-        FloatingActionButton releaseGrabber = findViewById(R.id.release);
+        Button takeGrabber = findViewById(R.id.take);
+        Button releaseGrabber = findViewById(R.id.release);
 
         ManualActivity thisActivity = this;
 

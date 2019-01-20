@@ -5,88 +5,82 @@
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/activity_controller"
     tools:layout_editor_absoluteY="81dp">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/release"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="27dp"
-        android:clickable="true"
-        app:backgroundTint="@android:color/transparent"
-        app:layout_constraintBottom_toTopOf="@+id/take"
-        app:layout_constraintEnd_toEndOf="@+id/take"
-        app:layout_constraintStart_toStartOf="@+id/take"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="spread_inside"
-        app:srcCompat="@android:color/transparent" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/take"
-        android:layout_width="61dp"
-        android:layout_height="61dp"
-        android:layout_marginBottom="245dp"
-        android:layout_marginStart="120dp"
-        android:clickable="true"
-        app:backgroundTint="@android:color/transparent"
-        app:layout_constraintBottom_toTopOf="@+id/down"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/release"
-        app:srcCompat="@android:color/transparent" />
+        <ImageView
+            android:layout_width="600dp"
+            android:layout_height="300dp"
+            android:layout_gravity="center"
+            android:background="@drawable/activity_controller"/>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/down"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="87dp"
-        android:clickable="true"
-        app:backgroundTint="@android:color/transparent"
-        app:layout_constraintBottom_toTopOf="@+id/right"
-        app:layout_constraintEnd_toStartOf="@+id/left"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/take"
-        app:srcCompat="@android:color/transparent" />
+        <Button
+            android:id="@+id/release"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="-230dp"
+            android:layout_marginTop="30dp"
+            android:clickable="true"
+            app:backgroundTint="@android:color/transparent"
+            app:srcCompat="@android:color/transparent" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/up"
-        android:layout_width="0dp"
-        android:layout_height="59dp"
-        android:layout_marginBottom="34dp"
-        android:layout_marginEnd="120dp"
-        android:layout_marginTop="34dp"
-        android:clickable="true"
-        app:backgroundTint="@android:color/transparent"
-        app:layout_constraintBottom_toBottomOf="@+id/right"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/right"
-        app:layout_constraintTop_toTopOf="@+id/left"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@android:color/transparent" />
+            <Button
+                android:id="@+id/take"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:layout_marginStart="-160dp"
+                android:clickable="true"
+                app:backgroundTint="@android:color/transparent"
+                app:srcCompat="@android:color/transparent" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/left"
-        android:layout_width="0dp"
-        android:layout_height="59dp"
-        android:layout_marginBottom="24dp"
-        android:layout_marginEnd="179dp"
-        android:clickable="true"
-        app:backgroundTint="@android:color/transparent"
-        app:layout_constraintBottom_toTopOf="@+id/right"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/down"
-        app:srcCompat="@android:color/transparent" />
+            <Button
+                android:id="@+id/down"
+                android:layout_width="40dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="65dp"
+                android:layout_marginStart="190dp"
+                android:clickable="true"
+                app:backgroundTint="@android:color/transparent"
+                app:srcCompat="@android:color/transparent" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/right"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="28dp"
-        android:clickable="true"
-        app:backgroundTint="@android:color/transparent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/up"
-        app:layout_constraintStart_toEndOf="@+id/down"
-        app:layout_constraintTop_toBottomOf="@+id/down"
-        app:srcCompat="@android:color/transparent" />
+            <Button
+                android:id="@+id/up"
+                android:layout_width="40dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="-30dp"
+                android:layout_marginStart="190dp"
+                android:clickable="true"
+                app:backgroundTint="@android:color/transparent"
+                app:srcCompat="@android:color/transparent" />
+
+            <Button
+                android:id="@+id/left"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="160dp"
+                android:clickable="true"
+                app:backgroundTint="@android:color/transparent"
+                app:srcCompat="@android:color/transparent" />
+
+            <Button
+                android:id="@+id/right"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="230dp"
+                android:clickable="true"
+                app:backgroundTint="@android:color/transparent"
+                app:srcCompat="@android:color/transparent" />
+    </FrameLayout>
 </android.support.constraint.ConstraintLayout>
