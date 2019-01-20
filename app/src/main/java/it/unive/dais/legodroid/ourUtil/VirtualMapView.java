@@ -58,7 +58,7 @@ public class VirtualMapView extends View {
         canvas.drawLine(right, top, right, bottom, mainLinePaint);
         canvas.drawLine(right - (LINE_STROKE*3)/2, top, right + (LINE_STROKE*3)/2, top, redLinePaint);
         drawTracks(canvas);
-        robotView.setStartingPosition(right + layoutDestination.getPaddingStart() - LINE_STROKE, bottom);
+        robotView.setStartingPosition(right + layoutDestination.getPaddingStart() - LINE_STROKE*2, bottom - LINE_STROKE*2);
          if (!robotView.isInitiated()) {
              robotView.setPositionByTrack(null,null);
              robotView.initiatePosition();

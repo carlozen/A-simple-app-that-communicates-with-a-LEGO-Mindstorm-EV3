@@ -6,6 +6,8 @@ import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
+import it.unive.dais.legodroid.R;
+
 public class RobotView extends android.support.v7.widget.AppCompatImageView {
 
     private int startingPositionX;
@@ -18,10 +20,11 @@ public class RobotView extends android.support.v7.widget.AppCompatImageView {
         super(context);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
-        params.width = 45;
-        params.height = 45;
+        params.width = 80;
+        params.height = 80;
         params.alignWithParent= false;
-        this.setBackgroundColor(Color.RED);
+        this.setBackgroundResource(R.drawable.robot_icon);
+        //this.setBackgroundColor(Color.RED);
         this.setLayoutParams(params);
         this.setVisibility(VISIBLE);
 
