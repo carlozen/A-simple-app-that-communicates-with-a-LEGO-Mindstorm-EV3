@@ -173,7 +173,7 @@ public class VirtualMap implements Parcelable {
             }
         }
 
-        if (positionsNumber < 0)
+        if (positionsNumber <= 0)
             throw new RobotException("Sembra che questa corsia sia vuota. " +
                     "Ogni corsia necessita di almeno una posizione del suo colore.");
         else
