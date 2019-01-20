@@ -81,10 +81,12 @@ public final class RobotOperation {
                         reflectedIntensity = lightSensorIntensity.getReflectedNow();
                     } catch (ExecutionException e) {
                         try {
-                            rightMotor.brake();
-                            leftMotor.brake();
                             rightMotor.setPower(0);
                             leftMotor.setPower(0);
+                            rightMotor.setPower(0);
+                            leftMotor.setPower(0);
+                            leftMotor.brake();
+                            rightMotor.brake();
                         } catch (IOException ex) {
                             ex.printStackTrace();
                             throw new RobotException(commonException);
@@ -188,8 +190,10 @@ public final class RobotOperation {
                     } catch (ExecutionException e) {
                         leftMotor.setPower(0);
                         rightMotor.setPower(0);
-                        rightMotor.brake();
+                        rightMotor.setPower(0);
+                        leftMotor.setPower(0);
                         leftMotor.brake();
+                        rightMotor.brake();
                         exception = true;
                         lightSensorMonitor.release();
                         e.printStackTrace();
@@ -279,7 +283,7 @@ public final class RobotOperation {
         t.interrupt();
     }
 
-    public static LightSensor.Color getReflectedColor(EV3.Api api, LightSensorMonitor lightSensorMonitor) throws RobotException {
+    public static LightSensor.Color getReflectedColor(EV3.Api api, LightSensorMonitor lightSensorMonitor, Motor rightMotor, Motor leftMotor) throws RobotException {
         try {
             LightSensor.Color color = null;
 
@@ -294,14 +298,12 @@ public final class RobotOperation {
                     color = null;
                     lightSensorMonitor.release();
                     try {
-                        Motor rightMotor = new Motor(api, EV3.OutputPort.C);
-                        Motor leftMotor = new Motor(api, EV3.OutputPort.B);
-                        rightMotor.setPower(0);
-                        leftMotor.setPower(0);
-                        leftMotor.start();
-                        rightMotor.start();
-                        rightMotor.brake();
-                        leftMotor.brake();
+                        if (rightMotor!= null) {
+                            rightMotor.setPower(0);
+                        }
+                        if (leftMotor != null) {
+                            leftMotor.setPower(0);
+                        }
                     } catch (IOException ex) {
                         ex.printStackTrace();
                         throw new RobotException(commonException);
@@ -510,8 +512,8 @@ public final class RobotOperation {
             left.start();
 
             if(wheel == VirtualMap.Wheel.LEFT) {
-                leftMotor.setPower(power);
-                while (RobotOperation.getReflectedColor(api, lightSensorMonitor) != color) {
+                while (RobotOperation.getReflectedColor(api, lightSensorMonitor, null, leftMotor) != color) {
+                    leftMotor.setPower(power);
                     try {
                         Thread.sleep(25);
                     } catch (InterruptedException e) {
@@ -519,8 +521,8 @@ public final class RobotOperation {
                     }
                 }
             } else {
-                rightMotor.setPower(power);
-                while (RobotOperation.getReflectedColor(api, lightSensorMonitor) != color) {
+                while (RobotOperation.getReflectedColor(api, lightSensorMonitor, rightMotor, null) != color) {
+                    rightMotor.setPower(power);
                     try {
                         Thread.sleep(25);
                     } catch (InterruptedException e) {
@@ -565,7 +567,7 @@ public final class RobotOperation {
         right.start();
         left.start();
 
-        while(!colorArray.contains(RobotOperation.getReflectedColor(api, lightSensorMonitor))) {
+        while(!colorArray.contains(RobotOperation.getReflectedColor(api, lightSensorMonitor, null, null))) {
 
             if (turn == ManualActivity.Direction.LEFT) {
                 leftMotor.setPower((power - difference) * sign);
