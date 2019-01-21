@@ -15,7 +15,8 @@ public class ImageAdapterMap extends PagerAdapter {
             R.drawable.map_1,
             R.drawable.map_2,
             R.drawable.map_3,
-            R.drawable.map_4
+            R.drawable.map_4,
+            R.drawable.map_5
     };
 
     ImageAdapterMap(Context context) {

@@ -44,7 +44,7 @@ public class RulesActivity extends AppCompatActivity{
             public void onClick(View v) {
                 Intent browserIntent = new Intent(
                         Intent.ACTION_VIEW,
-                        Uri.parse("https://drive.google.com/file/d/1rK7TDzc-IDxDBkgC156N4WN0ezKdBHgA/view"));
+                        Uri.parse("https://drive.google.com/open?id=1osiSf2vtiiSmwOxBUkmdhp6h66nSrLNC"));
                 startActivity(browserIntent);
             }
         });

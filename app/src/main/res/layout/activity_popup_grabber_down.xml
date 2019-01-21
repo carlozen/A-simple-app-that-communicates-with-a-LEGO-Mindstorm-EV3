@@ -12,8 +12,7 @@
         android:layout_width="124dp"
         android:layout_height="57dp"
         android:layout_marginBottom="38dp"
-        android:background="@android:color/transparent"
-        android:backgroundTint="@android:color/transparent"
+        android:background="@drawable/button_error_continue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

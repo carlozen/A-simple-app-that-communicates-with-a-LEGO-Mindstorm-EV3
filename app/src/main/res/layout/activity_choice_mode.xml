@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/activity_auto_manual">
+    android:background="@drawable/activity_background">
 
 
     <Button
@@ -15,8 +15,7 @@
         android:layout_marginEnd="13dp"
         android:layout_marginStart="13dp"
         android:layout_marginTop="114dp"
-        android:background="@android:color/transparent"
-        android:backgroundTint="@android:color/transparent"
+        android:background="@drawable/button_auto"
         app:layout_constraintBottom_toTopOf="@+id/manual"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,8 +28,7 @@
         android:layout_marginBottom="67dp"
         android:layout_marginEnd="14dp"
         android:layout_marginStart="14dp"
-        android:background="@android:color/transparent"
-        android:backgroundTint="@android:color/transparent"
+        android:background="@drawable/button_manual"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

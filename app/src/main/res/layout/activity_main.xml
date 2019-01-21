@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/activity_home"
+    android:background="@drawable/activity_background"
     tools:layout_editor_absoluteY="81dp">
 
 
@@ -16,8 +16,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="89dp"
-        android:background="@android:drawable/screen_background_light_transparent"
-        android:backgroundTint="@android:color/transparent"
+        android:background="@drawable/button_rules"
         android:elevation="0dp"
         app:layout_constraintBottom_toTopOf="@+id/play"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,8 +30,7 @@
         android:layout_marginBottom="81dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
-        android:background="@android:drawable/screen_background_light_transparent"
-        android:backgroundTint="@android:color/transparent"
+        android:background="@drawable/button_play"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
