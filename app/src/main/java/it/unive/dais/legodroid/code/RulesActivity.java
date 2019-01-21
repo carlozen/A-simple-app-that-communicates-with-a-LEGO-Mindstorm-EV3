@@ -3,6 +3,7 @@ package it.unive.dais.legodroid.code;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -40,9 +41,11 @@ public class RulesActivity extends AppCompatActivity{
         Button sliderMapBuildOption = findViewById(R.id.map_build_options);
 
         sliderRobotBuildOption.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(RulesActivity.this, RobotOptionActivity.class));
+            public void onClick(View v) {
+                Intent browserIntent = new Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://drive.google.com/file/d/1rK7TDzc-IDxDBkgC156N4WN0ezKdBHgA/view"));
+                startActivity(browserIntent);
             }
         });
 
