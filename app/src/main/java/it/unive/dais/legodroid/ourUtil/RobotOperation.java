@@ -1250,6 +1250,9 @@ public final class RobotOperation {
     public static void addObject(EV3.Api api, AsyncRobotTask asyncRobotTask,
                                  Short backgroundColorIntensity, Short blackColorIntensity, PositionButton referencedButton) throws RobotException {
         try {
+
+            Grabber.setDown();
+
             ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
             colorsToCheck.add(LightSensor.Color.RED);
             //colorsToCheck.add(LightSensor.Color.BROWN);
@@ -1336,6 +1339,8 @@ public final class RobotOperation {
     public static void moveObject(EV3.Api api, AsyncRobotTask asyncRobotTask,
                                   Short backgroundColorIntensity, Short blackColorIntensity, PositionButton destinationButton, PositionButton buttonToMoveObjFrom) throws RobotException {
         try {
+
+            Grabber.setDown();
             ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
             colorsToCheck.add(LightSensor.Color.RED);
             colorsToCheck.add(LightSensor.Color.YELLOW);
@@ -1387,6 +1392,7 @@ public final class RobotOperation {
                                     Short backgroundColorIntensity, Short blackColorIntensity, PositionButton referencedButton) throws RobotException {
 
         try {
+            Grabber.setDown();
             ArrayList<LightSensor.Color> colorsToCheck = new ArrayList<>();
             colorsToCheck.add(LightSensor.Color.RED);
             colorsToCheck.add(LightSensor.Color.YELLOW);

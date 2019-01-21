@@ -5,9 +5,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
 
     <application
-        android:hardwareAccelerated="false"
-        android:allowBackup="true"
-        android:largeHeap="true"
+        android:allowBackup="false"
         android:icon="@drawable/logo_lego"
         android:label="ACGR Robotics"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -64,8 +62,10 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Popup" />
-        <activity android:name=".code.RobotOptionActivity" />
-        <activity android:name=".code.MapOptionActivity"></activity>
+        <activity
+            android:name=".code.MapOptionActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

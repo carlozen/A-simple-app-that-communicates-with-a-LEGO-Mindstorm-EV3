@@ -15,6 +15,14 @@ public class Grabber extends TachoMotor implements Runnable{
 
     boolean isPresent;
 
+    public static void setDown () {
+        up = false;
+    }
+
+    public static void setUp () {
+        up = true;
+    }
+
     public Grabber(EV3.Api api){
         super(api, EV3.OutputPort.A);
     }
