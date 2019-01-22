@@ -95,19 +95,4 @@ public class PopupScanningActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(ev3api != null)
-            try {
-                RobotOperation.stopMotors(ev3api);
-            } catch (RobotException e) {
-                e.printStackTrace();
-                Intent intent = new Intent(PopupScanningActivity.this, PopupErrorActivity.class);
-                intent.putExtra("error", e.getMessage());
-                startActivity(intent);
-                finish();
-            }
-    }
-
 }

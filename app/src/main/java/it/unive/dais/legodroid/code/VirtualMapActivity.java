@@ -67,18 +67,6 @@ public class VirtualMapActivity extends AppCompatActivity {
             asyncRobotTask.cancel(true);
         }
 
-        Prelude.trap(() -> MainActivity.ev3.run(api -> {
-            try {
-                RobotOperation.stopMotors(api);
-            } catch (RobotException e) {
-                e.printStackTrace();
-                Intent intent = new Intent(VirtualMapActivity.this, PopupErrorActivity.class);
-                intent.putExtra("error", e.getMessage());
-                startActivity(intent);
-                finish();
-            }
-        }));
-
     }
 
 

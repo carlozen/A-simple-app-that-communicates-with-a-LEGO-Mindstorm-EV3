@@ -1059,33 +1059,4 @@ public final class RobotOperation {
         }
     }
 
-    public static void stopMotors(EV3.Api api) throws RobotException {
-        Thread right, left;
-
-        Motor rightMotor = new Motor(api, EV3.OutputPort.C);
-        Motor leftMotor = new Motor(api, EV3.OutputPort.B);
-
-        right = new Thread(rightMotor);
-        left = new Thread(leftMotor);
-
-        right.start();
-        left.start();
-
-        try {
-
-            rightMotor.setPower(0);
-            leftMotor.setPower(0);
-            leftMotor.brake();
-            rightMotor.brake();
-
-        } catch (IOException ex) {
-
-            ex.printStackTrace();
-            throw new RobotException(commonException);
-
-        }
-
-        left.interrupt();
-        right.interrupt();
-    }
 }
