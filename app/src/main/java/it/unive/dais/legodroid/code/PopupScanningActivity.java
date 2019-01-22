@@ -22,10 +22,14 @@ import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
 import it.unive.dais.legodroid.lib.util.Prelude;
 import it.unive.dais.legodroid.ourUtil.AnimationGenerator;
+import it.unive.dais.legodroid.ourUtil.Motor;
 import it.unive.dais.legodroid.ourUtil.RobotException;
+import it.unive.dais.legodroid.ourUtil.RobotOperation;
 import it.unive.dais.legodroid.ourUtil.VirtualMap;
 
 public class PopupScanningActivity extends AppCompatActivity {
+
+    private EV3.Api ev3api;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +65,9 @@ public class PopupScanningActivity extends AppCompatActivity {
     }
 
 
-    private static void scanMap(EV3.Api api, PopupScanningActivity scanningActivity, LightSensor.Color colorStop, ArrayList<LightSensor.Color> colorsToCheck) {
+    private void scanMap(EV3.Api api, PopupScanningActivity scanningActivity, LightSensor.Color colorStop, ArrayList<LightSensor.Color> colorsToCheck) {
         try {
+            ev3api = api;
             VirtualMap virtualMap = VirtualMap.scan(api, colorStop, colorsToCheck);
             virtualMap.save();
             Intent intent = new Intent(scanningActivity, VirtualMapActivity.class);
@@ -90,5 +95,19 @@ public class PopupScanningActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(ev3api != null)
+            try {
+                RobotOperation.stopMotors(ev3api);
+            } catch (RobotException e) {
+                e.printStackTrace();
+                Intent intent = new Intent(PopupScanningActivity.this, PopupErrorActivity.class);
+                intent.putExtra("error", e.getMessage());
+                startActivity(intent);
+                finish();
+            }
+    }
 
 }

@@ -1,11 +1,15 @@
 package it.unive.dais.legodroid.ourUtil;
 
+import android.content.Intent;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import it.unive.dais.legodroid.code.ManualActivity;
+import it.unive.dais.legodroid.code.PopupErrorActivity;
+import it.unive.dais.legodroid.code.VirtualMapActivity;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
 
@@ -1053,5 +1057,35 @@ public final class RobotOperation {
             e.printStackTrace();
             throw new RobotException(commonException);
         }
+    }
+
+    public static void stopMotors(EV3.Api api) throws RobotException {
+        Thread right, left;
+
+        Motor rightMotor = new Motor(api, EV3.OutputPort.C);
+        Motor leftMotor = new Motor(api, EV3.OutputPort.B);
+
+        right = new Thread(rightMotor);
+        left = new Thread(leftMotor);
+
+        right.start();
+        left.start();
+
+        try {
+
+            rightMotor.setPower(0);
+            leftMotor.setPower(0);
+            leftMotor.brake();
+            rightMotor.brake();
+
+        } catch (IOException ex) {
+
+            ex.printStackTrace();
+            throw new RobotException(commonException);
+
+        }
+
+        left.interrupt();
+        right.interrupt();
     }
 }

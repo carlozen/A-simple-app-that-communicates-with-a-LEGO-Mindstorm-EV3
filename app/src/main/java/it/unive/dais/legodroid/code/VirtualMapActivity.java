@@ -1,13 +1,20 @@
 package it.unive.dais.legodroid.code;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.RelativeLayout;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import it.unive.dais.legodroid.R;
+import it.unive.dais.legodroid.lib.EV3;
+import it.unive.dais.legodroid.lib.util.Prelude;
 import it.unive.dais.legodroid.ourUtil.AsyncRobotTask;
+import it.unive.dais.legodroid.ourUtil.Motor;
+import it.unive.dais.legodroid.ourUtil.RobotException;
+import it.unive.dais.legodroid.ourUtil.RobotOperation;
 import it.unive.dais.legodroid.ourUtil.RobotView;
 import it.unive.dais.legodroid.ourUtil.VirtualMapUI;
 import it.unive.dais.legodroid.ourUtil.VirtualMapView;
@@ -59,7 +66,22 @@ public class VirtualMapActivity extends AppCompatActivity {
         if (asyncRobotTask != null) {
             asyncRobotTask.cancel(true);
         }
+
+        Prelude.trap(() -> MainActivity.ev3.run(api -> {
+            try {
+                RobotOperation.stopMotors(api);
+            } catch (RobotException e) {
+                e.printStackTrace();
+                Intent intent = new Intent(VirtualMapActivity.this, PopupErrorActivity.class);
+                intent.putExtra("error", e.getMessage());
+                startActivity(intent);
+                finish();
+            }
+        }));
+
     }
+
+
 
     @Override
     protected void onResume() {
