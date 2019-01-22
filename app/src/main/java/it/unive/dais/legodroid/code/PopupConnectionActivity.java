@@ -39,7 +39,7 @@ public class PopupConnectionActivity extends Activity {
         Button close = findViewById(R.id.close);
 
         PopupConnectionActivity popup = this;
-        //TODO: to be tested
+
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

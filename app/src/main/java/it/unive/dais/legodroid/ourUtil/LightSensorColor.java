@@ -55,7 +55,6 @@ class LightSensorColor extends LightSensor implements Runnable{
 
     public LightSensor.Color getColorNow() throws IOException, ExecutionException, InterruptedException {
         LightSensor.Color color;
-        Future<LightSensor.Color> colorFuture;
 
         lightSensorMonitor.give();
         color = super.getColor().get();

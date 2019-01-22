@@ -29,13 +29,9 @@ public class ManualActivity extends AppCompatActivity{
 
     protected Motor rightMotor = null;
     protected Motor leftMotor = null;
-    protected Grabber grabber = null;
 
     private Thread t1,t2;
-    private Thread t3;
 
-    private boolean isGrabberUp = true;
-    private boolean load;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +53,6 @@ public class ManualActivity extends AppCompatActivity{
         right.setOnTouchListener(startAndStop(thisActivity, 1, Direction.RIGHT));
         left.setOnTouchListener(startAndStop(thisActivity, 1, Direction.LEFT));
 
-
-        //releaseGrabber.setOnTouchListener(moveGrabber(thisActivity, 10, 10));
-        //takeGrabber.setOnTouchListener(moveGrabber(thisActivity, -10, -10));
 
         releaseGrabber.setOnTouchListener(grabberUp());
         takeGrabber.setOnTouchListener(grabberDown());
@@ -111,32 +104,6 @@ public class ManualActivity extends AppCompatActivity{
         };
     }
 
-    /*private View.OnTouchListener moveDown(ManualActivity manualActivity){
-        return new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    if(isGrabberUp == true){
-                        isGrabberUp = false;
-                        //Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.moveDownGrabber(api, grabber)));
-
-                        try {
-                            MainActivity.ev3.run(new Consumer<EV3.Api>() {
-                                @Override
-                                public void call(EV3.Api data) {
-                                    load = Grabber.getIsPresent(data);
-                                }
-                            });
-                        } catch (EV3.AlreadyRunningException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                return true;
-            }
-        };
-    }*/
-
     private View.OnTouchListener startAndStop(ManualActivity manualActivity, int numberOfMotors, Direction direction) {
         return new View.OnTouchListener() {
             @Override
@@ -152,22 +119,6 @@ public class ManualActivity extends AppCompatActivity{
             }
         };
     }
-
-    /*private View.OnTouchListener moveGrabber(ManualActivity manualActivity, int speed, int power) {
-        return new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
-                        //Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.moveGrabber(api, grabber, t3, speed, power)));
-                } else {
-                    if(motionEvent.getAction()== MotionEvent.ACTION_UP){
-                        //Prelude.trap(() -> MainActivity.ev3.run(api -> Grabber.stopGrabber(api, grabber, t3)));
-                    }
-                }
-                return true;
-            }
-        };
-    }*/
 
     private void startMotors(EV3.Api api, Direction direction, int numberOfMotors){
 

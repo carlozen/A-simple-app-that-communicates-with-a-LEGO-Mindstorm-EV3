@@ -13,8 +13,6 @@ public class Grabber extends TachoMotor implements Runnable{
     private final float angle = 90;
     private static boolean up = false;
 
-    boolean isPresent;
-
     public static void setDown () {
         up = false;
     }
@@ -35,22 +33,6 @@ public class Grabber extends TachoMotor implements Runnable{
             e.printStackTrace();
         }
     }
-
-    public static boolean getIsPresent(EV3.Api api){
-        Future<Float> futureDistance;
-        float distance;
-        UltrasonicSensor ultrasonicSensor = new UltrasonicSensor(api, EV3.InputPort._4);
-        try {
-            futureDistance = ultrasonicSensor.getDistance();
-            distance = futureDistance.get();
-            if (distance < 6.0)
-                return true;
-        } catch (IOException | InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
 
     public void killThread(Thread t3) {
         try {

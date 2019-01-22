@@ -1,14 +1,9 @@
 package it.unive.dais.legodroid.ourUtil;
 
-import android.animation.ObjectAnimator;
-import android.animation.TypeEvaluator;
 import android.graphics.Color;
-import android.graphics.Point;
-import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 
 public final class AnimationGenerator {
 
@@ -50,31 +45,6 @@ public final class AnimationGenerator {
             }
         });
         view.startAnimation(fadeOut);
-
-    }
-
-    public static void translationAnimation (View view, int newX, int newY) {
-       /* TranslateAnimation translateAnimation = new TranslateAnimation(view.getX(), newX, view.getY(), newY);
-        translateAnimation.setDuration(1000);
-        translateAnimation.setFillAfter(true);
-        view.setAnimation(translateAnimation);
-        view.startAnimation(translateAnimation);
-        */
-
-       Point startingPoint = new Point((int)view.getX(), (int)view.getY());
-       Point point = new Point(newX,newY);
-
-       // ObjectAnimator centerChangeAnim = ObjectAnimator.ofObject(view, "centerpoint", new PointEvaluator<Point>(), fromPoint, toPoint);
-       // centerChangeAnim.start();
-
-        class PointEvaluator implements TypeEvaluator<Point> {
-            @Override
-            public Point evaluate(float t, Point startPoint, Point endPoint) {
-                int x = (int) (startPoint.x + t * (endPoint.x - startPoint.x));
-                int y = (int) (startPoint.y + t * (endPoint.y - startPoint.y));
-                return new Point(x,y);
-            }
-        }
 
     }
 

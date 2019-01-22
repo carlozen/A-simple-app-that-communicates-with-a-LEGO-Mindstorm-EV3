@@ -16,7 +16,6 @@ import it.unive.dais.legodroid.code.MainActivity;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.util.Prelude;
 
-//TODO those fields shouldn't be static.
 public class VirtualMapUI {
 
     private Context context;

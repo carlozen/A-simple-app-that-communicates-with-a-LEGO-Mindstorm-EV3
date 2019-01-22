@@ -51,9 +51,6 @@ public class PopupGrabberDownActivity extends Activity {
             }
         });
 
-        /*
-        metodo per rimanere nella stessa pagina
-         */
 
     }
 

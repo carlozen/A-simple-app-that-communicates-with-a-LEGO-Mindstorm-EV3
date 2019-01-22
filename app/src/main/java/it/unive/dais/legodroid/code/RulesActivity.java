@@ -17,7 +17,7 @@ public class RulesActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rules);
-        //TODO: write how the map have to be built
+
         TextView textView = findViewById(R.id.rules_text);
         textView.setTextColor(Color.BLACK);
         textView.setText("Un Robot muove una serie di oggetti da una zona deposito a una serie di " +

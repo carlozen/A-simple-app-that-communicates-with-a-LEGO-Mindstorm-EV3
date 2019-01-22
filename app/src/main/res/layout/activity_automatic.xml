@@ -35,9 +35,4 @@
         app:layout_constraintTop_toBottomOf="@+id/followLine" />
 
 
-    <Button
-        android:id="@+id/add_map_test"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="add map test" />
 </android.support.constraint.ConstraintLayout>

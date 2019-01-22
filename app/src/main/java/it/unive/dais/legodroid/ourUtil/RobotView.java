@@ -24,7 +24,6 @@ public class RobotView extends android.support.v7.widget.AppCompatImageView {
         params.height = 80;
         params.alignWithParent= false;
         this.setBackgroundResource(R.drawable.robot_icon);
-        //this.setBackgroundColor(Color.RED);
         this.setLayoutParams(params);
         this.setVisibility(VISIBLE);
 

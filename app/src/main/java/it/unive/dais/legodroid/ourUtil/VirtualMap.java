@@ -12,7 +12,6 @@ import it.unive.dais.legodroid.code.ManualActivity;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
 
-//TODO
 public class VirtualMap implements Parcelable {
 
     public enum Wheel {

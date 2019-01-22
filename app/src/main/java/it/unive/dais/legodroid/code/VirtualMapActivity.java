@@ -73,12 +73,6 @@ public class VirtualMapActivity extends AppCompatActivity {
         }
         UIManager.resetAllButtonsListeners();
 
-        /*
-        if (virtualRobotXPos != -1 || virtualRobotYPos != -1) {
-            UIManager.getRobotView().setX(virtualRobotXPos);
-            UIManager.getRobotView().setY(virtualRobotYPos);
-        }
-        */
     }
 
     @Override
