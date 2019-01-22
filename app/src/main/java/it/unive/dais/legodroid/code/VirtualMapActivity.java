@@ -1,6 +1,7 @@
 package it.unive.dais.legodroid.code;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.RelativeLayout;
@@ -83,6 +84,14 @@ public class VirtualMapActivity extends AppCompatActivity {
         }
         UIManager.resetAllButtonsListeners();
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        AsyncRobotTask asyncRobotTask = UIManager.getAsyncRobotTask();
+        if (asyncRobotTask == null || asyncRobotTask.getStatus() != AsyncTask.Status.RUNNING) {
+            super.onBackPressed();
+        }
     }
 
     @Override

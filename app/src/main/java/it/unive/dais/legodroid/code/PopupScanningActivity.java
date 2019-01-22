@@ -95,4 +95,8 @@ public class PopupScanningActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        //
+    }
 }
