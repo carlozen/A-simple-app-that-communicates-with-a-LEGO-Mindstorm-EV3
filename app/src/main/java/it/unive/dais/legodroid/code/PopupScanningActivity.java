@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -97,6 +98,7 @@ public class PopupScanningActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        //
+        Toast toast = Toast.makeText(this, "Attendere il completamento della scansione da parte del Robot.", Toast.LENGTH_LONG);
+        toast.show();
     }
 }

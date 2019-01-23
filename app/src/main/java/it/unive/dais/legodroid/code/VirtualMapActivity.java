@@ -1,10 +1,13 @@
 package it.unive.dais.legodroid.code;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -90,7 +93,25 @@ public class VirtualMapActivity extends AppCompatActivity {
     public void onBackPressed() {
         AsyncRobotTask asyncRobotTask = UIManager.getAsyncRobotTask();
         if (asyncRobotTask == null || asyncRobotTask.getStatus() != AsyncTask.Status.RUNNING) {
-            super.onBackPressed();
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+            dialogBuilder.setMessage("Sei sicuro di voler uscire? Tutte le posizioni della mappa virtuale verranno liberate dagli oggetti.");
+            dialogBuilder.setPositiveButton("SÌ", new DialogInterface.OnClickListener(){
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    VirtualMapActivity.super.onBackPressed();
+                }
+            });
+            dialogBuilder.setNegativeButton("NO", new DialogInterface.OnClickListener(){
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
+            AlertDialog dialog = dialogBuilder.create();
+            dialog.show();
+        }
+        else {
+            Toast toast = Toast.makeText(this, "Attendere il completamento dell'operazione da parte del Robot.", Toast.LENGTH_LONG);
+            toast.show();
         }
     }
 
