@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.view.View;
 
 import it.unive.dais.legodroid.code.PopupErrorActivity;
+import it.unive.dais.legodroid.code.VirtualMapActivity;
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.plugs.LightSensor;
 
@@ -36,6 +37,24 @@ public final class AsyncRobotTask extends AsyncTask<Void, Integer, Void> {
 
     public void moveToTrack(int track) {
         publishProgress(track, null);
+    }
+
+    public void changeOccupiedState (PositionButton positionButton) {
+        ((VirtualMapActivity)UIManager.getContext()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                positionButton.changeOccupiedState();
+            }
+        });
+    }
+
+    public void returnToPrevBackground (PositionButton positionButton) {
+        ((VirtualMapActivity)UIManager.getContext()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                positionButton.setBackgroundColor(Color.BLACK);
+            }
+        });
     }
 
     public void moveToBeginning () {
@@ -74,9 +93,9 @@ public final class AsyncRobotTask extends AsyncTask<Void, Integer, Void> {
             }
         } catch (RobotException e) {
             if (buttonToMoveObjFrom != null && buttonToMoveObjFrom.getBackgroundColor() == Color.RED)
-                buttonToMoveObjFrom.setBackgroundColor(Color.BLACK);
+                returnToPrevBackground(buttonToMoveObjFrom);
             if (UIManager.getLastClickedButton() != null && UIManager.getLastClickedButton().getBackgroundColor() == Color.RED)
-                UIManager.getLastClickedButton().setBackgroundColor(Color.BLACK);
+                returnToPrevBackground(UIManager.getLastClickedButton());
             e.printStackTrace();
             Intent intent = new Intent(UIManager.getContext(), PopupErrorActivity.class);
             intent.putExtra("error", e.getMessage());

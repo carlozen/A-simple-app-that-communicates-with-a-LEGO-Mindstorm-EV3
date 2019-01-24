@@ -712,7 +712,7 @@ public final class RobotOperation {
         }
     }
 
-    public static void pickUpObjectTest(EV3.Api api, PositionButton button) throws RobotException {
+    public static void pickUpObjectTest(EV3.Api api, PositionButton button, AsyncRobotTask asyncTask) throws RobotException {
         try {
             final float distance = 25;
             final float distanceToObjectForPick = 5;
@@ -746,7 +746,7 @@ public final class RobotOperation {
 
             grabber.down();
 
-            button.changeOccupiedState();
+            asyncTask.changeOccupiedState(button);
 
             grab.interrupt();
             t.interrupt();
@@ -885,7 +885,7 @@ public final class RobotOperation {
             reachPosFromOrigin(api, lightSensorMonitor,
                     colorsToCheck, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
 
-            putObject(api, grabber, lightSensorMonitor, ManualActivity.Direction.FORWARD, referencedButton);
+            putObject(api, grabber, lightSensorMonitor, ManualActivity.Direction.FORWARD, referencedButton, asyncRobotTask);
 
             asyncRobotTask.moveToPositionOnTrack(referencedButton.getTrackNumber(), referencedButton.getPositionNumber());
 
@@ -900,7 +900,7 @@ public final class RobotOperation {
 
     private static void putObject(EV3.Api api, Grabber grabber, LightSensorMonitor lightSensorMonitor,
                                   ManualActivity.Direction direction,
-                                  PositionButton referencedButton) throws RobotException, IOException, InterruptedException {
+                                  PositionButton referencedButton, AsyncRobotTask asyncTask) throws RobotException, IOException, InterruptedException {
 
         if(direction == ManualActivity.Direction.FORWARD)
             robotRotation(api, -90, VirtualMap.Wheel.RIGHT);
@@ -915,7 +915,7 @@ public final class RobotOperation {
             e.printStackTrace();
         }
 
-        referencedButton.changeOccupiedState();
+        asyncTask.changeOccupiedState(referencedButton);
 
         RobotOperation.robotRotation(api, -50, VirtualMap.Wheel.LEFT);
 
@@ -954,7 +954,7 @@ public final class RobotOperation {
             reachPosFromOrigin(api, lightSensorMonitor,
                     colorsToCheck, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, buttonToMoveObjFrom);
 
-            pickUpObjectTest(api, buttonToMoveObjFrom);
+            pickUpObjectTest(api, buttonToMoveObjFrom, asyncRobotTask);
 
             if (destinationButton.getTrackNumber() == buttonToMoveObjFrom.getTrackNumber() &&
                     destinationButton.getPositionNumber() > buttonToMoveObjFrom.getPositionNumber())
@@ -966,7 +966,7 @@ public final class RobotOperation {
             ManualActivity.Direction direction = reachPosFromPos(api, lightSensorMonitor, colorsToCheck, blackColorIntensity, backgroundColorIntensity,
                     asyncRobotTask, buttonToMoveObjFrom, destinationButton);
 
-            putObject(api, grabber, lightSensorMonitor, direction, destinationButton);
+            putObject(api, grabber, lightSensorMonitor, direction, destinationButton, asyncRobotTask);
 
 
             reachOriginFromPos(api, lightSensorMonitor, colorsToCheck,
@@ -1002,7 +1002,7 @@ public final class RobotOperation {
             reachPosFromOrigin(api, lightSensorMonitor,
                     colorsToCheck, blackColorIntensity, backgroundColorIntensity, asyncRobotTask, referencedButton);
 
-            pickUpObjectTest(api, referencedButton);
+            pickUpObjectTest(api, referencedButton, asyncRobotTask);
 
             turnUntilColor(api, new LightSensorMonitor(), LightSensor.Color.BLACK, VirtualMap.Wheel.LEFT, ManualActivity.Direction.BACKWARD);
 
