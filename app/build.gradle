@@ -7,7 +7,7 @@ android {
         applicationId "it.unive.dais.legodroid"
         minSdkVersion 24
         targetSdkVersion 27
-        versionCode 3.1
+        versionCode 4
         versionName "3.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
