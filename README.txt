@@ -1,9 +1,13 @@
-Il codice sorgente dell'applicazione si suddivide in tre parti:
+A simple app that communicates with a LEGO Mindstorm EV3 via Bluetooth.
 
-- "lib" contiene la libreria fornita dall'università. Mette a disposizione delle API per la connessione tra l'applicazione android e il robot EV3 e per usufruire delle principali funzionalità dei sensori/motori;
+You can let your LEGO Mindstorm EV3 scan a 2D map built on some specifics explained by the "Map Rules" section. Once correctly scanned the virtual map based on the physical one will be saved an can be accessed or deleted.
 
-- "code" contiene tutte le Activity dell'app, inclusi i vari popup. Si compone delle parti generali: è definita l'implementazione dei pulsanti delle varie Activity e sono richiamati metodi che gestiscono tutte le funzionalità in maniera più specifica; 
+You can access one of the saved maps and let your Mindstorm do simple tasks as adding, removing or moving some objects on the physical map just by interacting with the virtual one.
 
-- "ourUtil" contiene tutti metodi e le classi di cui ci serviamo per implementare le funzionalità sia dell'applicazione che del robot. Sono definiti i movimenti del robot, le parti grafiche più complesse, la gestione dei possibili errori, ecc...
+You can also move the robot manually by yourself.
 
-Tra le risorse del progetto si trovano i layout delle varie activity e le immagini utilizzate per la grafica dell'applicazione. 
+In the Rules section of the app you can come across a guide on how the LEGO Mindstorm os built.
+
+Note: Sometimes the light sensor could not work properly and could not be able to recognize the right color. It is up to you to find the best illumination and the best color gradients to work with.
+
+Note: This App is a University assignment project made with a group of people. Its interface is presented in Italian language.
